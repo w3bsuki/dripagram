@@ -1,0 +1,20 @@
+{
+	"$schema": "https://shadcn-svelte.com/registry/config.json",
+	"style": "new-york",
+	"tailwind": {
+		"config": "tailwind.config.js",
+		"css": "src/app.css",
+		"baseColor": "violet"
+	},
+	"aliases": {
+		"components": "$lib/components",
+		"lib": "$lib",
+		"utils": "$lib/utils",
+		"hooks": "$lib/hooks",
+		"ui": "$lib/components/ui"
+	},
+	"registry": "https://shadcn-svelte.com/registry",
+	"ui": "$lib/components/ui",
+	"hooks": "$lib/hooks",
+	"lib": "$lib"
+}

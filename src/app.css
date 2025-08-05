@@ -1,0 +1,467 @@
+@import 'tailwindcss';
+
+@theme {
+  /* ─────────────────────────────────────────────────────────────────────
+     COLOR SYSTEM - 5 colors total, no BS
+     ───────────────────────────────────────────────────────────────────── */
+  
+  /* Core Colors (80% of UI) - Facebook Marketplace Style */
+  --color-white: #FFFFFF;
+  --color-gray-50: #F5F5F5;    /* Light background like Facebook */
+  --color-gray-100: #E4E6EA;   /* Border color like Facebook */
+  --color-gray-500: #65676B;   /* Text secondary like Facebook */
+  --color-gray-900: #1C1E21;   /* Text primary like Facebook */
+  
+  /* Action Colors (20% of UI) */
+  --color-brand: #1877F2;      /* Facebook blue for trust */
+  --color-accent: #42B883;     /* Success green */
+  --color-danger: #E41E3F;     /* Red for warnings */
+  
+  /* Semantic Aliases for shadcn compatibility */
+  --color-background: var(--color-white);
+  --color-foreground: var(--color-gray-900);
+  --color-card: var(--color-white);
+  --color-card-foreground: var(--color-gray-900);
+  --color-popover: var(--color-white);
+  --color-popover-foreground: var(--color-gray-900);
+  --color-primary: var(--color-brand);
+  --color-primary-foreground: var(--color-white);
+  --color-secondary: var(--color-gray-50);
+  --color-secondary-foreground: var(--color-gray-900);
+  --color-muted: var(--color-gray-50);
+  --color-muted-foreground: var(--color-gray-500);
+  --color-accent: var(--color-gray-50);
+  --color-accent-foreground: var(--color-gray-900);
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: var(--color-white);
+  --color-border: var(--color-gray-100);
+  --color-input: var(--color-gray-100);
+  --color-ring: var(--color-brand);
+  
+  /* ─────────────────────────────────────────────────────────────────────
+     TYPOGRAPHY - Cyrillic-first, mobile-optimized
+     ───────────────────────────────────────────────────────────────────── */
+  
+  /* Font Stack - Inter loaded, system fallbacks */
+  --font-sans: 'Inter', -apple-system, 'Segoe UI', 'Roboto', 'Ubuntu', sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  
+  /* Sizes - Only what we need */
+  --text-xs: 0.75rem;    /* 12px - metadata */
+  --text-sm: 0.875rem;   /* 14px - body */
+  --text-base: 1rem;     /* 16px - default */
+  --text-lg: 1.25rem;    /* 20px - headings */
+  --text-xl: 1.5rem;     /* 24px - page titles */
+  --text-2xl: 1.875rem;  /* 30px - hero */
+  
+  /* Weights - Reduced set */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  
+  /* Line Heights - Mobile-first */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  
+  /* ─────────────────────────────────────────────────────────────────────
+     SPACING - Strict 4px grid (every value divisible by 4)
+     ───────────────────────────────────────────────────────────────────── */
+  
+  --spacing-0: 0;
+  --spacing-1: 4px;      /* 0.25rem */
+  --spacing-2: 8px;      /* 0.5rem */
+  --spacing-3: 12px;     /* 0.75rem */
+  --spacing-4: 16px;     /* 1rem */
+  --spacing-5: 20px;     /* 1.25rem */
+  --spacing-6: 24px;     /* 1.5rem */
+  --spacing-8: 32px;     /* 2rem */
+  --spacing-10: 40px;    /* 2.5rem */
+  --spacing-12: 48px;    /* 3rem */
+  --spacing-16: 64px;    /* 4rem */
+  --spacing-20: 80px;    /* 5rem */
+  --spacing-24: 96px;    /* 6rem */
+  
+  /* ─────────────────────────────────────────────────────────────────────
+     ANIMATION - 0ms or 200ms, nothing between
+     ───────────────────────────────────────────────────────────────────── */
+  
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-200: 200ms;
+  
+  /* Single easing for consistency */
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* ─────────────────────────────────────────────────────────────────────
+     SHADOWS - Minimal depth
+     ───────────────────────────────────────────────────────────────────── */
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  
+  /* ─────────────────────────────────────────────────────────────────────
+     BORDERS & RADIUS
+     ───────────────────────────────────────────────────────────────────── */
+  
+  --radius: 0.5rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ROOT VARIABLES - CSS Custom Properties
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Light mode (default) - Facebook Marketplace palette */
+  --background: #FFFFFF;
+  --foreground: #1C1E21;
+  --card: #FFFFFF;
+  --card-foreground: #1C1E21;
+  --popover: #FFFFFF;
+  --popover-foreground: #1C1E21;
+  --primary: #1877F2;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F5F5F5;
+  --secondary-foreground: #1C1E21;
+  --muted: #F5F5F5;
+  --muted-foreground: #65676B;
+  --accent: #F5F5F5;
+  --accent-foreground: #1C1E21;
+  --destructive: #E41E3F;
+  --destructive-foreground: #FFFFFF;
+  --border: #E4E6EA;
+  --input: #E4E6EA;
+  --ring: #1877F2;
+  --radius: 0.5rem;
+  
+  /* Chart colors for data viz */
+  --chart-1: #DC2626;
+  --chart-2: #10B981;
+  --chart-3: #3B82F6;
+  --chart-4: #F59E0B;
+  --chart-5: #8B5CF6;
+}
+
+/* Dark mode support (minimal changes) */
+.dark {
+  --background: #0A0A0A;
+  --foreground: #FAFAFA;
+  --card: #0A0A0A;
+  --card-foreground: #FAFAFA;
+  --popover: #0A0A0A;
+  --popover-foreground: #FAFAFA;
+  --primary: #EF4444;
+  --primary-foreground: #0A0A0A;
+  --secondary: #262626;
+  --secondary-foreground: #FAFAFA;
+  --muted: #262626;
+  --muted-foreground: #A3A3A3;
+  --accent: #262626;
+  --accent-foreground: #FAFAFA;
+  --destructive: #7F1D1D;
+  --destructive-foreground: #FAFAFA;
+  --border: #262626;
+  --input: #262626;
+  --ring: #EF4444;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MOBILE-FIRST UTILITIES
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@layer utilities {
+  /* Safe area padding for mobile devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Bottom navigation with safe area */
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+    height: calc(56px + env(safe-area-inset-bottom));
+  }
+  
+  /* Thumb zone positioning */
+  .thumb-zone {
+    position: fixed;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    right: 16px;
+  }
+  
+  /* Swipeable galleries */
+  .swipe-gallery {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+  
+  .swipe-item {
+    scroll-snap-align: start;
+  }
+  
+  /* Performance optimizations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  .contain-layout {
+    contain: layout;
+  }
+  
+  .contain-paint {
+    contain: paint;
+  }
+  
+  .contain-strict {
+    contain: strict;
+  }
+  
+  /* Hide scrollbar but keep scroll functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SKELETON LOADERS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #F9FAFB 25%,
+    #E5E7EB 50%,
+    #F9FAFB 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-text {
+  height: 1em;
+  border-radius: 0.25rem;
+  background: linear-gradient(
+    90deg,
+    #F9FAFB 25%,
+    #E5E7EB 50%,
+    #F9FAFB 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-card {
+  height: 200px;
+  border-radius: 0.5rem;
+  background: linear-gradient(
+    90deg,
+    #F9FAFB 25%,
+    #E5E7EB 50%,
+    #F9FAFB 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TRUST INDICATORS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.verified-badge {
+  @apply inline-flex items-center gap-1 px-2 py-1 text-xs font-medium;
+  @apply bg-green-50 text-green-600 rounded-full;
+}
+
+.verified-badge::before {
+  content: '✓';
+  @apply inline-block w-3 h-3 text-[10px] leading-3 text-center;
+  @apply bg-green-600 text-white rounded-full;
+}
+
+.response-time {
+  @apply text-xs text-muted-foreground;
+}
+
+.online-indicator {
+  @apply relative;
+}
+
+.online-indicator::after {
+  content: '';
+  @apply absolute bottom-0 right-0 w-3 h-3;
+  @apply bg-green-500 rounded-full border-2 border-white;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   QUICK ACTIONS (Bulgarian-specific)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.quick-action {
+  @apply px-3 py-2 text-sm font-medium;
+  @apply bg-gray-50 border border-gray-200 rounded-lg;
+  @apply active:scale-95;
+}
+
+.quick-action-primary {
+  @apply px-3 py-2 text-sm font-medium rounded-lg active:scale-95;
+  @apply bg-primary text-white border-primary;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PERFORMANCE CRITICAL CSS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Reduce animation for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Force hardware acceleration for critical animations */
+.animate-in {
+  animation-duration: var(--duration-200);
+  animation-timing-function: var(--ease-default);
+  animation-fill-mode: both;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LAYOUT UTILITIES
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Container with Bulgarian market standards */
+.container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+    padding-inline: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+    padding-inline: 32px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COMPONENT OVERRIDES - Fix shadcn for marketplace
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Remove all unnecessary animations */
+.accordion-content,
+.dialog-content,
+.popover-content,
+.sheet-content {
+  animation: none !important;
+}
+
+/* Simplify button styles */
+.btn {
+  @apply px-4 py-2 font-medium rounded-lg;
+  @apply transition-colors duration-200;
+}
+
+.btn-primary {
+  @apply px-4 py-2 font-medium rounded-lg transition-colors duration-200;
+  @apply bg-primary text-white hover:bg-primary/90;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 font-medium rounded-lg transition-colors duration-200;
+  @apply bg-gray-50 text-gray-900 hover:bg-gray-200;
+}
+
+/* Product cards optimized for mobile */
+.product-card {
+  @apply bg-white rounded-lg overflow-hidden;
+  @apply border border-gray-200;
+  contain: layout style;
+}
+
+.product-card img {
+  @apply w-full aspect-[4/3] object-cover;
+}
+
+.product-price {
+  @apply text-lg font-bold text-gray-900;
+}
+
+.product-meta {
+  @apply text-sm text-muted-foreground;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PRINT STYLES - For order receipts
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@media print {
+  * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  a, a:visited {
+    text-decoration: underline;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}
