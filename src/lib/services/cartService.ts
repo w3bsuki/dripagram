@@ -21,16 +21,16 @@ const CART_KEY = 'driplo_cart';
  */
 export function getCart(): Cart {
 	if (!browser) return { items: [], total: 0, count: 0 };
-	
+
 	const stored = localStorage.getItem(CART_KEY);
 	if (!stored) return { items: [], total: 0, count: 0 };
-	
+
 	try {
 		const items: CartItem[] = JSON.parse(stored);
 		return {
 			items,
 			total: calculateTotal(items),
-			count: items.reduce((sum, item) => sum + item.quantity, 0)
+			count: items.reduce((sum, item) => sum + item.quantity, 0),
 		};
 	} catch {
 		return { items: [], total: 0, count: 0 };
@@ -42,10 +42,10 @@ export function getCart(): Cart {
  */
 export function addToCart(product: Product, quantity: number = 1): Cart {
 	if (!browser) return getCart();
-	
+
 	const cart = getCart();
-	const existingIndex = cart.items.findIndex(item => item.product.id === product.id);
-	
+	const existingIndex = cart.items.findIndex((item) => item.product.id === product.id);
+
 	if (existingIndex >= 0) {
 		// Update quantity if item exists
 		cart.items[existingIndex].quantity += quantity;
@@ -54,10 +54,10 @@ export function addToCart(product: Product, quantity: number = 1): Cart {
 		cart.items.push({
 			product,
 			quantity,
-			addedAt: new Date().toISOString()
+			addedAt: new Date().toISOString(),
 		});
 	}
-	
+
 	saveCart(cart.items);
 	return getCart();
 }
@@ -67,10 +67,10 @@ export function addToCart(product: Product, quantity: number = 1): Cart {
  */
 export function removeFromCart(productId: string): Cart {
 	if (!browser) return getCart();
-	
+
 	const cart = getCart();
-	cart.items = cart.items.filter(item => item.product.id !== productId);
-	
+	cart.items = cart.items.filter((item) => item.product.id !== productId);
+
 	saveCart(cart.items);
 	return getCart();
 }
@@ -80,10 +80,10 @@ export function removeFromCart(productId: string): Cart {
  */
 export function updateQuantity(productId: string, quantity: number): Cart {
 	if (!browser) return getCart();
-	
+
 	const cart = getCart();
-	const item = cart.items.find(item => item.product.id === productId);
-	
+	const item = cart.items.find((item) => item.product.id === productId);
+
 	if (item) {
 		if (quantity <= 0) {
 			return removeFromCart(productId);
@@ -91,7 +91,7 @@ export function updateQuantity(productId: string, quantity: number): Cart {
 		item.quantity = quantity;
 		saveCart(cart.items);
 	}
-	
+
 	return getCart();
 }
 
@@ -100,7 +100,7 @@ export function updateQuantity(productId: string, quantity: number): Cart {
  */
 export function clearCart(): Cart {
 	if (!browser) return { items: [], total: 0, count: 0 };
-	
+
 	localStorage.removeItem(CART_KEY);
 	return { items: [], total: 0, count: 0 };
 }
@@ -110,7 +110,7 @@ export function clearCart(): Cart {
  */
 export function isInCart(productId: string): boolean {
 	const cart = getCart();
-	return cart.items.some(item => item.product.id === productId);
+	return cart.items.some((item) => item.product.id === productId);
 }
 
 /**
@@ -126,7 +126,7 @@ export function getCartCount(): number {
  */
 function calculateTotal(items: CartItem[]): number {
 	return items.reduce((sum, item) => {
-		return sum + (item.product.price * item.quantity);
+		return sum + item.product.price * item.quantity;
 	}, 0);
 }
 
@@ -150,11 +150,11 @@ export function formatPrice(price: number): string {
  */
 export function getShippingCost(items: CartItem[]): number {
 	if (items.length === 0) return 0;
-	
+
 	// Free shipping over 100 BGN
 	const total = calculateTotal(items);
 	if (total >= 100) return 0;
-	
+
 	// Standard shipping: 5 BGN
 	return 5;
 }
@@ -165,12 +165,12 @@ export function getShippingCost(items: CartItem[]): number {
 export function getEstimatedDelivery(): string {
 	const date = new Date();
 	date.setDate(date.getDate() + 3); // 3 days delivery
-	
-	const options: Intl.DateTimeFormatOptions = { 
-		weekday: 'long', 
-		month: 'long', 
-		day: 'numeric' 
+
+	const options: Intl.DateTimeFormatOptions = {
+		weekday: 'long',
+		month: 'long',
+		day: 'numeric',
 	};
-	
+
 	return date.toLocaleDateString('bg-BG', options);
 }

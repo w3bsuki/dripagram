@@ -6,16 +6,18 @@ Copy this entire prompt to start a **new Claude Code session** for Driplo.bg dev
 
 ## Project Context
 
-I'm building **Driplo.bg** - a Bulgarian second-hand fashion marketplace using SvelteKit + Skeleton UI + Supabase. 
+I'm building **Driplo.bg** - a Bulgarian second-hand fashion marketplace using SvelteKit + Skeleton UI + Supabase.
 
 **Key files to read first:**
+
 - `PRD.md` - Complete product requirements
-- `SETUP.md` - Technical setup instructions  
+- `SETUP.md` - Technical setup instructions
 - `TECHSTACK.md` - Architecture details
 
 ## Current Status
 
 **What's Done:**
+
 - Project requirements defined in PRD.md
 - Complete setup instructions in SETUP.md
 - Database schema designed
@@ -27,6 +29,7 @@ I'm building **Driplo.bg** - a Bulgarian second-hand fashion marketplace using S
 ## Development Rules (CRITICAL)
 
 ### ✅ MUST DO
+
 1. **Use Skeleton UI only** - Never build custom UI components
 2. **Keep it simple** - Maximum 10 total components
 3. **Mobile-first design** - Design for phones, enhance for desktop
@@ -36,6 +39,7 @@ I'm building **Driplo.bg** - a Bulgarian second-hand fashion marketplace using S
 7. **Performance first** - <2s page loads target
 
 ### ❌ NEVER DO
+
 - Build custom UI components (use Skeleton's)
 - Create complex folder structures
 - Use gradients or fancy animations
@@ -81,6 +85,7 @@ src/
 ## Database Schema
 
 See `SETUP.md` for complete schema. Key tables:
+
 - `products` - Product listings
 - `profiles` - User profiles (extends Supabase auth)
 - `messages` - Buyer/seller messaging
@@ -89,6 +94,7 @@ See `SETUP.md` for complete schema. Key tables:
 ## Key Features to Implement
 
 ### Phase 1 (MVP)
+
 - [ ] Homepage with product grid
 - [ ] User authentication (Supabase Auth)
 - [ ] Create/edit product listings
@@ -97,7 +103,9 @@ See `SETUP.md` for complete schema. Key tables:
 - [ ] Responsive design
 
 ### Current Task
+
 [Specify what you want to work on - e.g.:]
+
 - Implement homepage with Skeleton UI components
 - Set up Supabase authentication flow
 - Create product listing form
@@ -125,28 +133,24 @@ supabase start       # Start local database
 
 ```svelte
 <script lang="ts">
-  import { Card, Button, InputChip } from '@skeletonlabs/skeleton';
-  import { Search } from 'lucide-svelte';
-  
-  // Svelte 5 syntax
-  let { products } = $props();
-  let searchQuery = $state('');
-  
-  // Keep it simple!
+	import { Card, Button, InputChip } from '@skeletonlabs/skeleton';
+	import { Search } from 'lucide-svelte';
+
+	// Svelte 5 syntax
+	let { products } = $props();
+	let searchQuery = $state('');
+
+	// Keep it simple!
 </script>
 
 <Card class="p-4">
-  <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-    <div class="input-group-shim">
-      <Search size={16} />
-    </div>
-    <input 
-      bind:value={searchQuery}
-      placeholder="Търси продукти..."
-      class="input"
-    />
-    <Button class="variant-filled-primary">Търси</Button>
-  </div>
+	<div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
+		<div class="input-group-shim">
+			<Search size={16} />
+		</div>
+		<input bind:value={searchQuery} placeholder="Търси продукти..." class="input" />
+		<Button class="variant-filled-primary">Търси</Button>
+	</div>
 </Card>
 ```
 

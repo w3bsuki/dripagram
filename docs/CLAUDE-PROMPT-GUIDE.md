@@ -6,7 +6,7 @@
 I need you to build a complete fashion marketplace called "Driplo" from scratch using SvelteKit 2 + Svelte 5. This is a C2C (consumer-to-consumer) clothing marketplace like Grailed, Vinted, and Depop.
 
 I have 3 reference documents:
-1. FRESH-START-PRD.md - Complete product requirements 
+1. FRESH-START-PRD.md - Complete product requirements
 2. UI-UX-GUIDE.md - Design system and visual specifications
 3. VISUAL-REFERENCE-PACKAGE.md - Implementation guide and references
 
@@ -19,7 +19,7 @@ CRITICAL REQUIREMENTS:
 
 START BY:
 1. Reading all 3 reference documents thoroughly
-2. Creating a clean SvelteKit 2 project 
+2. Creating a clean SvelteKit 2 project
 3. Setting up the basic project structure
 4. Asking me for the Supabase credentials
 5. Building core features in this priority order
@@ -71,7 +71,7 @@ Svelte 5 Syntax (REQUIRED):
 ✅ onclick (NOT on:click)
 ✅ $props() (NOT export let)
 ✅ $state() for reactive variables
-✅ $derived() for computed values  
+✅ $derived() for computed values
 ✅ {@render children()} (NOT <slot>)
 
 Database:
@@ -96,7 +96,7 @@ Code Quality:
 
 Performance:
 ✅ Lazy loading for images
-✅ Code splitting for large components  
+✅ Code splitting for large components
 ✅ Optimized bundle size
 ✅ Web Vitals compliance
 ```
@@ -122,7 +122,7 @@ Key Design Principles:
 
 Color Scheme (EXACT):
 - Primary: #000000 (black)
-- Background: #ffffff (white)  
+- Background: #ffffff (white)
 - Secondary: #f5f5f5 (light gray)
 - Accent: #3b82f6 (blue)
 - Text: #000000 / #64748b (black/gray)
@@ -143,6 +143,7 @@ Component Style:
 ## Feature-Specific Prompts
 
 ### Authentication Prompt
+
 ```
 Build authentication system:
 
@@ -170,7 +171,8 @@ UI REQUIREMENTS:
 Make it look professional and trustworthy like Stripe's auth pages.
 ```
 
-### Product Listings Prompt  
+### Product Listings Prompt
+
 ```
 Build product listing system:
 
@@ -210,6 +212,7 @@ Copy the exact layout and feel from Grailed.com product pages.
 ```
 
 ### Checkout & Payments Prompt
+
 ```
 Build checkout and payment system:
 
@@ -281,7 +284,7 @@ Environment Setup:
 
 Performance:
 ✅ Bundle analysis to check size
-✅ Image optimization enabled  
+✅ Image optimization enabled
 ✅ Lazy loading implemented
 ✅ Web Vitals scores >90
 
@@ -325,8 +328,9 @@ Remember: This needs to be production-ready for real users making real purchases
 ## Complete Prompt Package
 
 Give the new Claude:
+
 1. **This prompt guide** (CLAUDE-PROMPT-GUIDE.md)
-2. **FRESH-START-PRD.md** (requirements)  
+2. **FRESH-START-PRD.md** (requirements)
 3. **UI-UX-GUIDE.md** (design system)
 4. **VISUAL-REFERENCE-PACKAGE.md** (visual specs)
 

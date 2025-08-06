@@ -5,7 +5,7 @@
 **Location:** `K:\driplo.bg-main\driplo-fresh\`  
 **Status:** ✅ Fresh SvelteKit 2 + Svelte 5 project ready  
 **Database:** ✅ Connected to existing Supabase instance  
-**Dependencies:** ✅ All dev tools and core packages installed  
+**Dependencies:** ✅ All dev tools and core packages installed
 
 ---
 
@@ -20,18 +20,21 @@ pnpm run dev
 ## What's Already Set Up ✅
 
 ### Core Technologies
+
 - **SvelteKit 2** with **Svelte 5.37.2** (latest)
 - **TypeScript** in strict mode
 - **Tailwind CSS v4** with direct Vite integration
 - **pnpm** for fast package management
 
 ### Development Tools
+
 - ✅ **ESLint** + **Prettier** (code quality)
 - ✅ **Vitest** (unit testing)
 - ✅ **Playwright** (e2e testing)
 - ✅ **TypeScript** (type safety)
 
 ### Core Dependencies
+
 - ✅ **Supabase** (@supabase/supabase-js, @supabase/ssr)
 - ✅ **Stripe** (@stripe/stripe-js, stripe)
 - ✅ **UI Components** (bits-ui, lucide-svelte)
@@ -41,6 +44,7 @@ pnpm run dev
 - ✅ **Utils** (date-fns, uuid, @fontsource-variable/inter)
 
 ### Migrated Assets
+
 - ✅ **Database Types** (`src/lib/types/db.ts`) - Complete TypeScript definitions
 - ✅ **UI Components** (`src/lib/components/ui/`) - Working Svelte 5 components
 - ✅ **Database Migrations** (`supabase/migrations/`) - All schema definitions
@@ -53,20 +57,22 @@ pnpm run dev
 Build a **production-ready fashion marketplace** following these documents:
 
 1. **FRESH-START-PRD.md** - Complete product requirements
-2. **UI-UX-GUIDE.md** - Design system specifications  
+2. **UI-UX-GUIDE.md** - Design system specifications
 3. **VISUAL-REFERENCE-PACKAGE.md** - Implementation guide
 4. **CLAUDE-PROMPT-GUIDE.md** - Step-by-step instructions
 
 ## Development Priority Order
 
 ### Phase 1: Foundation (Week 1)
+
 1. ✅ Project setup (DONE)
 2. **Authentication system** (register/login/logout)
 3. **Basic homepage** with search bar
 4. **User profiles** (public view)
 5. **Product listing creation** form
 
-### Phase 2: Core Features (Week 2)  
+### Phase 2: Core Features (Week 2)
+
 6. **Browse/search listings** page
 7. **Individual listing** detail pages
 8. **Shopping cart** + checkout flow
@@ -74,6 +80,7 @@ Build a **production-ready fashion marketplace** following these documents:
 10. **Order management** system
 
 ### Phase 3: Advanced (Week 3)
+
 11. **User messaging** system
 12. **User settings** and profile editing
 13. **Wishlist/favorites**
@@ -81,8 +88,9 @@ Build a **production-ready fashion marketplace** following these documents:
 15. **Basic admin** functionality
 
 ### Phase 4: Production (Week 4)
+
 16. **Brand verification** system
-17. **Advanced search/filters**  
+17. **Advanced search/filters**
 18. **Performance optimization**
 19. **Mobile responsive polish**
 20. **Production deployment**
@@ -92,12 +100,13 @@ Build a **production-ready fashion marketplace** following these documents:
 ## Critical Requirements ⚠️
 
 ### Svelte 5 Syntax (MANDATORY)
+
 ```svelte
 <!-- ✅ CORRECT Svelte 5 -->
 <script lang="ts">
   let { title, price }: { title: string; price: number } = $props()
   let loading = $state(false)
-  
+
   function handleClick() {
     // event handler
   }
@@ -111,7 +120,7 @@ Build a **production-ready fashion marketplace** following these documents:
 <script>
   export let title  // NO
   let loading = false  // NO
-  
+
   $: computed = something  // NO
 </script>
 
@@ -121,12 +130,14 @@ Build a **production-ready fashion marketplace** following these documents:
 ```
 
 ### Database Connection
+
 - **URL:** Use existing Supabase instance (credentials in .env)
 - **Types:** Already imported (`src/lib/types/db.ts`)
 - **Migrations:** Already copied (`supabase/migrations/`)
 - **RLS:** All policies already implemented
 
 ### Design System
+
 - **Colors:** Black primary (#000000), white background (#ffffff)
 - **Font:** Inter Variable (already imported)
 - **UI:** Clean, minimal, professional (like Airbnb/Stripe)
@@ -143,7 +154,7 @@ pnpm run dev          # Start dev server
 pnpm run check        # TypeScript validation
 pnpm run build        # Production build
 
-# Testing  
+# Testing
 pnpm run test         # Unit tests (Vitest)
 pnpm run test:e2e     # E2E tests (Playwright)
 
@@ -162,7 +173,7 @@ The following components are **already working** with Svelte 5 syntax:
 src/lib/components/ui/
 ├── button.svelte          ✅ Use as reference
 ├── card/                  ✅ Use as reference
-├── input.svelte           ✅ Use as reference  
+├── input.svelte           ✅ Use as reference
 ├── modal.svelte           ✅ Use as reference
 ├── badge.svelte           ✅ Use as reference
 └── avatar/                ✅ Use as reference
@@ -175,6 +186,7 @@ Use these as patterns for building new components.
 ## Success Criteria
 
 ### Week 1 Complete When:
+
 - [ ] User can register/login/logout
 - [ ] Homepage loads with search bar
 - [ ] Can create product listings
@@ -182,6 +194,7 @@ Use these as patterns for building new components.
 - [ ] Mobile responsive
 
 ### Week 2 Complete When:
+
 - [ ] Can browse and search products
 - [ ] Checkout flow works with Stripe
 - [ ] Orders are created and tracked
@@ -189,6 +202,7 @@ Use these as patterns for building new components.
 - [ ] Core user journeys work
 
 ### Week 3 Complete When:
+
 - [ ] Users can message each other
 - [ ] Wishlist/favorites work
 - [ ] Reviews and ratings system
@@ -196,6 +210,7 @@ Use these as patterns for building new components.
 - [ ] Performance optimized
 
 ### Week 4 Complete When:
+
 - [ ] Brand verification complete
 - [ ] Advanced filters work
 - [ ] Mobile app-like experience
@@ -212,7 +227,7 @@ The database includes all marketplace features:
 - **listings** - Product listings
 - **categories** - Product organization
 - **transactions** - Payment processing
-- **orders** - Order management  
+- **orders** - Order management
 - **messages/conversations** - User chat
 - **favorites** - Wishlist system
 - **user_ratings** - Review system

@@ -1,5 +1,7 @@
-import { supabase } from '$lib/supabase';
+import { createClient } from '$lib/supabase/client';
 import type { Database } from '$lib/supabase/types';
+
+const supabase = createClient();
 
 type Category = Database['public']['Tables']['categories']['Row'];
 
@@ -67,8 +69,7 @@ export async function getSubcategories(parentId: string): Promise<Category[]> {
  * Get categories with listing counts using RPC function
  */
 export async function getCategoriesWithCounts(): Promise<CategoryWithCount[]> {
-	const { data, error } = await supabase
-		.rpc('get_categories_with_counts');
+	const { data, error } = await supabase.rpc('get_categories_with_counts');
 
 	if (error) {
 		console.error('Error fetching categories with counts:', error);
@@ -77,10 +78,10 @@ export async function getCategoriesWithCounts(): Promise<CategoryWithCount[]> {
 
 	// Map the RPC response to CategoryWithCount format
 	if (!data) return [];
-	
+
 	return data.map((item: any) => ({
 		...item.category_data,
-		listing_count: item.product_count || 0
+		listing_count: item.product_count || 0,
 	})) as CategoryWithCount[];
 }
 
@@ -108,13 +109,13 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
  */
 export async function getCategoryHierarchy(): Promise<(Category & { children: Category[] })[]> {
 	const topLevel = await getTopLevelCategories();
-	
+
 	const hierarchy = await Promise.all(
 		topLevel.map(async (category) => {
 			const children = await getSubcategories(category.id);
 			return {
 				...category,
-				children
+				children,
 			};
 		})
 	);

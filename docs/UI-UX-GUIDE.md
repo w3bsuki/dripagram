@@ -3,17 +3,18 @@
 ## Design System Specification
 
 ### Color Palette
+
 ```css
 /* Primary Colors */
---primary: #000000;          /* Black */
+--primary: #000000; /* Black */
 --primary-foreground: #ffffff; /* White */
---secondary: #f5f5f5;        /* Light gray */
+--secondary: #f5f5f5; /* Light gray */
 --secondary-foreground: #000000;
 
 /* Accent Colors */
---accent: #3b82f6;           /* Blue */
+--accent: #3b82f6; /* Blue */
 --accent-foreground: #ffffff;
---destructive: #ef4444;      /* Red */
+--destructive: #ef4444; /* Red */
 --destructive-foreground: #ffffff;
 
 /* Neutral Colors */
@@ -26,19 +27,20 @@
 ```
 
 ### Typography
+
 ```css
 /* Font Stack */
 font-family: 'Inter Variable', system-ui, sans-serif;
 
 /* Font Sizes */
---text-xs: 0.75rem;     /* 12px */
---text-sm: 0.875rem;    /* 14px */
---text-base: 1rem;      /* 16px */
---text-lg: 1.125rem;    /* 18px */
---text-xl: 1.25rem;     /* 20px */
---text-2xl: 1.5rem;     /* 24px */
---text-3xl: 1.875rem;   /* 30px */
---text-4xl: 2.25rem;    /* 36px */
+--text-xs: 0.75rem; /* 12px */
+--text-sm: 0.875rem; /* 14px */
+--text-base: 1rem; /* 16px */
+--text-lg: 1.125rem; /* 18px */
+--text-xl: 1.25rem; /* 20px */
+--text-2xl: 1.5rem; /* 24px */
+--text-3xl: 1.875rem; /* 30px */
+--text-4xl: 2.25rem; /* 36px */
 
 /* Font Weights */
 --font-normal: 400;
@@ -48,30 +50,33 @@ font-family: 'Inter Variable', system-ui, sans-serif;
 ```
 
 ### Spacing System
+
 ```css
 /* Spacing Scale (Tailwind-based) */
---space-1: 0.25rem;   /* 4px */
---space-2: 0.5rem;    /* 8px */
---space-3: 0.75rem;   /* 12px */
---space-4: 1rem;      /* 16px */
---space-6: 1.5rem;    /* 24px */
---space-8: 2rem;      /* 32px */
---space-12: 3rem;     /* 48px */
---space-16: 4rem;     /* 64px */
+--space-1: 0.25rem; /* 4px */
+--space-2: 0.5rem; /* 8px */
+--space-3: 0.75rem; /* 12px */
+--space-4: 1rem; /* 16px */
+--space-6: 1.5rem; /* 24px */
+--space-8: 2rem; /* 32px */
+--space-12: 3rem; /* 48px */
+--space-16: 4rem; /* 64px */
 ```
 
 ### Border Radius
+
 ```css
---radius-sm: 0.125rem;  /* 2px */
---radius: 0.375rem;     /* 6px */
---radius-md: 0.5rem;    /* 8px */
---radius-lg: 0.75rem;   /* 12px */
---radius-xl: 1rem;      /* 16px */
+--radius-sm: 0.125rem; /* 2px */
+--radius: 0.375rem; /* 6px */
+--radius-md: 0.5rem; /* 8px */
+--radius-lg: 0.75rem; /* 12px */
+--radius-xl: 1rem; /* 16px */
 ```
 
 ## Component Design Specifications
 
 ### Header/Navigation
+
 ```
 Layout: Fixed top header, white background, subtle shadow
 Height: 64px
@@ -80,6 +85,7 @@ Mobile: Hamburger menu, search icon, user avatar
 ```
 
 ### Product Cards
+
 ```
 Aspect Ratio: 4:5 for product images
 Card Style: Clean white background, subtle border
@@ -91,6 +97,7 @@ Seller: Small text with avatar
 ```
 
 ### Buttons
+
 ```
 Primary: Black background, white text, 8px radius
 Secondary: White background, black border, black text
@@ -100,6 +107,7 @@ States: hover, focus, disabled
 ```
 
 ### Forms
+
 ```
 Input Style: White background, gray border, 6px radius
 Focus State: Blue border, blue ring
@@ -109,6 +117,7 @@ Spacing: 16px between form groups
 ```
 
 ### Layout Patterns
+
 ```
 Max Width: 1200px centered
 Grid: 12-column responsive grid
@@ -119,6 +128,7 @@ Section Spacing: 48px vertical
 ## Page-Specific Layouts (C2C Marketplace Style)
 
 ### Homepage (Grailed/Vinted Inspired)
+
 ```
 Hero Section:
 - Large search bar prominently centered (like Vinted)
@@ -139,6 +149,7 @@ Recent Listings:
 ```
 
 ### Browse/Category Pages
+
 ```
 Layout: Sidebar filters (desktop) + product grid
 Filters: Collapsible sections, checkbox/radio inputs
@@ -148,6 +159,7 @@ Sort: Dropdown in top right
 ```
 
 ### Product Detail Page
+
 ```
 Layout: Two-column (images left, details right)
 Images: Main image + thumbnail carousel
@@ -156,6 +168,7 @@ Mobile: Stacked layout, sticky buy button
 ```
 
 ### User Profile
+
 ```
 Header: Cover photo + avatar + basic info
 Tabs: Listings, Reviews, About
@@ -164,6 +177,7 @@ Stats: Followers, following, items sold
 ```
 
 ### Messaging
+
 ```
 Layout: Sidebar conversations + main chat area
 Mobile: Full-screen conversation view
@@ -174,6 +188,7 @@ Input: Bottom sticky with attach button
 ## Existing Component Examples
 
 ### Current Working Components (Reference)
+
 ```
 ✅ Button - src/lib/components/ui/button.svelte
 ✅ Card - src/lib/components/ui/card/
@@ -184,6 +199,7 @@ Input: Bottom sticky with attach button
 ```
 
 ### Broken Components (Rebuild with same design)
+
 ```
 🔧 ListingCard - Product display cards
 🔧 SearchBar - Header search with autocomplete
@@ -194,30 +210,32 @@ Input: Bottom sticky with attach button
 ```
 
 ## Mobile-First Breakpoints
+
 ```css
 /* Mobile First Approach */
 /* Base styles: 320px+ */
 
 @media (min-width: 640px) {
-  /* Tablet: sm */
+	/* Tablet: sm */
 }
 
 @media (min-width: 768px) {
-  /* Desktop: md */
+	/* Desktop: md */
 }
 
 @media (min-width: 1024px) {
-  /* Large desktop: lg */
+	/* Large desktop: lg */
 }
 
 @media (min-width: 1280px) {
-  /* Extra large: xl */
+	/* Extra large: xl */
 }
 ```
 
 ## Interactive States
 
 ### Hover Effects
+
 ```
 Cards: Subtle shadow elevation (0 4px 12px rgba(0,0,0,0.1))
 Buttons: Slight opacity change (opacity: 0.9)
@@ -226,6 +244,7 @@ Images: Slight zoom (transform: scale(1.02))
 ```
 
 ### Loading States
+
 ```
 Buttons: Spinner + disabled state
 Cards: Skeleton placeholders
@@ -234,6 +253,7 @@ Forms: Disabled inputs during submission
 ```
 
 ### Empty States
+
 ```
 No listings: Illustration + "Start selling" CTA
 No messages: Simple text + "Browse items" link
@@ -244,17 +264,20 @@ No results: Search suggestions
 ## Accessibility Requirements
 
 ### Color Contrast
+
 - Minimum 4.5:1 ratio for normal text
 - Minimum 3:1 ratio for large text
 - Focus indicators clearly visible
 
 ### Interactive Elements
+
 - Minimum 44px touch targets
 - Keyboard navigation support
 - Screen reader friendly
 - ARIA labels where needed
 
 ### Images
+
 - Alt text for all images
 - Proper loading states
 - Error fallbacks
@@ -262,6 +285,7 @@ No results: Search suggestions
 ## Animation Guidelines
 
 ### Subtle Animations
+
 ```
 Hover transitions: 150ms ease-out
 Modal entrance: 200ms ease-out scale + fade
@@ -270,6 +294,7 @@ Loading spinners: Smooth infinite rotation
 ```
 
 ### Performance
+
 - Use CSS transforms over position changes
 - Prefer opacity over visibility
 - Limit animations on mobile
@@ -278,18 +303,21 @@ Loading spinners: Smooth infinite rotation
 ## Content Guidelines
 
 ### Messaging Tone
+
 - Friendly but professional
 - Clear and concise
 - Action-oriented CTAs
 - Error messages helpful, not blame-y
 
 ### Button Text
+
 - "Sign Up" (not "Register")
 - "Buy Now" (not "Purchase")
 - "Add to Cart" (not "Add to Basket")
 - "Message Seller" (not "Contact")
 
 ### Placeholder Text
+
 - Descriptive, not "Lorem ipsum"
 - Real example data
 - Helpful hints in form fields

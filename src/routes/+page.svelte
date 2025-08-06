@@ -5,10 +5,10 @@
 	import SearchHeader from '$lib/components/navigation/SearchHeader.svelte';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
-	
+
 	let isMobile = $state(false);
 	let feedType = $state<'for-you' | 'following' | 'trending'>('for-you');
-	
+
 	onMount(() => {
 		if (browser) {
 			isMobile = window.innerWidth < 768;
@@ -17,7 +17,7 @@
 			});
 		}
 	});
-	
+
 	function changeFeedType(type: typeof feedType) {
 		feedType = type;
 	}
@@ -25,10 +25,19 @@
 
 <svelte:head>
 	<title>Driplo - The Amazon of Clothing | Shop & Sell Fashion</title>
-	<meta name="description" content="Discover and sell fashion on Bulgaria's #1 social commerce platform. Join thousands buying and selling designer clothes, streetwear, and vintage finds." />
-	<meta name="keywords" content="fashion marketplace, social shopping, buy sell clothes, designer fashion, streetwear, vintage clothing, Bulgaria" />
+	<meta
+		name="description"
+		content="Discover and sell fashion on Bulgaria's #1 social commerce platform. Join thousands buying and selling designer clothes, streetwear, and vintage finds."
+	/>
+	<meta
+		name="keywords"
+		content="fashion marketplace, social shopping, buy sell clothes, designer fashion, streetwear, vintage clothing, Bulgaria"
+	/>
 	<meta property="og:title" content="Driplo - The Amazon of Clothing" />
-	<meta property="og:description" content="Shop and sell fashion with style. Join the social commerce revolution." />
+	<meta
+		property="og:description"
+		content="Shop and sell fashion with style. Join the social commerce revolution."
+	/>
 	<meta property="og:type" content="website" />
 </svelte:head>
 
@@ -41,29 +50,29 @@
 <main class="main-content">
 	<!-- Brand Showcase (Stories) -->
 	<BrandShowcase />
-	
+
 	<!-- Feed Type Selector -->
 	<div class="feed-selector">
-		<button 
+		<button
 			class="feed-tab {feedType === 'for-you' ? 'active' : ''}"
 			onclick={() => changeFeedType('for-you')}
 		>
 			For You
 		</button>
-		<button 
+		<button
 			class="feed-tab {feedType === 'following' ? 'active' : ''}"
 			onclick={() => changeFeedType('following')}
 		>
 			Following
 		</button>
-		<button 
+		<button
 			class="feed-tab {feedType === 'trending' ? 'active' : ''}"
 			onclick={() => changeFeedType('trending')}
 		>
 			Trending 🔥
 		</button>
 	</div>
-	
+
 	<!-- Product Grid -->
 	<ProductGrid />
 </main>
@@ -79,7 +88,7 @@
 		background: var(--color-surface);
 		padding-bottom: 80px; /* Space for mobile bottom nav */
 	}
-	
+
 	/* Feed Selector */
 	.feed-selector {
 		display: flex;
@@ -91,7 +100,7 @@
 		top: 0;
 		z-index: 50;
 	}
-	
+
 	.feed-tab {
 		flex: 1;
 		max-width: 200px;
@@ -105,22 +114,22 @@
 		transition: all 0.2s;
 		position: relative;
 	}
-	
+
 	@media (max-width: 640px) {
 		.feed-tab {
 			font-size: 0.875rem;
 			padding: 0.875rem 0.5rem;
 		}
 	}
-	
+
 	.feed-tab:hover {
 		color: var(--color-text-primary);
 	}
-	
+
 	.feed-tab.active {
 		color: var(--color-text-primary);
 	}
-	
+
 	.feed-tab.active::after {
 		content: '';
 		position: absolute;
@@ -131,7 +140,7 @@
 		background: var(--color-primary);
 		animation: slideIn 0.3s ease;
 	}
-	
+
 	@keyframes slideIn {
 		from {
 			transform: scaleX(0);
@@ -140,12 +149,12 @@
 			transform: scaleX(1);
 		}
 	}
-	
+
 	@media (min-width: 768px) {
 		.main-content {
 			padding-bottom: 0;
 		}
-		
+
 		.feed-selector {
 			top: 60px; /* Account for desktop header */
 		}

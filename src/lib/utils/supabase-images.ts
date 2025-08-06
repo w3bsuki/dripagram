@@ -21,26 +21,23 @@ interface UploadOptions {
 /**
  * Get the public URL for a Supabase Storage image
  */
-export function getSupabaseImageUrl(
-	path: string,
-	options?: ImageTransformOptions
-): string {
+export function getSupabaseImageUrl(path: string, options?: ImageTransformOptions): string {
 	// This is a placeholder - will be updated when Supabase is configured
 	const baseUrl = process.env.PUBLIC_SUPABASE_URL || '';
 	const bucketUrl = `${baseUrl}/storage/v1/object/public`;
-	
+
 	if (!options) {
 		return `${bucketUrl}/${path}`;
 	}
-	
+
 	const params = new URLSearchParams();
-	
+
 	if (options.width) params.append('width', options.width.toString());
 	if (options.height) params.append('height', options.height.toString());
 	if (options.resize) params.append('resize', options.resize);
 	if (options.quality) params.append('quality', options.quality.toString());
 	if (options.format) params.append('format', options.format);
-	
+
 	const queryString = params.toString();
 	return queryString ? `${bucketUrl}/${path}?${queryString}` : `${bucketUrl}/${path}`;
 }
@@ -53,7 +50,7 @@ export function generateFileName(originalName: string, userId?: string): string 
 	const random = Math.random().toString(36).substring(2, 9);
 	const extension = originalName.split('.').pop() || 'jpg';
 	const prefix = userId ? `${userId}-` : '';
-	
+
 	return `${prefix}${timestamp}-${random}.${extension}`;
 }
 
@@ -69,19 +66,19 @@ export function validateImageFile(
 	if (!allowedTypes.includes(file.type)) {
 		return {
 			valid: false,
-			error: `Invalid file type. Allowed types: ${allowedTypes.join(', ')}`
+			error: `Invalid file type. Allowed types: ${allowedTypes.join(', ')}`,
 		};
 	}
-	
+
 	// Check file size
 	const maxSizeBytes = maxSizeMB * 1024 * 1024;
 	if (file.size > maxSizeBytes) {
 		return {
 			valid: false,
-			error: `File size exceeds ${maxSizeMB}MB limit`
+			error: `File size exceeds ${maxSizeMB}MB limit`,
 		};
 	}
-	
+
 	return { valid: true };
 }
 
@@ -96,19 +93,19 @@ export async function compressImage(
 ): Promise<Blob> {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();
-		
+
 		reader.onload = (e) => {
 			const img = new Image();
-			
+
 			img.onload = () => {
 				const canvas = document.createElement('canvas');
 				let width = img.width;
 				let height = img.height;
-				
+
 				// Calculate new dimensions
 				if (width > maxWidth || height > maxHeight) {
 					const aspectRatio = width / height;
-					
+
 					if (width > height) {
 						width = maxWidth;
 						height = width / aspectRatio;
@@ -117,18 +114,18 @@ export async function compressImage(
 						width = height * aspectRatio;
 					}
 				}
-				
+
 				canvas.width = width;
 				canvas.height = height;
-				
+
 				const ctx = canvas.getContext('2d');
 				if (!ctx) {
 					reject(new Error('Failed to get canvas context'));
 					return;
 				}
-				
+
 				ctx.drawImage(img, 0, 0, width, height);
-				
+
 				canvas.toBlob(
 					(blob) => {
 						if (blob) {
@@ -141,11 +138,11 @@ export async function compressImage(
 					quality
 				);
 			};
-			
+
 			img.onerror = () => reject(new Error('Failed to load image'));
 			img.src = e.target?.result as string;
 		};
-		
+
 		reader.onerror = () => reject(new Error('Failed to read file'));
 		reader.readAsDataURL(file);
 	});
@@ -157,21 +154,21 @@ export async function compressImage(
 export function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();
-		
+
 		reader.onload = (e) => {
 			const img = new Image();
-			
+
 			img.onload = () => {
 				resolve({
 					width: img.width,
-					height: img.height
+					height: img.height,
 				});
 			};
-			
+
 			img.onerror = () => reject(new Error('Failed to load image'));
 			img.src = e.target?.result as string;
 		};
-		
+
 		reader.onerror = () => reject(new Error('Failed to read file'));
 		reader.readAsDataURL(file);
 	});
@@ -180,10 +177,7 @@ export function getImageDimensions(file: File): Promise<{ width: number; height:
 /**
  * Create a thumbnail from an image file
  */
-export async function createThumbnail(
-	file: File,
-	thumbnailSize: number = 200
-): Promise<Blob> {
+export async function createThumbnail(file: File, thumbnailSize: number = 200): Promise<Blob> {
 	return compressImage(file, thumbnailSize, thumbnailSize, 0.7);
 }
 
@@ -205,32 +199,32 @@ export function imageToBase64(file: File): Promise<string> {
 export async function extractDominantColor(file: File): Promise<string> {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();
-		
+
 		reader.onload = (e) => {
 			const img = new Image();
-			
+
 			img.onload = () => {
 				const canvas = document.createElement('canvas');
 				const ctx = canvas.getContext('2d');
-				
+
 				if (!ctx) {
 					reject(new Error('Failed to get canvas context'));
 					return;
 				}
-				
+
 				canvas.width = 1;
 				canvas.height = 1;
 				ctx.drawImage(img, 0, 0, 1, 1);
-				
+
 				const pixel = ctx.getImageData(0, 0, 1, 1).data;
 				const rgb = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
 				resolve(rgb);
 			};
-			
+
 			img.onerror = () => reject(new Error('Failed to load image'));
 			img.src = e.target?.result as string;
 		};
-		
+
 		reader.onerror = () => reject(new Error('Failed to read file'));
 		reader.readAsDataURL(file);
 	});
@@ -244,7 +238,7 @@ export function parseStorageUrl(url: string): { bucket: string; path: string } |
 	if (match) {
 		return {
 			bucket: match[1],
-			path: match[2]
+			path: match[2],
 		};
 	}
 	return null;
@@ -262,20 +256,22 @@ export function generatePictureSources(
 ): Array<{ srcset: string; type: string }> {
 	const formats = options?.formats || ['webp', 'avif'];
 	const sizes = options?.sizes || [640, 768, 1024, 1280, 1920];
-	
+
 	const sources: Array<{ srcset: string; type: string }> = [];
-	
+
 	for (const format of formats) {
 		const srcset = sizes
-			.map(size => `${getSupabaseImageUrl(baseUrl, { width: size, format: format as any })} ${size}w`)
+			.map(
+				(size) => `${getSupabaseImageUrl(baseUrl, { width: size, format: format as any })} ${size}w`
+			)
 			.join(', ');
-		
+
 		sources.push({
 			srcset,
-			type: `image/${format}`
+			type: `image/${format}`,
 		});
 	}
-	
+
 	return sources;
 }
 
@@ -292,14 +288,10 @@ export function getTransformedImageUrl(
 /**
  * Get optimized image URL with default optimizations
  */
-export function getOptimizedImageUrl(
-	url: string,
-	width?: number,
-	quality: number = 80
-): string {
+export function getOptimizedImageUrl(url: string, width?: number, quality: number = 80): string {
 	return getSupabaseImageUrl(url, {
 		width,
 		quality,
-		format: 'webp'
+		format: 'webp',
 	});
 }

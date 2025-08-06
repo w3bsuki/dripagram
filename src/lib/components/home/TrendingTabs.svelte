@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { Clock, TrendingUp, MapPin, Heart, Eye, Star } from '@lucide/svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
-	
+
 	let currentTab = $state('new');
-	
+
 	// Sample data for different sections
 	let newProducts = [
 		{
@@ -14,7 +14,7 @@
 			timeAgo: '5 мин',
 			location: 'София',
 			likes: 3,
-			views: 12
+			views: 12,
 		},
 		{
 			id: 2,
@@ -24,7 +24,7 @@
 			timeAgo: '12 мин',
 			location: 'Пловдив',
 			likes: 7,
-			views: 24
+			views: 24,
 		},
 		{
 			id: 3,
@@ -34,7 +34,7 @@
 			timeAgo: '28 мин',
 			location: 'Варна',
 			likes: 12,
-			views: 45
+			views: 45,
 		},
 		{
 			id: 4,
@@ -44,10 +44,10 @@
 			timeAgo: '1 ч',
 			location: 'София',
 			likes: 8,
-			views: 33
-		}
+			views: 33,
+		},
 	];
-	
+
 	let popularProducts = [
 		{
 			id: 5,
@@ -56,7 +56,7 @@
 			image: 'https://picsum.photos/200/250?random=14',
 			likes: 156,
 			views: 1240,
-			engagement: '98%'
+			engagement: '98%',
 		},
 		{
 			id: 6,
@@ -65,7 +65,7 @@
 			image: 'https://picsum.photos/200/250?random=15',
 			likes: 89,
 			views: 567,
-			engagement: '92%'
+			engagement: '92%',
 		},
 		{
 			id: 7,
@@ -74,7 +74,7 @@
 			image: 'https://picsum.photos/200/250?random=16',
 			likes: 234,
 			views: 1890,
-			engagement: '95%'
+			engagement: '95%',
 		},
 		{
 			id: 8,
@@ -83,10 +83,10 @@
 			image: 'https://picsum.photos/200/250?random=17',
 			likes: 67,
 			views: 445,
-			engagement: '87%'
-		}
+			engagement: '87%',
+		},
 	];
-	
+
 	let nearbyProducts = [
 		{
 			id: 9,
@@ -96,7 +96,7 @@
 			distance: '0.5 км',
 			location: 'кв. Лозенец',
 			seller: 'Георги М.',
-			rating: 4.9
+			rating: 4.9,
 		},
 		{
 			id: 10,
@@ -106,7 +106,7 @@
 			distance: '1.2 км',
 			location: 'кв. Студентски',
 			seller: 'Мария П.',
-			rating: 4.7
+			rating: 4.7,
 		},
 		{
 			id: 11,
@@ -116,7 +116,7 @@
 			distance: '2.1 км',
 			location: 'кв. Младост',
 			seller: 'Анна С.',
-			rating: 5.0
+			rating: 5.0,
 		},
 		{
 			id: 12,
@@ -126,10 +126,10 @@
 			distance: '3.5 км',
 			location: 'кв. Витоша',
 			seller: 'Петър Д.',
-			rating: 4.8
-		}
+			rating: 4.8,
+		},
 	];
-	
+
 	function formatNumber(num: number): string {
 		if (num >= 1000) {
 			return (num / 1000).toFixed(1) + 'k';
@@ -138,74 +138,77 @@
 	}
 </script>
 
-<section class="py-12 md:py-16 bg-white">
-	<div class="max-w-7xl mx-auto px-4">
+<section class="bg-white py-12 md:py-16">
+	<div class="mx-auto max-w-7xl px-4">
 		<!-- Section Header -->
-		<div class="text-center mb-12">
-			<h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-				Открий най-доброто
-			</h2>
-			<p class="text-lg text-gray-600">
-				Нови обяви, популярни продукти и находки в близост до теб
-			</p>
+		<div class="mb-12 text-center">
+			<h2 class="mb-4 text-2xl font-bold text-gray-900 md:text-3xl">Открий най-доброто</h2>
+			<p class="text-lg text-gray-600">Нови обяви, популярни продукти и находки в близост до теб</p>
 		</div>
-		
+
 		<!-- Tabs Component -->
-		<Tabs.Root value={currentTab} onValueChange={(value) => currentTab = value || 'new'}>
+		<Tabs.Root value={currentTab} onValueChange={(value) => (currentTab = value || 'new')}>
 			<!-- Tab Navigation -->
-			<Tabs.List class="grid w-full grid-cols-3 mb-8 bg-gray-100 rounded-xl p-1">
-				<Tabs.Trigger 
-					value="new" 
-					class="flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
+			<Tabs.List class="mb-8 grid w-full grid-cols-3 rounded-xl bg-gray-100 p-1">
+				<Tabs.Trigger
+					value="new"
+					class="flex items-center gap-2 rounded-lg px-4 py-3 font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
 				>
 					<Clock size={16} />
 					<span class="hidden sm:inline">Най-нови</span>
 					<span class="sm:hidden">Нови</span>
 				</Tabs.Trigger>
-				<Tabs.Trigger 
-					value="popular" 
-					class="flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
+				<Tabs.Trigger
+					value="popular"
+					class="flex items-center gap-2 rounded-lg px-4 py-3 font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
 				>
 					<TrendingUp size={16} />
 					<span class="hidden sm:inline">Популярни</span>
 					<span class="sm:hidden">Топ</span>
 				</Tabs.Trigger>
-				<Tabs.Trigger 
-					value="nearby" 
-					class="flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
+				<Tabs.Trigger
+					value="nearby"
+					class="flex items-center gap-2 rounded-lg px-4 py-3 font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
 				>
 					<MapPin size={16} />
 					<span class="hidden sm:inline">В близост</span>
 					<span class="sm:hidden">Близо</span>
 				</Tabs.Trigger>
 			</Tabs.List>
-			
+
 			<!-- New Products Content -->
 			<Tabs.Content value="new" class="mt-0">
-				<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+				<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
 					{#each newProducts as product}
-						<a href="/products/{product.id}" class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all">
+						<a
+							href="/products/{product.id}"
+							class="group overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-lg"
+						>
 							<div class="relative aspect-[4/5] overflow-hidden">
-								<img 
+								<img
 									src={product.image}
 									alt={product.title}
-									class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+									class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
 									loading="lazy"
 								/>
 								<!-- New badge -->
-								<div class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+								<div
+									class="absolute top-2 left-2 rounded-full bg-green-500 px-2 py-1 text-xs font-medium text-white"
+								>
 									Ново
 								</div>
 								<!-- Time ago -->
-								<div class="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
+								<div
+									class="absolute top-2 right-2 rounded-full bg-black/50 px-2 py-1 text-xs text-white backdrop-blur-sm"
+								>
 									{product.timeAgo}
 								</div>
 							</div>
 							<div class="p-3">
-								<h3 class="font-semibold text-gray-900 mb-1 line-clamp-2 text-sm">
+								<h3 class="mb-1 line-clamp-2 text-sm font-semibold text-gray-900">
 									{product.title}
 								</h3>
-								<p class="text-lg font-bold text-gray-900 mb-2">{product.price} лв</p>
+								<p class="mb-2 text-lg font-bold text-gray-900">{product.price} лв</p>
 								<div class="flex items-center justify-between text-xs text-gray-500">
 									<div class="flex items-center gap-1">
 										<MapPin size={10} />
@@ -227,39 +230,49 @@
 					{/each}
 				</div>
 				<div class="mt-8 text-center">
-					<a href="/products?sort=newest" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 transition-colors">
+					<a
+						href="/products?sort=newest"
+						class="bg-primary hover:bg-primary/90 inline-flex items-center gap-2 rounded-xl px-6 py-3 font-medium text-white transition-colors"
+					>
 						<Clock size={16} />
 						Виж всички нови обяви
 					</a>
 				</div>
 			</Tabs.Content>
-			
+
 			<!-- Popular Products Content -->
 			<Tabs.Content value="popular" class="mt-0">
-				<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+				<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
 					{#each popularProducts as product}
-						<a href="/products/{product.id}" class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all">
+						<a
+							href="/products/{product.id}"
+							class="group overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-lg"
+						>
 							<div class="relative aspect-[4/5] overflow-hidden">
-								<img 
+								<img
 									src={product.image}
 									alt={product.title}
-									class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+									class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
 									loading="lazy"
 								/>
 								<!-- Popular badge -->
-								<div class="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+								<div
+									class="absolute top-2 left-2 rounded-full bg-orange-500 px-2 py-1 text-xs font-medium text-white"
+								>
 									🔥 Популярно
 								</div>
 								<!-- Engagement -->
-								<div class="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
+								<div
+									class="absolute top-2 right-2 rounded-full bg-black/50 px-2 py-1 text-xs text-white backdrop-blur-sm"
+								>
 									{product.engagement}
 								</div>
 							</div>
 							<div class="p-3">
-								<h3 class="font-semibold text-gray-900 mb-1 line-clamp-2 text-sm">
+								<h3 class="mb-1 line-clamp-2 text-sm font-semibold text-gray-900">
 									{product.title}
 								</h3>
-								<p class="text-lg font-bold text-gray-900 mb-2">{product.price} лв</p>
+								<p class="mb-2 text-lg font-bold text-gray-900">{product.price} лв</p>
 								<div class="flex items-center justify-between text-xs text-gray-500">
 									<div class="flex items-center gap-2">
 										<div class="flex items-center gap-1">
@@ -271,46 +284,52 @@
 											<span>{formatNumber(product.views)}</span>
 										</div>
 									</div>
-									<div class="text-orange-600 font-medium">
-										Топ продукт
-									</div>
+									<div class="font-medium text-orange-600">Топ продукт</div>
 								</div>
 							</div>
 						</a>
 					{/each}
 				</div>
 				<div class="mt-8 text-center">
-					<a href="/products?sort=popular" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 transition-colors">
+					<a
+						href="/products?sort=popular"
+						class="bg-primary hover:bg-primary/90 inline-flex items-center gap-2 rounded-xl px-6 py-3 font-medium text-white transition-colors"
+					>
 						<TrendingUp size={16} />
 						Виж най-популярните
 					</a>
 				</div>
 			</Tabs.Content>
-			
+
 			<!-- Nearby Products Content -->
 			<Tabs.Content value="nearby" class="mt-0">
-				<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+				<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
 					{#each nearbyProducts as product}
-						<a href="/products/{product.id}" class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all">
+						<a
+							href="/products/{product.id}"
+							class="group overflow-hidden rounded-xl border border-gray-200 bg-white transition-all hover:shadow-lg"
+						>
 							<div class="relative aspect-[4/5] overflow-hidden">
-								<img 
+								<img
 									src={product.image}
 									alt={product.title}
-									class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+									class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
 									loading="lazy"
 								/>
 								<!-- Distance badge -->
-								<div class="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+								<div
+									class="absolute top-2 left-2 rounded-full bg-blue-500 px-2 py-1 text-xs font-medium text-white"
+								>
 									📍 {product.distance}
 								</div>
 							</div>
 							<div class="p-3">
-								<h3 class="font-semibold text-gray-900 mb-1 line-clamp-2 text-sm">
+								<h3 class="mb-1 line-clamp-2 text-sm font-semibold text-gray-900">
 									{product.title}
 								</h3>
-								<p class="text-lg font-bold text-gray-900 mb-2">{product.price} лв</p>
-								<div class="text-xs text-gray-500 mb-1">
-									<div class="flex items-center gap-1 mb-1">
+								<p class="mb-2 text-lg font-bold text-gray-900">{product.price} лв</p>
+								<div class="mb-1 text-xs text-gray-500">
+									<div class="mb-1 flex items-center gap-1">
 										<MapPin size={10} />
 										<span>{product.location}</span>
 									</div>
@@ -327,7 +346,10 @@
 					{/each}
 				</div>
 				<div class="mt-8 text-center">
-					<a href="/products?sort=nearby" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 transition-colors">
+					<a
+						href="/products?sort=nearby"
+						class="bg-primary hover:bg-primary/90 inline-flex items-center gap-2 rounded-xl px-6 py-3 font-medium text-white transition-colors"
+					>
 						<MapPin size={16} />
 						Виж всички наблизо
 					</a>

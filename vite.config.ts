@@ -1,4 +1,4 @@
-import { paraglideVitePlugin } from "@inlang/paraglide-js"
+import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
@@ -7,8 +7,8 @@ export default defineConfig({
 	plugins: [
 		sveltekit(),
 		paraglideVitePlugin({
-			project: "./project.inlang",
-			outdir: "./src/lib/paraglide",
+			project: './project.inlang',
+			outdir: './src/lib/paraglide',
 		}),
 		tailwindcss(),
 	],
@@ -16,14 +16,14 @@ export default defineConfig({
 		port: 3000,
 		strictPort: false,
 		hmr: {
-			overlay: false
-		}
+			overlay: false,
+		},
 	},
 	build: {
 		sourcemap: true,
 		minify: 'esbuild',
 		cssMinify: 'esbuild',
-		target: ['es2022', 'chrome89', 'firefox89', 'safari15']
+		target: ['es2022', 'chrome89', 'firefox89', 'safari15'],
 	},
 	optimizeDeps: {
 		include: [
@@ -37,8 +37,8 @@ export default defineConfig({
 			'zod',
 			'clsx',
 			'tailwind-merge',
-			'class-variance-authority'
+			'class-variance-authority',
 		],
-		exclude: ['@sveltejs/kit']
-	}
+		exclude: ['@sveltejs/kit'],
+	},
 });

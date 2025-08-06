@@ -1,6 +1,7 @@
 # 🚀 Driplo.bg Development Setup Guide
 
 ## Prerequisites
+
 - Node.js 18+ installed
 - Git installed
 - VS Code (recommended)
@@ -45,59 +46,63 @@ npx @skeletonlabs/skeleton create
 ## Step 3: Configuration Files
 
 ### tailwind.config.js
+
 ```javascript
 import { join } from 'path';
 import { skeleton } from '@skeletonlabs/tw-plugin';
 
 export default {
-  darkMode: 'class',
-  content: [
-    './src/**/*.{html,js,svelte,ts}',
-    join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}')
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [
-    skeleton({
-      themes: { preset: [ "modern" ] }
-    })
-  ],
+	darkMode: 'class',
+	content: [
+		'./src/**/*.{html,js,svelte,ts}',
+		join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}'),
+	],
+	theme: {
+		extend: {},
+	},
+	plugins: [
+		skeleton({
+			themes: { preset: ['modern'] },
+		}),
+	],
 };
 ```
 
 ### src/app.html
+
 ```html
 <!DOCTYPE html>
 <html lang="bg" class="%sveltekit.theme%">
-<head>
-  <meta charset="utf-8" />
-  <link rel="icon" href="%sveltekit.assets%/favicon.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Driplo.bg - Втора употреба мода</title>
-  %sveltekit.head%
-</head>
-<body data-sveltekit-preload-data="hover" data-theme="modern">
-  <div style="display: contents">%sveltekit.body%</div>
-</body>
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Driplo.bg - Втора употреба мода</title>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover" data-theme="modern">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
 </html>
 ```
 
 ### vite.config.ts
+
 ```typescript
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [sveltekit()],
-  server: {
-    port: 3000,
-    host: true
-  }
+	plugins: [sveltekit()],
+	server: {
+		port: 3000,
+		host: true,
+	},
 });
 ```
 
 ### .env.local
+
 ```env
 PUBLIC_SUPABASE_URL=your_supabase_url_here
 PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
@@ -107,6 +112,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 ## Step 4: Supabase Setup
 
 ### Initialize Supabase
+
 ```bash
 npm install -g supabase
 supabase login
@@ -115,6 +121,7 @@ supabase start
 ```
 
 ### Database Schema
+
 Create file `supabase/migrations/001_initial_schema.sql`:
 
 ```sql
@@ -249,6 +256,7 @@ create trigger handle_products_updated_at before update on products
 ```
 
 ### Apply Migration
+
 ```bash
 supabase db reset
 supabase db push
@@ -292,6 +300,7 @@ src/
 ## Step 6: Core Files
 
 ### src/lib/utils/supabase.ts
+
 ```typescript
 import { createClient } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
@@ -299,121 +308,109 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/publi
 export const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
 
 export type Database = {
-  public: {
-    Tables: {
-      profiles: {
-        Row: {
-          id: string;
-          display_name: string | null;
-          avatar_url: string | null;
-          phone: string | null;
-          location: string | null;
-          rating: number | null;
-          total_sales: number | null;
-          is_verified: boolean | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id: string;
-          display_name?: string | null;
-          avatar_url?: string | null;
-          phone?: string | null;
-          location?: string | null;
-          rating?: number | null;
-          total_sales?: number | null;
-          is_verified?: boolean | null;
-        };
-        Update: {
-          display_name?: string | null;
-          avatar_url?: string | null;
-          phone?: string | null;
-          location?: string | null;
-          rating?: number | null;
-          total_sales?: number | null;
-          is_verified?: boolean | null;
-        };
-      };
-      products: {
-        Row: {
-          id: string;
-          title: string;
-          description: string | null;
-          price: number;
-          images: string[];
-          category: string;
-          condition: string;
-          size: string | null;
-          brand: string | null;
-          location: string;
-          is_active: boolean;
-          is_sold: boolean;
-          view_count: number;
-          user_id: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          title: string;
-          description?: string | null;
-          price: number;
-          images?: string[];
-          category: string;
-          condition: string;
-          size?: string | null;
-          brand?: string | null;
-          location: string;
-          user_id: string;
-        };
-        Update: {
-          title?: string;
-          description?: string | null;
-          price?: number;
-          images?: string[];
-          category?: string;
-          condition?: string;
-          size?: string | null;
-          brand?: string | null;
-          location?: string;
-          is_active?: boolean;
-          is_sold?: boolean;
-        };
-      };
-    };
-  };
+	public: {
+		Tables: {
+			profiles: {
+				Row: {
+					id: string;
+					display_name: string | null;
+					avatar_url: string | null;
+					phone: string | null;
+					location: string | null;
+					rating: number | null;
+					total_sales: number | null;
+					is_verified: boolean | null;
+					created_at: string;
+					updated_at: string;
+				};
+				Insert: {
+					id: string;
+					display_name?: string | null;
+					avatar_url?: string | null;
+					phone?: string | null;
+					location?: string | null;
+					rating?: number | null;
+					total_sales?: number | null;
+					is_verified?: boolean | null;
+				};
+				Update: {
+					display_name?: string | null;
+					avatar_url?: string | null;
+					phone?: string | null;
+					location?: string | null;
+					rating?: number | null;
+					total_sales?: number | null;
+					is_verified?: boolean | null;
+				};
+			};
+			products: {
+				Row: {
+					id: string;
+					title: string;
+					description: string | null;
+					price: number;
+					images: string[];
+					category: string;
+					condition: string;
+					size: string | null;
+					brand: string | null;
+					location: string;
+					is_active: boolean;
+					is_sold: boolean;
+					view_count: number;
+					user_id: string;
+					created_at: string;
+					updated_at: string;
+				};
+				Insert: {
+					title: string;
+					description?: string | null;
+					price: number;
+					images?: string[];
+					category: string;
+					condition: string;
+					size?: string | null;
+					brand?: string | null;
+					location: string;
+					user_id: string;
+				};
+				Update: {
+					title?: string;
+					description?: string | null;
+					price?: number;
+					images?: string[];
+					category?: string;
+					condition?: string;
+					size?: string | null;
+					brand?: string | null;
+					location?: string;
+					is_active?: boolean;
+					is_sold?: boolean;
+				};
+			};
+		};
+	};
 };
 ```
 
 ### src/lib/utils/constants.ts
-```typescript
-export const CATEGORIES = [
-  'Дамски',
-  'Мъжки', 
-  'Детски',
-  'Обувки',
-  'Чанти',
-  'Аксесоари'
-] as const;
 
-export const CONDITIONS = [
-  'Ново',
-  'Като ново',
-  'Много добро',
-  'Добро',
-  'Задоволително'
-] as const;
+```typescript
+export const CATEGORIES = ['Дамски', 'Мъжки', 'Детски', 'Обувки', 'Чанти', 'Аксесоари'] as const;
+
+export const CONDITIONS = ['Ново', 'Като ново', 'Много добро', 'Добро', 'Задоволително'] as const;
 
 export const LOCATIONS = [
-  'София',
-  'Пловдив',
-  'Варна',
-  'Бургас',
-  'Русе',
-  'Стара Загора',
-  'Плевен',
-  'Сливен',
-  'Добрич',
-  'Шумен'
+	'София',
+	'Пловдив',
+	'Варна',
+	'Бургас',
+	'Русе',
+	'Стара Загора',
+	'Плевен',
+	'Сливен',
+	'Добрич',
+	'Шумен',
 ] as const;
 
 export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -456,6 +453,7 @@ supabase gen types typescript --local > src/lib/types/database.ts  # Generate ty
 ## Step 8: VS Code Extensions (Recommended)
 
 Install these extensions:
+
 - Svelte for VS Code
 - Tailwind CSS IntelliSense
 - Prettier - Code formatter
@@ -474,6 +472,7 @@ Install these extensions:
 ## Step 10: Deployment Preparation
 
 ### Environment Variables (Production)
+
 ```env
 PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 PUBLIC_SUPABASE_ANON_KEY=your-anon-key
@@ -481,6 +480,7 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
 ### Build and Deploy
+
 ```bash
 # Build for production
 npm run build
@@ -497,24 +497,28 @@ npm run preview
 ### Common Issues
 
 **Supabase not starting:**
+
 ```bash
 supabase stop
 supabase start
 ```
 
 **TypeScript errors:**
+
 ```bash
 npm run check
 # Fix reported errors before continuing
 ```
 
 **Build fails:**
+
 ```bash
 npm run build
 # Check console for specific errors
 ```
 
 **Dependencies issues:**
+
 ```bash
 rm -rf node_modules package-lock.json
 npm install

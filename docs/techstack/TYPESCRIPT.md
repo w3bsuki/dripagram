@@ -1,8 +1,8 @@
 # TypeScript Audit - Driplo.bg
 
-**Grade: C-** 
+**Grade: C-**
 
-*"Functional but flawed. We have strict mode enabled and decent database types, but we're bleeding `any` types everywhere. Not terrible, but far from good TypeScript practice."*
+_"Functional but flawed. We have strict mode enabled and decent database types, but we're bleeding `any` types everywhere. Not terrible, but far from good TypeScript practice."_
 
 ---
 
@@ -13,7 +13,8 @@
 - **Integration**: Svelte 5 + SvelteKit 2
 - **Database Types**: Auto-generated Supabase types (✅ Excellent)
 
-**Official Documentation**: 
+**Official Documentation**:
+
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [TSConfig Reference](https://www.typescriptlang.org/tsconfig)
 - [Strict Mode Guide](https://www.typescriptlang.org/docs/handbook/strict.html)
@@ -25,22 +26,24 @@
 ### ✅ What's Working
 
 **Base Configuration** (`tsconfig.json`):
+
 ```json
 {
-  "extends": "./.svelte-kit/tsconfig.json",
-  "compilerOptions": {
-    "strict": true,                           // ✅ CRITICAL - Strict mode enabled
-    "allowJs": true,                          // ✅ Good for migration
-    "checkJs": true,                          // ✅ Type checking JS files
-    "esModuleInterop": true,                  // ✅ Modern modules
-    "forceConsistentCasingInFileNames": true, // ✅ Cross-platform safety
-    "skipLibCheck": true,                     // ✅ Performance optimization
-    "moduleResolution": "bundler"             // ✅ Modern resolution
-  }
+	"extends": "./.svelte-kit/tsconfig.json",
+	"compilerOptions": {
+		"strict": true, // ✅ CRITICAL - Strict mode enabled
+		"allowJs": true, // ✅ Good for migration
+		"checkJs": true, // ✅ Type checking JS files
+		"esModuleInterop": true, // ✅ Modern modules
+		"forceConsistentCasingInFileNames": true, // ✅ Cross-platform safety
+		"skipLibCheck": true, // ✅ Performance optimization
+		"moduleResolution": "bundler" // ✅ Modern resolution
+	}
 }
 ```
 
 **SvelteKit Generated Config**:
+
 - ✅ Proper path mapping (`$lib`, `$app/types`)
 - ✅ Modern target (`esnext`)
 - ✅ Correct module settings
@@ -62,6 +65,7 @@
 **`any` Type Pollution Count: 60+ instances**
 
 Critical violations found:
+
 ```typescript
 // 🚨 TERRIBLE - Generic any parameters
 function handleProductClick(product: any) {
@@ -88,6 +92,7 @@ export interface DataTableProps<T = any> {
 ```
 
 **Type Safety Violations:**
+
 - **60+ `any` types** across codebase (UNACCEPTABLE)
 - **0 `@ts-ignore`** comments (surprisingly good)
 - **Multiple type assertions** with `as any`
@@ -101,22 +106,30 @@ export interface DataTableProps<T = any> {
 ### ✅ EXCELLENT - Auto-generated Supabase Types
 
 **Generated Database Types** (`database.types.ts`):
+
 ```typescript
 export interface Database {
-  public: {
-    Tables: {
-      profiles: {
-        Row: { /* fully typed */ }
-        Insert: { /* fully typed */ }
-        Update: { /* fully typed */ }
-      }
-      // ... all tables properly typed
-    }
-  }
+	public: {
+		Tables: {
+			profiles: {
+				Row: {
+					/* fully typed */
+				};
+				Insert: {
+					/* fully typed */
+				};
+				Update: {
+					/* fully typed */
+				};
+			};
+			// ... all tables properly typed
+		};
+	};
 }
 ```
 
 **What's Excellent:**
+
 - ✅ **Full database schema typing**
 - ✅ **Row/Insert/Update type variants**
 - ✅ **Proper union types** for enums
@@ -130,29 +143,32 @@ export interface Database {
 ### ✅ Some Good Practices
 
 **App-level Types** (`app.d.ts`):
+
 ```typescript
 declare global {
-  namespace App {
-    interface Locals {
-      supabase: SupabaseClient<Database>  // ✅ Properly typed
-      safeGetSession(): Promise<{ session: Session | null; user: User | null }>
-    }
-  }
+	namespace App {
+		interface Locals {
+			supabase: SupabaseClient<Database>; // ✅ Properly typed
+			safeGetSession(): Promise<{ session: Session | null; user: User | null }>;
+		}
+	}
 }
 ```
 
 **Component Props** (`components.ts`):
+
 ```typescript
 export interface ButtonProps extends HTMLButtonAttributes {
-  variant?: 'default' | 'destructive' | 'outline';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
-  children?: Snippet;  // ✅ Proper Svelte 5 typing
+	variant?: 'default' | 'destructive' | 'outline';
+	size?: 'default' | 'sm' | 'lg' | 'icon';
+	children?: Snippet; // ✅ Proper Svelte 5 typing
 }
 ```
 
 ### ❌ But Major Issues
 
 **Svelte 5 Component Typing Disasters:**
+
 ```typescript
 // 🚨 TERRIBLE - any children everywhere
 let { children, data }: { children: any; data: LayoutData } = $props();
@@ -173,28 +189,29 @@ interface Props extends Record<string, any> {
 ### 🚨 CRITICAL FAILURES
 
 **Product Service Example:**
+
 ```typescript
 // ✅ GOOD - Proper database typing
 export type Product = Database['public']['Tables']['products']['Row'] & {
-  seller?: {
-    name: string;
-    avatar?: string;
-    rating: number;
-    verified?: boolean;
-  };
+	seller?: {
+		name: string;
+		avatar?: string;
+		rating: number;
+		verified?: boolean;
+	};
 };
 
 // 🚨 TERRIBLE - Transform functions with any
 const transformListing = (listing: any) => {
-  return {
-    ...(item as any).products,  // 🚨 Double any abuse
-    images: Array.isArray((item as any).products?.images) 
-      ? (item as any).products.images : [],
-  };
-}
+	return {
+		...(item as any).products, // 🚨 Double any abuse
+		images: Array.isArray((item as any).products?.images) ? (item as any).products.images : [],
+	};
+};
 ```
 
 **Error Handling Disasters:**
+
 ```typescript
 // 🚨 TERRIBLE - Catch blocks using any
 } catch (error: any) {
@@ -253,7 +270,7 @@ function handleProductClick(product: Product) {
 // ❌ WRONG
 } catch (error: any) {
 
-// ✅ CORRECT  
+// ✅ CORRECT
 } catch (error: unknown) {
   if (error instanceof Error) {
     // Handle known error
@@ -274,6 +291,7 @@ let { children }: { children: Snippet } = $props();
 ### 🏗️ Current Debt Level: **HIGH**
 
 **Type Debt Hotspots:**
+
 1. **Component Props** - 20+ components with `any` children
 2. **Service Layer** - 15+ transform functions untyped
 3. **Error Handling** - 10+ catch blocks using `any`
@@ -330,12 +348,14 @@ let { children }: { children: Snippet } = $props();
 ## Final Verdict: **C-**
 
 **Why C- and not worse:**
+
 - ✅ Strict mode is enabled
 - ✅ Database types are excellent
 - ✅ Build process works correctly
 - ✅ App-level types are solid
 
 **Why not better:**
+
 - 🚨 60+ `any` types everywhere
 - 🚨 Component typing is atrocious
 - 🚨 Service layer full of holes
@@ -347,4 +367,4 @@ let { children }: { children: Snippet } = $props();
 
 ---
 
-*"Fix the `any` types and this could easily be a B+. Keep ignoring them and we'll have runtime bugs that TypeScript should have caught."*
+_"Fix the `any` types and this could easily be a B+. Keep ignoring them and we'll have runtime bugs that TypeScript should have caught."_

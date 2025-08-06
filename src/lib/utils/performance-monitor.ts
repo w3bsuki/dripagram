@@ -31,7 +31,7 @@ const PERFORMANCE_BUDGET: PerformanceBudget = {
 	maxLCP: 2500,
 	maxFID: 100,
 	maxCLS: 0.1,
-	maxINP: 200
+	maxINP: 200,
 };
 
 class PerformanceMonitor {
@@ -84,7 +84,6 @@ class PerformanceMonitor {
 					}
 				});
 				fidObserver.observe({ entryTypes: ['first-input'] });
-
 			} catch (e) {
 				console.warn('Performance monitoring not fully supported');
 			}
@@ -117,7 +116,7 @@ class PerformanceMonitor {
 		// Measure critical CSS (inline styles)
 		const styleElements = document.querySelectorAll('style');
 		let criticalSize = 0;
-		styleElements.forEach(style => {
+		styleElements.forEach((style) => {
 			criticalSize += new Blob([style.innerHTML]).size;
 		});
 		this.metrics.criticalCssSize = criticalSize;
@@ -130,11 +129,18 @@ class PerformanceMonitor {
 		const violations: string[] = [];
 
 		if (this.metrics.cssSize && this.metrics.cssSize > PERFORMANCE_BUDGET.maxCssSize) {
-			violations.push(`CSS size (${Math.round(this.metrics.cssSize / 1024)}KB) exceeds budget (50KB)`);
+			violations.push(
+				`CSS size (${Math.round(this.metrics.cssSize / 1024)}KB) exceeds budget (50KB)`
+			);
 		}
 
-		if (this.metrics.criticalCssSize && this.metrics.criticalCssSize > PERFORMANCE_BUDGET.maxCriticalCss) {
-			violations.push(`Critical CSS (${Math.round(this.metrics.criticalCssSize / 1024)}KB) exceeds budget (14KB)`);
+		if (
+			this.metrics.criticalCssSize &&
+			this.metrics.criticalCssSize > PERFORMANCE_BUDGET.maxCriticalCss
+		) {
+			violations.push(
+				`Critical CSS (${Math.round(this.metrics.criticalCssSize / 1024)}KB) exceeds budget (14KB)`
+			);
 		}
 
 		if (this.metrics.fcp && this.metrics.fcp > PERFORMANCE_BUDGET.maxFCP) {
@@ -155,7 +161,7 @@ class PerformanceMonitor {
 
 		return {
 			passed: violations.length === 0,
-			violations
+			violations,
 		};
 	}
 
@@ -174,19 +180,19 @@ class PerformanceMonitor {
 		const metrics = this.getMetrics();
 
 		console.group('🚀 Driplo Performance Report');
-		
+
 		console.table({
 			'CSS Size': `${Math.round((metrics.cssSize || 0) / 1024)}KB / 50KB`,
 			'Critical CSS': `${Math.round((metrics.criticalCssSize || 0) / 1024)}KB / 14KB`,
-			'FCP': `${metrics.fcp || 'N/A'}ms / 1000ms`,
-			'LCP': `${metrics.lcp || 'N/A'}ms / 2500ms`,
-			'FID': `${metrics.fid || 'N/A'}ms / 100ms`,
-			'CLS': `${metrics.cls || 'N/A'} / 0.1`
+			FCP: `${metrics.fcp || 'N/A'}ms / 1000ms`,
+			LCP: `${metrics.lcp || 'N/A'}ms / 2500ms`,
+			FID: `${metrics.fid || 'N/A'}ms / 100ms`,
+			CLS: `${metrics.cls || 'N/A'} / 0.1`,
 		});
 
 		if (budget.violations.length > 0) {
 			console.warn('⚠️ Performance Budget Violations:');
-			budget.violations.forEach(v => console.warn(`  - ${v}`));
+			budget.violations.forEach((v) => console.warn(`  - ${v}`));
 		} else {
 			console.log('✅ All performance budgets met!');
 		}
@@ -207,7 +213,7 @@ class PerformanceMonitor {
 				event_category: 'Performance',
 				event_label: budget.passed ? 'Within Budget' : 'Over Budget',
 				value: metrics.lcp,
-				custom_map: metrics
+				custom_map: metrics,
 			});
 		}
 	}
@@ -218,11 +224,11 @@ let performanceMonitor: PerformanceMonitor | null = null;
 
 export function getPerformanceMonitor(): PerformanceMonitor | null {
 	if (typeof window === 'undefined') return null;
-	
+
 	if (!performanceMonitor) {
 		performanceMonitor = new PerformanceMonitor();
 	}
-	
+
 	return performanceMonitor;
 }
 

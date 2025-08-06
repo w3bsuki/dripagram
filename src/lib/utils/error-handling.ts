@@ -79,15 +79,15 @@ export function formatErrorMessage(error: unknown): string {
 	if (error instanceof AppError) {
 		return error.message;
 	}
-	
+
 	if (error instanceof Error) {
 		return error.message;
 	}
-	
+
 	if (typeof error === 'string') {
 		return error;
 	}
-	
+
 	return 'An unexpected error occurred';
 }
 
@@ -108,20 +108,20 @@ export function getErrorDetails(error: unknown): Record<string, any> {
 			code: error.code,
 			statusCode: error.statusCode,
 			details: error.details,
-			stack: dev ? error.stack : undefined
+			stack: dev ? error.stack : undefined,
 		};
 	}
-	
+
 	if (error instanceof Error) {
 		return {
 			message: error.message,
 			name: error.name,
-			stack: dev ? error.stack : undefined
+			stack: dev ? error.stack : undefined,
 		};
 	}
-	
+
 	return {
-		error: String(error)
+		error: String(error),
 	};
 }
 
@@ -141,7 +141,7 @@ export function isOperationalError(error: unknown): boolean {
 export function logError(error: unknown, context?: Record<string, any>): void {
 	const details = getErrorDetails(error);
 	const isOperational = isOperationalError(error);
-	
+
 	if (dev) {
 		if (isOperational) {
 			console.warn('[Operational Error]', details, context);
@@ -149,7 +149,7 @@ export function logError(error: unknown, context?: Record<string, any>): void {
 			console.error('[System Error]', details, context);
 		}
 	}
-	
+
 	// In production, you would send to error tracking service
 	// Example: Sentry.captureException(error, { extra: context });
 }
@@ -181,34 +181,28 @@ export async function retryWithBackoff<T>(
 		onRetry?: (attempt: number, error: unknown) => void;
 	} = {}
 ): Promise<T> {
-	const {
-		maxRetries = 3,
-		initialDelay = 1000,
-		maxDelay = 10000,
-		factor = 2,
-		onRetry
-	} = options;
-	
+	const { maxRetries = 3, initialDelay = 1000, maxDelay = 10000, factor = 2, onRetry } = options;
+
 	let lastError: unknown;
 	let delay = initialDelay;
-	
+
 	for (let attempt = 1; attempt <= maxRetries; attempt++) {
 		try {
 			return await fn();
 		} catch (error) {
 			lastError = error;
-			
+
 			if (attempt === maxRetries) {
 				break;
 			}
-			
+
 			onRetry?.(attempt, error);
-			
-			await new Promise(resolve => setTimeout(resolve, delay));
+
+			await new Promise((resolve) => setTimeout(resolve, delay));
 			delay = Math.min(delay * factor, maxDelay);
 		}
 	}
-	
+
 	throw lastError;
 }
 
@@ -218,19 +212,19 @@ export async function retryWithBackoff<T>(
 export function createErrorResponse(error: unknown): Response {
 	const details = getErrorDetails(error);
 	const statusCode = error instanceof AppError ? error.statusCode : 500;
-	
+
 	return new Response(
 		JSON.stringify({
 			error: {
 				message: formatErrorMessage(error),
-				...details
-			}
+				...details,
+			},
 		}),
 		{
 			status: statusCode,
 			headers: {
-				'Content-Type': 'application/json'
-			}
+				'Content-Type': 'application/json',
+			},
 		}
 	);
 }
@@ -243,7 +237,7 @@ export async function parseApiError(response: Response): Promise<AppError> {
 		const data = await response.json();
 		const message = data.error?.message || data.message || 'Request failed';
 		const code = data.error?.code || 'API_ERROR';
-		
+
 		return new AppError(message, code, response.status);
 	} catch {
 		return new AppError(
@@ -261,13 +255,10 @@ export function validateRequired<T extends Record<string, any>>(
 	data: T,
 	fields: (keyof T)[]
 ): void {
-	const missing = fields.filter(field => !data[field]);
-	
+	const missing = fields.filter((field) => !data[field]);
+
 	if (missing.length > 0) {
-		throw new ValidationError(
-			`Missing required fields: ${missing.join(', ')}`,
-			{ missing }
-		);
+		throw new ValidationError(`Missing required fields: ${missing.join(', ')}`, { missing });
 	}
 }
 
@@ -295,6 +286,6 @@ export function withTimeout<T>(
 		promise,
 		new Promise<T>((_, reject) =>
 			setTimeout(() => reject(new AppError(errorMessage, 'TIMEOUT', 408)), timeoutMs)
-		)
+		),
 	]);
 }

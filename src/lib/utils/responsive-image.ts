@@ -31,7 +31,7 @@ interface SrcSetEntry {
  */
 export function generateSrcSet(entries: SrcSetEntry[]): string {
 	return entries
-		.map(entry => {
+		.map((entry) => {
 			const descriptor = entry.descriptor || `${entry.width}w`;
 			return `${entry.url} ${descriptor}`;
 		})
@@ -43,7 +43,7 @@ export function generateSrcSet(entries: SrcSetEntry[]): string {
  */
 export function generateSizes(breakpoints: { maxWidth?: number; size: string }[]): string {
 	return breakpoints
-		.map(bp => {
+		.map((bp) => {
 			if (bp.maxWidth) {
 				return `(max-width: ${bp.maxWidth}px) ${bp.size}`;
 			}
@@ -67,20 +67,20 @@ export function calculateAspectRatio(width: number, height: number): string {
 export function getOptimalImageFormat(): 'avif' | 'webp' | 'jpeg' {
 	// This is a simplified check - in production, you'd want more comprehensive detection
 	if (typeof window === 'undefined') return 'jpeg';
-	
+
 	const canvas = document.createElement('canvas');
 	canvas.width = canvas.height = 1;
-	
+
 	// Check AVIF support
 	if (canvas.toDataURL('image/avif').indexOf('image/avif') === 5) {
 		return 'avif';
 	}
-	
+
 	// Check WebP support
 	if (canvas.toDataURL('image/webp').indexOf('image/webp') === 5) {
 		return 'webp';
 	}
-	
+
 	return 'jpeg';
 }
 
@@ -103,10 +103,7 @@ export function generatePlaceholder(
 /**
  * Generate blur placeholder (LQIP - Low Quality Image Placeholder)
  */
-export function generateBlurPlaceholder(
-	base64Thumbnail: string,
-	blurAmount: number = 20
-): string {
+export function generateBlurPlaceholder(base64Thumbnail: string, blurAmount: number = 20): string {
 	const svg = `
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
 			<filter id="blur">
@@ -151,13 +148,13 @@ export function isImageInViewport(element: HTMLElement, rootMargin: string = '50
 	if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
 		return true; // Assume in viewport if we can't check
 	}
-	
+
 	const rect = element.getBoundingClientRect();
 	const windowHeight = window.innerHeight || document.documentElement.clientHeight;
 	const windowWidth = window.innerWidth || document.documentElement.clientWidth;
-	
+
 	const margin = parseInt(rootMargin) || 0;
-	
+
 	return (
 		rect.bottom >= -margin &&
 		rect.right >= -margin &&
@@ -176,18 +173,21 @@ export function createLazyImageObserver(
 	if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
 		return null;
 	}
-	
-	return new IntersectionObserver((entries) => {
-		entries.forEach(entry => {
-			if (entry.isIntersecting) {
-				onIntersect(entry);
-			}
-		});
-	}, {
-		rootMargin: '50px',
-		threshold: 0.01,
-		...options
-	});
+
+	return new IntersectionObserver(
+		(entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+					onIntersect(entry);
+				}
+			});
+		},
+		{
+			rootMargin: '50px',
+			threshold: 0.01,
+			...options,
+		}
+	);
 }
 
 /**
@@ -215,9 +215,9 @@ export function generatePictureSources(
 	baseSrc: string,
 	variants: { media: string; src: string }[]
 ): ImageSource[] {
-	return variants.map(variant => ({
+	return variants.map((variant) => ({
 		srcset: variant.src,
-		media: variant.media
+		media: variant.media,
 	}));
 }
 
@@ -226,9 +226,10 @@ export function generatePictureSources(
  */
 export async function supportsWebP(): Promise<boolean> {
 	if (typeof window === 'undefined') return false;
-	
-	const webpData = 'data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
-	
+
+	const webpData =
+		'data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
+
 	return new Promise((resolve) => {
 		const img = new Image();
 		img.onload = () => resolve(img.width === 1);
@@ -242,9 +243,10 @@ export async function supportsWebP(): Promise<boolean> {
  */
 export async function supportsAVIF(): Promise<boolean> {
 	if (typeof window === 'undefined') return false;
-	
-	const avifData = 'data:image/avif;base64,AAAAFGZ0eXBhdmlmAAAAAG1pZjEAAACgbWV0YQAAAAAAAAAOcGl0bQAAAAAAAQAAAB5pbG9jAAAAAEQAAAEAAQAAAAEAAAC8AAAAGwAAACgpaW5mAAAAAAAAAQAAABVpbmZlAgAAAAABAABhdjAxAAAAVWlwcnAAAAAoaXBjbwAAABRpc3BlAAAAAAAAAAQAAAAEAAAADGF2MUOBAAAAAAAAFWlwbWEAAAAAAAAAAQABAgECAAAAI21kYXQSAAoIP8R8hAQ0BUAyDWeeUy0JG+QAACANEkA=';
-	
+
+	const avifData =
+		'data:image/avif;base64,AAAAFGZ0eXBhdmlmAAAAAG1pZjEAAACgbWV0YQAAAAAAAAAOcGl0bQAAAAAAAQAAAB5pbG9jAAAAAEQAAAEAAQAAAAEAAAC8AAAAGwAAACgpaW5mAAAAAAAAAQAAABVpbmZlAgAAAAABAABhdjAxAAAAVWlwcnAAAAAoaXBjbwAAABRpc3BlAAAAAAAAAAQAAAAEAAAADGF2MUOBAAAAAAAAFWlwbWEAAAAAAAAAAQABAgECAAAAI21kYXQSAAoIP8R8hAQ0BUAyDWeeUy0JG+QAACANEkA=';
+
 	return new Promise((resolve) => {
 		const img = new Image();
 		img.onload = () => resolve(img.width === 1);

@@ -56,7 +56,7 @@ export function formatRelativeDate(date: Date | string): string {
 	if (diffInDays < 7) return `${diffInDays} days ago`;
 	if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
 	if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
-	
+
 	return `${Math.floor(diffInDays / 365)} years ago`;
 }
 
@@ -68,7 +68,7 @@ export function debounce<T extends (...args: any[]) => any>(
 	wait: number
 ): (...args: Parameters<T>) => void {
 	let timeout: ReturnType<typeof setTimeout>;
-	
+
 	return (...args: Parameters<T>) => {
 		clearTimeout(timeout);
 		timeout = setTimeout(() => func(...args), wait);

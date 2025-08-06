@@ -3,6 +3,7 @@
 ## Frontend Architecture
 
 ### Core Framework
+
 ```yaml
 Framework: SvelteKit 2.27+
 Svelte Version: 5.37+ (with runes)
@@ -11,6 +12,7 @@ Build Tool: Vite 7.x
 ```
 
 ### UI & Styling
+
 ```yaml
 UI Framework: Skeleton UI v2.x
 Theme: "modern" preset (clean, professional)
@@ -20,6 +22,7 @@ Fonts: System fonts (Inter fallback)
 ```
 
 ### State Management
+
 ```yaml
 Global State: Svelte 5 runes ($state, $derived)
 Local State: Component-level $state()
@@ -30,6 +33,7 @@ Real-time: Supabase subscriptions
 ## Backend Architecture
 
 ### Database & Auth
+
 ```yaml
 Database: Supabase PostgreSQL
 Authentication: Supabase Auth
@@ -41,6 +45,7 @@ Edge Functions: Supabase Functions (when needed)
 ### Database Design
 
 #### Core Tables
+
 ```sql
 -- User profiles (extends Supabase auth.users)
 profiles {
@@ -95,6 +100,7 @@ favorites {
 ```
 
 #### Row Level Security (RLS)
+
 ```sql
 -- Products: Public read, owner write
 "Products are viewable by everyone" (SELECT: is_active = true)
@@ -115,6 +121,7 @@ favorites {
 ## File Structure
 
 ### Application Structure
+
 ```
 src/
 ├── lib/
@@ -164,65 +171,71 @@ src/
 ### Component Design Principles
 
 #### Skeleton UI Usage
+
 ```svelte
 <!-- Use Skeleton components exclusively -->
 <script>
-  import { 
-    AppShell, AppBar, Card, Button, 
-    InputChip, Avatar, ProgressBar 
-  } from '@skeletonlabs/skeleton';
+	import {
+		AppShell,
+		AppBar,
+		Card,
+		Button,
+		InputChip,
+		Avatar,
+		ProgressBar,
+	} from '@skeletonlabs/skeleton';
 </script>
 
 <!-- Clean, minimal structure -->
-<Card class="p-4 space-y-4">
-  <header class="flex justify-between items-center">
-    <h2 class="h3">Product Title</h2>
-    <Button size="sm">Action</Button>
-  </header>
-  <div class="space-y-2">
-    <!-- Content -->
-  </div>
+<Card class="space-y-4 p-4">
+	<header class="flex items-center justify-between">
+		<h2 class="h3">Product Title</h2>
+		<Button size="sm">Action</Button>
+	</header>
+	<div class="space-y-2">
+		<!-- Content -->
+	</div>
 </Card>
 ```
 
 #### Svelte 5 Patterns
+
 ```svelte
 <script lang="ts">
-  // Props (read-only)
-  let { product, onUpdate } = $props();
-  
-  // Local state
-  let isLoading = $state(false);
-  let formData = $state({
-    title: product?.title ?? '',
-    price: product?.price ?? 0
-  });
-  
-  // Derived state
-  let isValid = $derived(
-    formData.title.length >= 3 && formData.price > 0
-  );
-  
-  // Effects
-  $effect(() => {
-    console.log('Product changed:', product);
-  });
-  
-  // Event handlers
-  async function handleSubmit() {
-    isLoading = true;
-    try {
-      await onUpdate?.(formData);
-    } finally {
-      isLoading = false;
-    }
-  }
+	// Props (read-only)
+	let { product, onUpdate } = $props();
+
+	// Local state
+	let isLoading = $state(false);
+	let formData = $state({
+		title: product?.title ?? '',
+		price: product?.price ?? 0,
+	});
+
+	// Derived state
+	let isValid = $derived(formData.title.length >= 3 && formData.price > 0);
+
+	// Effects
+	$effect(() => {
+		console.log('Product changed:', product);
+	});
+
+	// Event handlers
+	async function handleSubmit() {
+		isLoading = true;
+		try {
+			await onUpdate?.(formData);
+		} finally {
+			isLoading = false;
+		}
+	}
 </script>
 ```
 
 ## Performance Optimization
 
 ### Bundle Optimization
+
 ```yaml
 Code Splitting: Automatic route-based splitting
 Tree Shaking: Dead code elimination
@@ -232,6 +245,7 @@ CSS Purging: Unused Tailwind classes removed
 ```
 
 ### Runtime Optimization
+
 ```yaml
 SSR: Server-side rendering for SEO
 Preloading: Link prefetching on hover
@@ -241,6 +255,7 @@ CDN: Static assets served from CDN
 ```
 
 ### Database Optimization
+
 ```sql
 -- Indexes for common queries
 CREATE INDEX products_category_idx ON products(category);
@@ -249,13 +264,14 @@ CREATE INDEX products_created_at_idx ON products(created_at DESC);
 CREATE INDEX products_user_id_idx ON products(user_id);
 
 -- Full-text search index
-CREATE INDEX products_search_idx ON products 
+CREATE INDEX products_search_idx ON products
 USING gin(to_tsvector('bulgarian', title || ' ' || coalesce(description, '')));
 ```
 
 ## Security Architecture
 
 ### Authentication Flow
+
 ```mermaid
 graph TD
     A[User] --> B[Supabase Auth]
@@ -265,20 +281,22 @@ graph TD
 ```
 
 ### Data Validation
+
 ```typescript
 // Input validation with Zod
 import { z } from 'zod';
 
 const productSchema = z.object({
-  title: z.string().min(3).max(100),
-  price: z.number().positive().max(10000),
-  category: z.enum(CATEGORIES),
-  condition: z.enum(CONDITIONS),
-  images: z.array(z.string().url()).max(5)
+	title: z.string().min(3).max(100),
+	price: z.number().positive().max(10000),
+	category: z.enum(CATEGORIES),
+	condition: z.enum(CONDITIONS),
+	images: z.array(z.string().url()).max(5),
 });
 ```
 
 ### File Upload Security
+
 ```typescript
 // Image upload constraints
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -286,14 +304,15 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 // Server-side validation
 function validateImageUpload(file: File) {
-  if (file.size > MAX_FILE_SIZE) throw new Error('File too large');
-  if (!ALLOWED_TYPES.includes(file.type)) throw new Error('Invalid file type');
+	if (file.size > MAX_FILE_SIZE) throw new Error('File too large');
+	if (!ALLOWED_TYPES.includes(file.type)) throw new Error('Invalid file type');
 }
 ```
 
 ## Deployment Architecture
 
 ### Development Environment
+
 ```yaml
 Local Database: Supabase CLI (Docker)
 Development Server: Vite dev server
@@ -302,6 +321,7 @@ Type Checking: Real-time with svelte-check
 ```
 
 ### Production Environment
+
 ```yaml
 Hosting: Vercel/Netlify (static)
 Database: Supabase Cloud
@@ -311,6 +331,7 @@ Monitoring: Built-in analytics
 ```
 
 ### CI/CD Pipeline
+
 ```yaml
 Code Quality:
   - TypeScript type checking
@@ -335,6 +356,7 @@ Deployment:
 ## Monitoring & Analytics
 
 ### Performance Metrics
+
 ```yaml
 Core Web Vitals:
   - First Contentful Paint: <1.5s
@@ -351,6 +373,7 @@ Business Metrics:
 ```
 
 ### Error Tracking
+
 ```yaml
 Client Errors: Console logging + Sentry (future)
 Server Errors: Supabase logs
@@ -361,6 +384,7 @@ User Analytics: Privacy-focused analytics
 ## Scalability Considerations
 
 ### Database Scaling
+
 ```yaml
 Read Replicas: Supabase auto-scaling
 Connection Pooling: Built-in pgBouncer
@@ -369,6 +393,7 @@ Data Archiving: Soft delete pattern
 ```
 
 ### Application Scaling
+
 ```yaml
 Static Hosting: Global CDN distribution
 API Caching: Supabase Edge Cache
@@ -377,6 +402,7 @@ Bundle Splitting: Route-based chunks
 ```
 
 ### Future Enhancements
+
 ```yaml
 Search: Elasticsearch/Algolia integration
 Cache: Redis for session storage
@@ -388,6 +414,7 @@ Internationalization: Multi-language support
 ---
 
 **Architecture Principles:**
+
 1. **Simplicity First** - Choose boring, proven technologies
 2. **Performance by Default** - Optimize for speed from day one
 3. **Developer Experience** - Fast feedback loops and great tooling

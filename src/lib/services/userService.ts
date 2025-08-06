@@ -22,18 +22,17 @@ export type UserProfile = {
 };
 
 // Initialize Supabase client
-const supabase = createBrowserClient<Database>(
-	PUBLIC_SUPABASE_URL,
-	PUBLIC_SUPABASE_ANON_KEY
-);
+const supabase = createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
 
 /**
  * Get current user profile
  */
 export async function getCurrentUser() {
-	const { data: { user } } = await supabase.auth.getUser();
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
 	if (!user) return null;
-	
+
 	return getUserProfile(user.id);
 }
 
@@ -41,11 +40,7 @@ export async function getCurrentUser() {
  * Get user profile by ID
  */
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
-	const { data, error } = await supabase
-		.from('profiles')
-		.select('*')
-		.eq('id', userId)
-		.single();
+	const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
 
 	if (error) {
 		console.error('Error fetching user profile:', error);
@@ -67,22 +62,26 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
 		created_at: data.created_at || '',
 		listings_count: 0,
 		followers_count: 0,
-		following_count: 0
+		following_count: 0,
 	};
 }
 
 /**
  * Update user profile
  */
-export async function updateProfile(updates: Partial<{
-	username: string;
-	full_name: string;
-	bio: string;
-	location: string;
-	phone: string;
-	avatar_url: string;
-}>) {
-	const { data: { user } } = await supabase.auth.getUser();
+export async function updateProfile(
+	updates: Partial<{
+		username: string;
+		full_name: string;
+		bio: string;
+		location: string;
+		phone: string;
+		avatar_url: string;
+	}>
+) {
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
 	if (!user) throw new Error('Not authenticated');
 
 	const { data, error } = await supabase
@@ -100,22 +99,20 @@ export async function updateProfile(updates: Partial<{
  * Upload avatar image
  */
 export async function uploadAvatar(file: File): Promise<string> {
-	const { data: { user } } = await supabase.auth.getUser();
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
 	if (!user) throw new Error('Not authenticated');
 
 	const fileExt = file.name.split('.').pop();
 	const fileName = `${user.id}-${Date.now()}.${fileExt}`;
 	const filePath = `avatars/${fileName}`;
 
-	const { error: uploadError } = await supabase.storage
-		.from('avatars')
-		.upload(filePath, file);
+	const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
 
 	if (uploadError) throw uploadError;
 
-	const { data } = supabase.storage
-		.from('avatars')
-		.getPublicUrl(filePath);
+	const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
 
 	return data.publicUrl;
 }
@@ -191,12 +188,12 @@ export async function getUserStats(userId: string) {
 			.from('transactions')
 			.select('*', { count: 'exact' })
 			.eq('seller_id', userId)
-			.eq('status', 'completed')
+			.eq('status', 'completed'),
 	]);
 
 	return {
 		profile,
 		activeListings: listings.count || 0,
-		totalSales: sales.count || 0
+		totalSales: sales.count || 0,
 	};
 }

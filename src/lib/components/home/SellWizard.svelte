@@ -1,12 +1,22 @@
 <script lang="ts">
-	import { Camera, Upload, DollarSign, Tag, MapPin, CheckCircle, ArrowRight, ArrowLeft, Plus } from '@lucide/svelte';
+	import {
+		Camera,
+		Upload,
+		DollarSign,
+		Tag,
+		MapPin,
+		CheckCircle,
+		ArrowRight,
+		ArrowLeft,
+		Plus,
+	} from '@lucide/svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { onMount } from 'svelte';
-	
+
 	// Props
 	let { trigger = 'Продай бързо' } = $props();
-	
+
 	// State
 	let isOpen = $state(false);
 	let isMobile = $state(false);
@@ -18,9 +28,9 @@
 		price: '',
 		description: '',
 		location: 'София',
-		images: [] as string[]
+		images: [] as string[],
 	});
-	
+
 	// Categories
 	let categories = [
 		{ id: 'women', label: 'Дамски', emoji: '👗' },
@@ -28,29 +38,29 @@
 		{ id: 'kids', label: 'Детски', emoji: '🧸' },
 		{ id: 'electronics', label: 'Електроника', emoji: '📱' },
 		{ id: 'home', label: 'Дом', emoji: '🏠' },
-		{ id: 'sports', label: 'Спорт', emoji: '⚽' }
+		{ id: 'sports', label: 'Спорт', emoji: '⚽' },
 	];
-	
+
 	// Conditions
 	let conditions = [
 		{ id: 'new', label: 'Ново', description: 'Неизползвано, с етикети' },
 		{ id: 'excellent', label: 'Отлично', description: 'Като ново, без дефекти' },
 		{ id: 'very-good', label: 'Много добро', description: 'Леки следи от употреба' },
 		{ id: 'good', label: 'Добро', description: 'Видими следи, но функционално' },
-		{ id: 'fair', label: 'Задоволително', description: 'Значителни следи от износване' }
+		{ id: 'fair', label: 'Задоволително', description: 'Значителни следи от износване' },
 	];
-	
+
 	// Locations
 	let locations = ['София', 'Пловдив', 'Варна', 'Бургас', 'Русе', 'Стара Загора'];
-	
+
 	// Steps configuration
 	let steps = [
 		{ id: 1, title: 'Категория', icon: Tag },
 		{ id: 2, title: 'Снимки', icon: Camera },
 		{ id: 3, title: 'Детайли', icon: DollarSign },
-		{ id: 4, title: 'Готово', icon: CheckCircle }
+		{ id: 4, title: 'Готово', icon: CheckCircle },
 	];
-	
+
 	// Check if mobile
 	onMount(() => {
 		const checkMobile = () => {
@@ -60,37 +70,41 @@
 		window.addEventListener('resize', checkMobile);
 		return () => window.removeEventListener('resize', checkMobile);
 	});
-	
+
 	function nextStep() {
 		if (currentStep < 4) {
 			currentStep++;
 		}
 	}
-	
+
 	function prevStep() {
 		if (currentStep > 1) {
 			currentStep--;
 		}
 	}
-	
+
 	function canProceed(): boolean {
 		switch (currentStep) {
-			case 1: return formData.category !== '';
-			case 2: return formData.images.length > 0;
-			case 3: return formData.title !== '' && formData.price !== '' && formData.condition !== '';
-			default: return true;
+			case 1:
+				return formData.category !== '';
+			case 2:
+				return formData.images.length > 0;
+			case 3:
+				return formData.title !== '' && formData.price !== '' && formData.condition !== '';
+			default:
+				return true;
 		}
 	}
-	
+
 	function handleImageUpload() {
 		// Mock image upload
 		formData.images = [...formData.images, `https://picsum.photos/200/200?random=${Date.now()}`];
 	}
-	
+
 	function removeImage(index: number) {
 		formData.images = formData.images.filter((_, i) => i !== index);
 	}
-	
+
 	function handleSubmit() {
 		console.log('Submitting form:', formData);
 		// TODO: Implement actual form submission
@@ -104,10 +118,10 @@
 			price: '',
 			description: '',
 			location: 'София',
-			images: []
+			images: [],
 		};
 	}
-	
+
 	// Render step content
 	function renderStepContent() {
 		switch (currentStep) {
@@ -116,7 +130,9 @@
 					<div class="space-y-4">
 						<h3 class="text-lg font-semibold text-gray-900 mb-4">Избери категория</h3>
 						<div class="grid grid-cols-2 gap-3">
-							${categories.map(category => `
+							${categories
+								.map(
+									(category) => `
 								<button 
 									onclick="formData.category = '${category.id}'"
 									class="p-4 border border-gray-200 rounded-xl hover:border-primary hover:bg-primary/5 transition-all ${formData.category === category.id ? 'border-primary bg-primary/10' : ''}"
@@ -124,7 +140,9 @@
 									<div class="text-2xl mb-2">${category.emoji}</div>
 									<div class="font-medium text-gray-900">${category.label}</div>
 								</button>
-							`).join('')}
+							`
+								)
+								.join('')}
 						</div>
 					</div>
 				`;
@@ -133,7 +151,9 @@
 					<div class="space-y-4">
 						<h3 class="text-lg font-semibold text-gray-900 mb-4">Добави снимки (${formData.images.length}/10)</h3>
 						<div class="grid grid-cols-3 gap-3">
-							${formData.images.map((img, index) => `
+							${formData.images
+								.map(
+									(img, index) => `
 								<div class="relative aspect-square">
 									<img src="${img}" alt="Product ${index + 1}" class="w-full h-full object-cover rounded-lg" />
 									<button 
@@ -141,8 +161,12 @@
 										class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
 									>×</button>
 								</div>
-							`).join('')}
-							${formData.images.length < 10 ? `
+							`
+								)
+								.join('')}
+							${
+								formData.images.length < 10
+									? `
 								<button 
 									onclick="handleImageUpload()"
 									class="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-primary hover:bg-primary/5 transition-all"
@@ -150,7 +174,9 @@
 									<Plus size={24} class="text-gray-400 mb-2" />
 									<span class="text-sm text-gray-600">Добави</span>
 								</button>
-							` : ''}
+							`
+									: ''
+							}
 						</div>
 						<p class="text-sm text-gray-600">Първата снимка ще бъде основна. Добави поне 3 снимки за по-добри резултати.</p>
 					</div>
@@ -180,7 +206,9 @@
 						<div>
 							<label class="block text-sm font-medium text-gray-700 mb-1">Състояние</label>
 							<div class="space-y-2">
-								${conditions.map(condition => `
+								${conditions
+									.map(
+										(condition) => `
 									<button 
 										onclick="formData.condition = '${condition.id}'"
 										class="w-full text-left p-3 border border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-all ${formData.condition === condition.id ? 'border-primary bg-primary/10' : ''}"
@@ -188,7 +216,9 @@
 										<div class="font-medium text-gray-900">${condition.label}</div>
 										<div class="text-sm text-gray-600">${condition.description}</div>
 									</button>
-								`).join('')}
+								`
+									)
+									.join('')}
 							</div>
 						</div>
 						<div>
@@ -232,63 +262,75 @@
 {#if !isMobile}
 	<Dialog.Root bind:open={isOpen}>
 		<Dialog.Trigger>
-			<button class="bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-primary/90 transition-colors">
+			<button
+				class="bg-primary hover:bg-primary/90 rounded-xl px-6 py-3 font-medium text-white transition-colors"
+			>
 				{trigger}
 			</button>
 		</Dialog.Trigger>
-		<Dialog.Content class="max-w-2xl max-h-[90vh] overflow-y-auto">
+		<Dialog.Content class="max-h-[90vh] max-w-2xl overflow-y-auto">
 			<Dialog.Header>
 				<Dialog.Title>Създай обява за 3 минути</Dialog.Title>
 			</Dialog.Header>
-			
+
 			<!-- Progress Steps -->
-			<div class="flex items-center justify-between mb-6">
+			<div class="mb-6 flex items-center justify-between">
 				{#each steps as step}
 					<div class="flex items-center">
-						<div class="w-8 h-8 rounded-full flex items-center justify-center {currentStep >= step.id ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'}">
+						<div
+							class="flex h-8 w-8 items-center justify-center rounded-full {currentStep >= step.id
+								? 'bg-primary text-white'
+								: 'bg-gray-200 text-gray-600'}"
+						>
 							{#if currentStep > step.id}
 								<CheckCircle size={16} />
 							{:else}
 								<svelte:component this={step.icon} size={16} />
 							{/if}
 						</div>
-						<span class="ml-2 text-sm font-medium {currentStep >= step.id ? 'text-primary' : 'text-gray-500'}">{step.title}</span>
+						<span
+							class="ml-2 text-sm font-medium {currentStep >= step.id
+								? 'text-primary'
+								: 'text-gray-500'}">{step.title}</span
+						>
 						{#if step.id < steps.length}
-							<div class="w-8 h-0.5 mx-4 {currentStep > step.id ? 'bg-primary' : 'bg-gray-200'}"></div>
+							<div
+								class="mx-4 h-0.5 w-8 {currentStep > step.id ? 'bg-primary' : 'bg-gray-200'}"
+							></div>
 						{/if}
 					</div>
 				{/each}
 			</div>
-			
+
 			<!-- Step Content -->
 			<div class="mb-6">
 				{@html renderStepContent()}
 			</div>
-			
+
 			<!-- Navigation -->
 			<div class="flex justify-between">
-				<button 
+				<button
 					onclick={prevStep}
 					disabled={currentStep === 1}
-					class="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+					class="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
 				>
 					<ArrowLeft size={16} />
 					Назад
 				</button>
-				
+
 				{#if currentStep < 4}
-					<button 
+					<button
 						onclick={nextStep}
 						disabled={!canProceed()}
-						class="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+						class="bg-primary hover:bg-primary/90 flex items-center gap-2 rounded-lg px-6 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						Напред
 						<ArrowRight size={16} />
 					</button>
 				{:else}
-					<button 
+					<button
 						onclick={handleSubmit}
-						class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
+						class="rounded-lg bg-green-600 px-6 py-2 text-white hover:bg-green-700"
 					>
 						Публикувай обявата
 					</button>
@@ -297,11 +339,13 @@
 		</Dialog.Content>
 	</Dialog.Root>
 
-<!-- Mobile Sheet -->
+	<!-- Mobile Sheet -->
 {:else}
 	<Sheet.Root bind:open={isOpen}>
 		<Sheet.Trigger>
-			<button class="bg-primary text-white px-6 py-3 rounded-xl font-medium hover:bg-primary/90 transition-colors">
+			<button
+				class="bg-primary hover:bg-primary/90 rounded-xl px-6 py-3 font-medium text-white transition-colors"
+			>
 				{trigger}
 			</button>
 		</Sheet.Trigger>
@@ -309,45 +353,47 @@
 			<Sheet.Header>
 				<Sheet.Title>Създай обява</Sheet.Title>
 			</Sheet.Header>
-			
+
 			<!-- Mobile Progress -->
-			<div class="flex justify-center mb-6">
+			<div class="mb-6 flex justify-center">
 				<div class="flex items-center gap-2">
 					{#each steps as step}
-						<div class="w-2 h-2 rounded-full {currentStep >= step.id ? 'bg-primary' : 'bg-gray-300'}"></div>
+						<div
+							class="h-2 w-2 rounded-full {currentStep >= step.id ? 'bg-primary' : 'bg-gray-300'}"
+						></div>
 					{/each}
 				</div>
 				<span class="ml-3 text-sm text-gray-600">Стъпка {currentStep} от {steps.length}</span>
 			</div>
-			
+
 			<!-- Mobile Step Content -->
-			<div class="flex-1 overflow-y-auto mb-6">
+			<div class="mb-6 flex-1 overflow-y-auto">
 				{@html renderStepContent()}
 			</div>
-			
+
 			<!-- Mobile Navigation -->
 			<div class="flex gap-3 border-t border-gray-200 pt-4">
 				{#if currentStep > 1}
-					<button 
+					<button
 						onclick={prevStep}
-						class="flex-1 py-3 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg"
+						class="flex-1 rounded-lg border border-gray-300 py-3 text-gray-600 hover:text-gray-900"
 					>
 						Назад
 					</button>
 				{/if}
-				
+
 				{#if currentStep < 4}
-					<button 
+					<button
 						onclick={nextStep}
 						disabled={!canProceed()}
-						class="flex-1 bg-primary text-white py-3 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+						class="bg-primary hover:bg-primary/90 flex-1 rounded-lg py-3 text-white disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						{currentStep === 3 ? 'Прегледай' : 'Напред'}
 					</button>
 				{:else}
-					<button 
+					<button
 						onclick={handleSubmit}
-						class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700"
+						class="flex-1 rounded-lg bg-green-600 py-3 text-white hover:bg-green-700"
 					>
 						Публикувай
 					</button>

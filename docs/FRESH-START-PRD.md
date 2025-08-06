@@ -18,6 +18,7 @@
 ### 1. Authentication & User Management
 
 #### User Registration
+
 - Email/password signup with verification
 - Optional Google OAuth
 - Profile setup wizard after registration
@@ -25,6 +26,7 @@
 - Age verification (13+ required)
 
 #### User Profiles
+
 - Public profile pages (/profile/[username])
 - Profile photos with upload
 - Bio, location, social links
@@ -32,6 +34,7 @@
 - Join date and verification badges
 
 #### Brand Accounts
+
 - Separate brand registration flow
 - Brand verification process with document upload
 - Business information (tax ID, address)
@@ -41,6 +44,7 @@
 ### 2. Product Listings & Marketplace
 
 #### Product Listings
+
 - Create/edit/delete listings
 - Multiple image upload (up to 8 images)
 - Product details:
@@ -52,8 +56,9 @@
 - Listing analytics for sellers
 
 #### Categories & Navigation
+
 - **Main Categories:** Men, Women, Kids
-- **Subcategories:** 
+- **Subcategories:**
   - Clothing: Tops, Bottoms, Dresses, Outerwear, etc.
   - Shoes: Sneakers, Boots, Dress shoes, etc.
   - Accessories: Bags, Jewelry, Watches, etc.
@@ -63,6 +68,7 @@
 - Condition filters (New, Like New, Good, Fair)
 
 #### Search & Discovery
+
 - Global search with autocomplete
 - Filter combinations (price, size, brand, condition)
 - Sort options (newest, price low/high, popularity)
@@ -72,6 +78,7 @@
 ### 3. E-commerce & Payments
 
 #### Shopping Experience
+
 - Add to cart / Buy now options
 - Guest checkout (with account creation)
 - Wishlist/favorites system
@@ -79,6 +86,7 @@
 - Recently viewed items
 
 #### Checkout Flow
+
 - Shipping address management
 - Payment method selection (Stripe)
 - Order summary and confirmation
@@ -86,12 +94,14 @@
 - Invoice generation
 
 #### Order Management
+
 - Order status tracking
 - Shipping notifications
 - Delivery confirmations
 - Order history for buyers/sellers
 
 #### Payment Processing
+
 - Stripe integration for payments
 - Seller payout management
 - Commission handling (5-10% platform fee)
@@ -101,6 +111,7 @@
 ### 4. Communication & Support
 
 #### Messaging System
+
 - User-to-user messaging
 - Real-time chat interface
 - Image sharing in messages
@@ -108,6 +119,7 @@
 - Block/report functionality
 
 #### Notifications
+
 - In-app notifications
 - Email notifications
 - Push notifications (PWA)
@@ -116,6 +128,7 @@
 ### 5. Reviews & Trust
 
 #### Review System
+
 - 5-star rating system
 - Written reviews
 - Buyer and seller reviews
@@ -123,6 +136,7 @@
 - Response to reviews
 
 #### Trust & Safety
+
 - User verification system
 - Report listing/user functionality
 - Content moderation
@@ -132,18 +146,21 @@
 ### 6. Admin Dashboard
 
 #### User Management
+
 - User list with search/filter
 - Account status management
 - Verification review process
 - Support ticket system
 
 #### Content Management
+
 - Listing moderation queue
 - Review moderation
 - Category management
 - Featured listings
 
 #### Analytics
+
 - Platform metrics (users, listings, sales)
 - Revenue tracking
 - User engagement metrics
@@ -152,6 +169,7 @@
 ## Database Schema (Existing - Use Same Supabase)
 
 ### Core Tables
+
 ```sql
 -- Users (extend auth.users)
 profiles (id, username, full_name, bio, avatar_url, location, etc.)
@@ -179,12 +197,14 @@ brand_verification_requests (id, user_id, business_name, documents, status)
 ## API Routes Specification
 
 ### Authentication
+
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
 - `POST /api/auth/verify` - Email verification
 - `POST /api/auth/reset-password` - Password reset
 
 ### Listings
+
 - `GET /api/listings` - Get listings with filters
 - `POST /api/listings` - Create listing
 - `PUT /api/listings/[id]` - Update listing
@@ -192,16 +212,19 @@ brand_verification_requests (id, user_id, business_name, documents, status)
 - `GET /api/listings/[id]` - Get single listing
 
 ### Orders
+
 - `POST /api/orders` - Create order
 - `GET /api/orders` - Get user orders
 - `PUT /api/orders/[id]` - Update order status
 - `POST /api/orders/[id]/refund` - Process refund
 
 ### Payments
+
 - `POST /api/payment/create-intent` - Create Stripe payment intent
 - `POST /api/stripe/webhooks` - Stripe webhook handler
 
 ### Messages
+
 - `GET /api/messages/conversations` - Get conversations
 - `POST /api/messages/send` - Send message
 - `GET /api/messages/conversations/[id]` - Get conversation messages
@@ -209,6 +232,7 @@ brand_verification_requests (id, user_id, business_name, documents, status)
 ## Page Structure & Routing
 
 ### Public Pages
+
 - `/` - Homepage with featured listings
 - `/browse` - Browse all listings
 - `/[category_slug]` - Category pages (men, women, kids)
@@ -217,6 +241,7 @@ brand_verification_requests (id, user_id, business_name, documents, status)
 - `/profile/[username]` - Public profile pages
 
 ### Authenticated Pages
+
 - `/sell` - Create listing
 - `/messages` - Messages inbox
 - `/messages/[id]` - Conversation view
@@ -225,12 +250,14 @@ brand_verification_requests (id, user_id, business_name, documents, status)
 - `/profile/settings` - Profile settings
 
 ### Brand Pages
+
 - `/brands` - Brand directory
 - `/brands/[slug]` - Brand profile pages
 - `/brands/onboarding` - Brand registration
 - `/brands/analytics` - Brand dashboard
 
 ### Admin Pages
+
 - `/admin` - Admin dashboard
 - `/admin/users` - User management
 - `/admin/listings` - Listing moderation
@@ -239,6 +266,7 @@ brand_verification_requests (id, user_id, business_name, documents, status)
 ## UI/UX Requirements
 
 ### Design System
+
 - Modern, clean interface
 - Mobile-first responsive design
 - Consistent color scheme (likely dark mode support)
@@ -246,6 +274,7 @@ brand_verification_requests (id, user_id, business_name, documents, status)
 - Loading states and error handling
 
 ### Key Components Needed
+
 ```
 Header with search, navigation, user menu
 ProductCard for listing display
@@ -259,6 +288,7 @@ Modal components for various actions
 ```
 
 ### Mobile Experience
+
 - Touch-friendly interface
 - Swipe gestures where appropriate
 - Optimized image loading
@@ -285,24 +315,28 @@ Modal components for various actions
 ## Integration Requirements
 
 ### Stripe Integration
+
 - Payment processing
 - Subscription management (future)
 - Webhook handling
 - Payout management
 
 ### Supabase Integration
+
 - Authentication
 - Real-time subscriptions for messages
 - File storage for images
 - Row Level Security (RLS) policies
 
 ### Email Integration
+
 - Transactional emails (welcome, verification, orders)
 - Email service (Resend or similar)
 
 ## Launch Requirements
 
 ### MVP Features (Must Have)
+
 - User registration/login
 - Create and browse listings
 - Purchase flow with Stripe
@@ -311,6 +345,7 @@ Modal components for various actions
 - Category browsing
 
 ### Post-MVP Features (Nice to Have)
+
 - Brand verification
 - Advanced search
 - Reviews system
@@ -355,6 +390,7 @@ RESEND_API_KEY=your_email_api_key
 ## Implementation Notes for Claude
 
 **Use Svelte 5 syntax exclusively:**
+
 - `onclick` not `on:click`
 - `$props()` not `export let`
 - `$state()` for reactive variables
@@ -362,12 +398,14 @@ RESEND_API_KEY=your_email_api_key
 - `{@render children()}` not `<slot>`
 
 **Database queries should:**
+
 - Use Row Level Security (RLS)
 - Include proper error handling
 - Use TypeScript for type safety
 - Handle edge cases gracefully
 
 **UI should be:**
+
 - Mobile-first responsive
 - Accessible (ARIA labels, keyboard navigation)
 - Fast loading with proper loading states

@@ -26,16 +26,16 @@ export class FocusTrap {
 			clickOutsideDeactivates: true,
 			returnFocusOnDeactivate: true,
 			allowOutsideClick: false,
-			...options
+			...options,
 		};
 	}
 
 	activate(): void {
 		if (this.active) return;
-		
+
 		this.active = true;
 		this.previouslyFocusedElement = document.activeElement as HTMLElement;
-		
+
 		// Set initial focus
 		if (this.options.initialFocus) {
 			this.options.initialFocus.focus();
@@ -45,7 +45,7 @@ export class FocusTrap {
 				firstFocusable.focus();
 			}
 		}
-		
+
 		// Add event listeners
 		document.addEventListener('keydown', this.handleKeyDown);
 		document.addEventListener('mousedown', this.handleClickOutside);
@@ -54,19 +54,19 @@ export class FocusTrap {
 
 	deactivate(): void {
 		if (!this.active) return;
-		
+
 		this.active = false;
-		
+
 		// Remove event listeners
 		document.removeEventListener('keydown', this.handleKeyDown);
 		document.removeEventListener('mousedown', this.handleClickOutside);
 		document.removeEventListener('touchstart', this.handleClickOutside);
-		
+
 		// Return focus to previously focused element
 		if (this.options.returnFocusOnDeactivate && this.previouslyFocusedElement) {
 			this.previouslyFocusedElement.focus();
 		}
-		
+
 		// Call onDeactivate callback if provided
 		if (this.options.onDeactivate) {
 			this.options.onDeactivate();
@@ -84,10 +84,10 @@ export class FocusTrap {
 	private handleTab = (e: KeyboardEvent): void => {
 		const focusableElements = this.getFocusableElements();
 		if (focusableElements.length === 0) return;
-		
+
 		const firstElement = focusableElements[0];
 		const lastElement = focusableElements[focusableElements.length - 1];
-		
+
 		if (e.shiftKey) {
 			// Shift + Tab
 			if (document.activeElement === firstElement) {
@@ -105,7 +105,7 @@ export class FocusTrap {
 
 	private handleClickOutside = (e: MouseEvent | TouchEvent): void => {
 		if (!this.options.clickOutsideDeactivates) return;
-		
+
 		const target = e.target as HTMLElement;
 		if (!this.container.contains(target)) {
 			if (typeof this.options.allowOutsideClick === 'function') {
@@ -127,11 +127,11 @@ export class FocusTrap {
 			'textarea:not([disabled])',
 			'input:not([disabled])',
 			'select:not([disabled])',
-			'[tabindex]:not([tabindex="-1"])'
+			'[tabindex]:not([tabindex="-1"])',
 		].join(',');
-		
+
 		const elements = Array.from(this.container.querySelectorAll<HTMLElement>(selector));
-		return elements.filter(el => {
+		return elements.filter((el) => {
 			const rect = el.getBoundingClientRect();
 			return rect.width > 0 && rect.height > 0 && getComputedStyle(el).visibility !== 'hidden';
 		});
@@ -158,10 +158,10 @@ export function createFocusTrap(container: HTMLElement, options?: FocusTrapOptio
 export function focusTrap(node: HTMLElement, options?: FocusTrapOptions) {
 	const trap = new FocusTrap(node, options);
 	trap.activate();
-	
+
 	return {
 		destroy() {
 			trap.deactivate();
-		}
+		},
 	};
 }

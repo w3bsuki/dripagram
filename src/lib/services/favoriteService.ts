@@ -4,16 +4,15 @@ import type { Database } from '$lib/supabase/types';
 import type { Product } from './productService';
 
 // Initialize Supabase client
-const supabase = createBrowserClient<Database>(
-	PUBLIC_SUPABASE_URL,
-	PUBLIC_SUPABASE_ANON_KEY
-);
+const supabase = createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
 
 /**
  * Toggle favorite status for a product
  */
 export async function toggleFavorite(productId: string): Promise<boolean> {
-	const { data: { user } } = await supabase.auth.getUser();
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
 	if (!user) throw new Error('Must be logged in to favorite items');
 
 	// Check if already favorited
@@ -31,18 +30,16 @@ export async function toggleFavorite(productId: string): Promise<boolean> {
 			.delete()
 			.eq('user_id', user.id)
 			.eq('product_id', productId);
-		
+
 		if (error) throw error;
 		return false;
 	} else {
 		// Add to favorites
-		const { error } = await supabase
-			.from('favorites')
-			.insert({
-				user_id: user.id,
-				product_id: productId
-			});
-		
+		const { error } = await supabase.from('favorites').insert({
+			user_id: user.id,
+			product_id: productId,
+		});
+
 		if (error) throw error;
 		return true;
 	}
@@ -52,7 +49,9 @@ export async function toggleFavorite(productId: string): Promise<boolean> {
  * Check if product is favorited by current user
  */
 export async function isFavorited(productId: string): Promise<boolean> {
-	const { data: { user } } = await supabase.auth.getUser();
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
 	if (!user) return false;
 
 	const { data } = await supabase
@@ -69,16 +68,20 @@ export async function isFavorited(productId: string): Promise<boolean> {
  * Get user's favorite products
  */
 export async function getFavorites(): Promise<Product[]> {
-	const { data: { user } } = await supabase.auth.getUser();
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
 	if (!user) return [];
 
 	const { data, error } = await supabase
 		.from('favorites')
-		.select(`
+		.select(
+			`
 			product_id,
 			created_at,
 			products (*)
-		`)
+		`
+		)
 		.eq('user_id', user.id)
 		.order('created_at', { ascending: false });
 
@@ -88,16 +91,19 @@ export async function getFavorites(): Promise<Product[]> {
 	}
 
 	// Transform data to match Product type
-	return (data || []).map(item => ({
-		...(item as any).products,
-		seller: {
-			name: 'Seller',
-			rating: 4.5,
-			verified: true
-		},
-		images: Array.isArray((item as any).products?.images) ? (item as any).products.images : [],
-		isFavorite: true
-	}) as Product);
+	return (data || []).map(
+		(item) =>
+			({
+				...(item as any).products,
+				seller: {
+					name: 'Seller',
+					rating: 4.5,
+					verified: true,
+				},
+				images: Array.isArray((item as any).products?.images) ? (item as any).products.images : [],
+				isFavorite: true,
+			}) as Product
+	);
 }
 
 /**
@@ -121,7 +127,9 @@ export async function getFavoriteCount(productId: string): Promise<number> {
  * Get user's favorite count
  */
 export async function getUserFavoriteCount(): Promise<number> {
-	const { data: { user } } = await supabase.auth.getUser();
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
 	if (!user) return 0;
 
 	const { count, error } = await supabase

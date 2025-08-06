@@ -31,10 +31,7 @@ export type ProductFilters = {
 
 // Get or create Supabase client
 function getSupabaseClient(): SupabaseClient<Database> {
-	return createBrowserClient<Database>(
-		PUBLIC_SUPABASE_URL,
-		PUBLIC_SUPABASE_ANON_KEY
-	);
+	return createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
 }
 
 /**
@@ -42,36 +39,33 @@ function getSupabaseClient(): SupabaseClient<Database> {
  */
 export async function getProducts(filters: ProductFilters = {}) {
 	const supabase = getSupabaseClient();
-	let query = supabase
-		.from('products')
-		.select('*')
-		.eq('status', 'active');
+	let query = supabase.from('products').select('*').eq('status', 'active');
 
 	// Apply filters
 	if (filters.category) {
 		query = query.eq('category_id', filters.category);
 	}
-	
+
 	if (filters.condition) {
 		query = query.eq('condition', filters.condition);
 	}
-	
+
 	if (filters.minPrice) {
 		query = query.gte('price', filters.minPrice);
 	}
-	
+
 	if (filters.maxPrice) {
 		query = query.lte('price', filters.maxPrice);
 	}
-	
+
 	if (filters.size) {
 		query = query.eq('size', filters.size);
 	}
-	
+
 	if (filters.brand) {
 		query = query.ilike('brand', `%${filters.brand}%`);
 	}
-	
+
 	if (filters.search) {
 		query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
 	}
@@ -105,25 +99,28 @@ export async function getProducts(filters: ProductFilters = {}) {
 	}
 
 	// Transform to match our Product type
-	return (data || []).map(item => ({
-		...item,
-		seller: {
-			name: 'Seller',
-			rating: 4.5,
-			verified: true
-		},
-		images: Array.isArray(item.images) ? item.images : [],
-		isFavorite: false
-	}) as Product);
+	return (data || []).map(
+		(item) =>
+			({
+				...item,
+				seller: {
+					name: 'Seller',
+					rating: 4.5,
+					verified: true,
+				},
+				images: Array.isArray(item.images) ? item.images : [],
+				isFavorite: false,
+			}) as Product
+	);
 }
 
 /**
  * Get featured products for homepage
  */
 export async function getFeaturedProducts() {
-	return getProducts({ 
+	return getProducts({
 		sortBy: 'popular',
-		limit: 12 
+		limit: 12,
 	});
 }
 
@@ -132,11 +129,7 @@ export async function getFeaturedProducts() {
  */
 export async function getProductById(id: string) {
 	const supabase = getSupabaseClient();
-	const { data, error } = await supabase
-		.from('listings')
-		.select('*')
-		.eq('id', id)
-		.single();
+	const { data, error } = await supabase.from('listings').select('*').eq('id', id).single();
 
 	if (error) {
 		console.error('Error fetching product:', error);
@@ -148,10 +141,10 @@ export async function getProductById(id: string) {
 		seller: {
 			name: 'Seller',
 			rating: 4.5,
-			verified: true
+			verified: true,
 		},
 		images: Array.isArray(data.images) ? data.images : [],
-		isFavorite: false
+		isFavorite: false,
 	} as Product;
 }
 
@@ -170,10 +163,12 @@ export async function createListing(listing: {
 	location?: string;
 }) {
 	const supabase = getSupabaseClient();
-	
+
 	// Get current user
-	const { data: { user } } = await supabase.auth.getUser();
-	
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+
 	if (!user) {
 		throw new Error('You must be logged in to create a listing');
 	}
@@ -184,7 +179,7 @@ export async function createListing(listing: {
 			...listing,
 			seller_id: user.id,
 			status: 'active',
-			view_count: 0
+			view_count: 0,
 		})
 		.select()
 		.single();
@@ -200,17 +195,20 @@ export async function createListing(listing: {
 /**
  * Update a product listing
  */
-export async function updateListing(id: string, updates: Partial<{
-	title: string;
-	description: string;
-	price: number;
-	category_id: string;
-	condition: string;
-	size?: string;
-	brand?: string;
-	images: string[];
-	status: string;
-}>) {
+export async function updateListing(
+	id: string,
+	updates: Partial<{
+		title: string;
+		description: string;
+		price: number;
+		category_id: string;
+		condition: string;
+		size?: string;
+		brand?: string;
+		images: string[];
+		status: string;
+	}>
+) {
 	const supabase = getSupabaseClient();
 	const { data, error } = await supabase
 		.from('listings')
@@ -232,10 +230,7 @@ export async function updateListing(id: string, updates: Partial<{
  */
 export async function deleteListing(id: string) {
 	const supabase = getSupabaseClient();
-	const { error } = await supabase
-		.from('listings')
-		.delete()
-		.eq('id', id);
+	const { error } = await supabase.from('listings').delete().eq('id', id);
 
 	if (error) {
 		console.error('Error deleting listing:', error);
@@ -256,9 +251,9 @@ export async function incrementViewCount(id: string) {
 		.select('view_count')
 		.eq('id', id)
 		.single();
-	
+
 	if (!listing) return;
-	
+
 	const { error } = await supabase
 		.from('listings')
 		.update({ view_count: (listing.view_count || 0) + 1 })
@@ -275,20 +270,20 @@ export async function incrementViewCount(id: string) {
 export async function getProductsByCategory(category: string) {
 	// Map friendly URLs to actual categories
 	const categoryMap: Record<string, string> = {
-		'women': 'womens-clothing',
-		'men': 'mens-clothing',
-		'kids': 'kids-clothing',
-		'vintage': 'vintage',
-		'luxury': 'designer',
-		'shoes': 'shoes',
-		'bags': 'bags-accessories'
+		women: 'womens-clothing',
+		men: 'mens-clothing',
+		kids: 'kids-clothing',
+		vintage: 'vintage',
+		luxury: 'designer',
+		shoes: 'shoes',
+		bags: 'bags-accessories',
 	};
 
 	const actualCategory = categoryMap[category] || category;
-	
-	return getProducts({ 
+
+	return getProducts({
 		category: actualCategory,
-		sortBy: 'newest'
+		sortBy: 'newest',
 	});
 }
 
@@ -301,14 +296,14 @@ export async function getProductsByCondition(condition: string) {
 		'new-with-tags': 'new_with_tags',
 		'like-new': 'like_new',
 		'very-good': 'very_good',
-		'good': 'good',
-		'fair': 'fair'
+		good: 'good',
+		fair: 'fair',
 	};
 
 	const actualCondition = conditionMap[condition] || condition;
-	
-	return getProducts({ 
+
+	return getProducts({
 		condition: actualCondition,
-		sortBy: 'newest'
+		sortBy: 'newest',
 	});
 }

@@ -1,23 +1,26 @@
 # shadcn-svelte Full Implementation Plan
+
 ## For Svelte 5 + SvelteKit 2 + Tailwind v4
 
 > **Status**: Ready for Implementation  
 > **Created**: 2025-08-03  
-> **Project**: Driplo.bg - E-commerce Platform  
+> **Project**: Driplo.bg - E-commerce Platform
 
 ---
 
 ## 📋 Pre-Implementation Analysis
 
 ### Current State Assessment
+
 - [x] SvelteKit 2.22.0 installed ✅
-- [x] Svelte 5.0.0 installed ✅  
+- [x] Svelte 5.0.0 installed ✅
 - [x] Tailwind CSS v4.1.11 configured ✅
 - [x] components.json already exists ✅
 - [x] shadcn-svelte v1.0.6 in package.json ✅
 - [x] Some UI components already present in src/lib/components/ui ✅
 
 ### ⚠️ Critical Observations
+
 1. **shadcn-svelte already partially installed** but needs proper setup
 2. **Existing UI components** use mixed patterns (some Svelte 4, some Svelte 5)
 3. **Tailwind v4** uses CSS-first approach (different from v3)
@@ -28,6 +31,7 @@
 ## 🎯 Implementation Phases
 
 ### Phase 1: Dependencies & Configuration
+
 - [x] Update shadcn-svelte to latest version (^1.0.6+) ✅
 - [x] Update bits-ui from ^2.9.1 to latest (for Svelte 5 runes) ✅
 - [x] Update lucide-svelte from ^0.536.0 to latest @lucide/svelte ✅
@@ -35,69 +39,71 @@
 - [x] Configure proper Tailwind v4 integration with shadcn ✅
 
 ### Phase 2: Configuration Files
+
 - [x] Update components.json with latest schema: ✅
+
   ```json
   {
-    "$schema": "https://shadcn-svelte.com/registry/config.json",
-    "style": "new-york",
-    "tailwind": {
-      "config": "tailwind.config.js",
-      "css": "src/app.css",
-      "baseColor": "violet"
-    },
-    "aliases": {
-      "components": "$lib/components",
-      "lib": "$lib",
-      "utils": "$lib/utils",
-      "hooks": "$lib/hooks",
-      "ui": "$lib/components/ui"
-    },
-    "registry": "https://shadcn-svelte.com/registry",
-    "ui": "$lib/components/ui",
-    "hooks": "$lib/hooks",
-    "lib": "$lib"
+  	"$schema": "https://shadcn-svelte.com/registry/config.json",
+  	"style": "new-york",
+  	"tailwind": {
+  		"config": "tailwind.config.js",
+  		"css": "src/app.css",
+  		"baseColor": "violet"
+  	},
+  	"aliases": {
+  		"components": "$lib/components",
+  		"lib": "$lib",
+  		"utils": "$lib/utils",
+  		"hooks": "$lib/hooks",
+  		"ui": "$lib/components/ui"
+  	},
+  	"registry": "https://shadcn-svelte.com/registry",
+  	"ui": "$lib/components/ui",
+  	"hooks": "$lib/hooks",
+  	"lib": "$lib"
   }
   ```
 
 - [x] Update tailwind.config.js for shadcn requirements: ✅
+
   ```javascript
   // Add animations, proper content paths, and plugins
   export default {
-    content: [
-      './src/**/*.{html,js,svelte,ts,md,mdx}',
-      './src/**/*.stories.{js,ts}',
-      './.svelte-kit/generated/**/*.{js,ts}'
-    ],
-    theme: {
-      extend: {
-        animation: {
-          // shadcn animations
-        }
-      }
-    },
-    plugins: [
-      require('tailwindcss-animate')
-    ]
+  	content: [
+  		'./src/**/*.{html,js,svelte,ts,md,mdx}',
+  		'./src/**/*.stories.{js,ts}',
+  		'./.svelte-kit/generated/**/*.{js,ts}',
+  	],
+  	theme: {
+  		extend: {
+  			animation: {
+  				// shadcn animations
+  			},
+  		},
+  	},
+  	plugins: [require('tailwindcss-animate')],
   };
   ```
 
 - [x] Update src/app.css with shadcn CSS variables: ✅
   ```css
   @layer base {
-    :root {
-      --background: 0 0% 100%;
-      --foreground: 240 10% 3.9%;
-      /* Add all shadcn color variables */
-    }
-    .dark {
-      --background: 240 10% 3.9%;
-      --foreground: 0 0% 98%;
-      /* Dark mode variables */
-    }
+  	:root {
+  		--background: 0 0% 100%;
+  		--foreground: 240 10% 3.9%;
+  		/* Add all shadcn color variables */
+  	}
+  	.dark {
+  		--background: 240 10% 3.9%;
+  		--foreground: 0 0% 98%;
+  		/* Dark mode variables */
+  	}
   }
   ```
 
 ### Phase 3: Migrate Existing Components to Svelte 5
+
 - [x] Convert all components in ui/ to use Svelte 5 runes: ✅ (Already done!)
   - [x] Replace `export let` with `let { prop } = $props()` ✅
   - [x] Replace `on:click` with `onclick` ✅
@@ -108,6 +114,7 @@
 ### Phase 4: Component-by-Component Migration
 
 #### Core Components (Priority 1)
+
 - [ ] **Button** - Update to Svelte 5 syntax
 - [ ] **Input** - Convert to runes pattern
 - [ ] **Label** - Migrate props and events
@@ -116,6 +123,7 @@
 - [ ] **Sheet** components - Fix compat layer issues
 
 #### Data Display (Priority 2)
+
 - [ ] **Table** components - Convert all table parts
 - [ ] **DataTable** - Update with Svelte 5 patterns
 - [ ] **Alert** components - Migrate to new syntax
@@ -123,6 +131,7 @@
 - [ ] **Skeleton** - Update animations
 
 #### Form Components (Priority 3)
+
 - [ ] **Select** components - Complex state management
 - [ ] **RadioGroup** - Convert to runes
 - [ ] **Switch** - Update toggle logic
@@ -130,17 +139,20 @@
 - [ ] **Checkbox** - Add if missing
 
 #### Navigation (Priority 4)
+
 - [ ] **Tabs** components - State management update
 - [ ] **Breadcrumb** components - Link handling
 - [ ] **Pagination** components - Navigation logic
 - [ ] **DropdownMenu** - Complex nested menus
 
 #### Feedback (Priority 5)
+
 - [ ] **Tooltip** components - Portal handling
 - [ ] **Popover** components - Position management
 - [ ] **AlertDialog** components - Modal state
 
 ### Phase 5: Add Missing Essential Components
+
 - [ ] **Form** components (form validation)
 - [ ] **Toast/Sonner** (notifications)
 - [ ] **Command** (command palette)
@@ -153,6 +165,7 @@
 - [ ] **ScrollArea** (custom scrollbars)
 
 ### Phase 6: Integration & Testing
+
 - [ ] Create test page with all components
 - [ ] Verify dark mode switching
 - [ ] Test responsive behavior
@@ -161,6 +174,7 @@
 - [ ] Run full build check
 
 ### Phase 7: Documentation & Cleanup
+
 - [ ] Create component usage examples
 - [ ] Document Svelte 5 patterns used
 - [ ] Remove old/duplicate components
@@ -172,6 +186,7 @@
 ## 🛠️ Implementation Commands
 
 ### ✅ Completed Steps:
+
 ```bash
 # Step 1: Update dependencies ✅
 pnpm add -D @lucide/svelte@latest tailwindcss-animate@latest
@@ -185,6 +200,7 @@ npx shadcn-svelte@latest add separator -y  # Successfully added!
 ```
 
 ### 🔄 Next Steps:
+
 ```bash
 # Add/update components (one by one)
 pnpm dlx shadcn-svelte@latest add button --overwrite
@@ -202,6 +218,7 @@ pnpm run build
 ## ✅ Success Criteria
 
 ### Must Pass All Checks
+
 - [ ] `pnpm run check` - 0 TypeScript errors
 - [ ] `pnpm run build` - Successful build
 - [ ] `pnpm run lint` - No linting errors
@@ -210,6 +227,7 @@ pnpm run build
 - [ ] Consistent import patterns
 
 ### Component Requirements
+
 - [ ] All props use `$props()` syntax
 - [ ] All events use new syntax (onclick, not on:click)
 - [ ] All state uses `$state()` rune
@@ -217,6 +235,7 @@ pnpm run build
 - [ ] All slots replaced with snippets/render
 
 ### UI/UX Validation
+
 - [ ] Dark mode toggle works
 - [ ] Responsive on all breakpoints
 - [ ] Keyboard navigation functional
@@ -251,6 +270,7 @@ pnpm run build
 ## 🎯 Final Checklist
 
 Before marking complete:
+
 - [ ] All components migrated to Svelte 5
 - [ ] No TypeScript errors
 - [ ] Build succeeds

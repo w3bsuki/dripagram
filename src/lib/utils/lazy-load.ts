@@ -21,18 +21,18 @@ export function generatePlaceholder(width: number, height: number): string {
 	const canvas = document.createElement('canvas');
 	canvas.width = width;
 	canvas.height = height;
-	
+
 	const ctx = canvas.getContext('2d');
 	if (!ctx) return '';
-	
+
 	// Create gradient placeholder
 	const gradient = ctx.createLinearGradient(0, 0, width, height);
 	gradient.addColorStop(0, '#f3f4f6');
 	gradient.addColorStop(1, '#e5e7eb');
-	
+
 	ctx.fillStyle = gradient;
 	ctx.fillRect(0, 0, width, height);
-	
+
 	return canvas.toDataURL('image/png');
 }
 
@@ -41,13 +41,11 @@ export function generatePlaceholder(width: number, height: number): string {
  */
 export function createSrcSet(baseSrc: string, sizes: number[]): string {
 	if (!baseSrc) return '';
-	
+
 	return sizes
-		.map(size => {
+		.map((size) => {
 			// Assume images are optimized and available at different sizes
-			const optimizedSrc = baseSrc.includes('?') 
-				? `${baseSrc}&w=${size}` 
-				: `${baseSrc}?w=${size}`;
+			const optimizedSrc = baseSrc.includes('?') ? `${baseSrc}&w=${size}` : `${baseSrc}?w=${size}`;
 			return `${optimizedSrc} ${size}w`;
 		})
 		.join(', ');
