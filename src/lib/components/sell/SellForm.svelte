@@ -3,7 +3,7 @@
 	import { getContext } from 'svelte';
 	import { createListing, type ListingData } from '$lib/services/listingService';
 	import type { SupabaseClient } from '@supabase/supabase-js';
-	import type { Database } from '$lib/supabase';
+	import type { Database } from '$lib/supabase/database.types';
 	import type { SellFormProps, SellFormData } from './types';
 
 	// Components

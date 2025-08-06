@@ -11,7 +11,7 @@
 	} from '@lucide/svelte';
 	import { getContext } from 'svelte';
 	import type { SupabaseClient } from '@supabase/supabase-js';
-	import type { Database } from '$lib/supabase';
+	import type { Database } from '$lib/supabase/database.types';
 	import { page } from '$app/stores';
 
 	const getSupabase = getContext<() => SupabaseClient<Database>>('supabase');

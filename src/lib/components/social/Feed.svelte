@@ -4,7 +4,9 @@
 	import type { Listing } from '$lib/types';
 	import FeedCard from './FeedCard.svelte';
 	import StoryBar from './StoryBar.svelte';
-	import { supabase } from '$lib/supabase';
+	import { createClient } from '$lib/supabase/client';
+
+	const supabase = createClient();
 
 	let feedItems = $state<Listing[]>([]);
 	let loading = $state(true);

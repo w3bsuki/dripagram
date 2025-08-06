@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { supabase } from '$lib/supabase';
-	import { toast } from '$lib/stores/toast';
+	import { createClient } from '$lib/supabase/client';
+
+	const supabase = createClient();
+	import { toast } from '$lib/utils/toast';
 	import { Lock, Eye, EyeOff, Check } from '@lucide/svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	
