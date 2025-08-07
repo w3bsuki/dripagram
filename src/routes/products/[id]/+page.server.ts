@@ -3,6 +3,8 @@ import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
 	try {
+		console.log(`[Product Page] Loading product with ID: ${params.id}`);
+		
 		// Get the product with seller information and engagement data
 		const { data: product, error: productError } = await supabase
 			.from('products')
@@ -22,7 +24,18 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 			.eq('status', 'active')
 			.single();
 
-		if (productError || !product) {
+		if (productError) {
+			console.error('[Product Page] Supabase error:', {
+				id: params.id,
+				message: productError.message,
+				details: productError.details,
+				code: productError.code
+			});
+			throw error(404, 'Product not found');
+		}
+		
+		if (!product) {
+			console.error(`[Product Page] No product found with ID: ${params.id}`);
 			throw error(404, 'Product not found');
 		}
 
@@ -86,13 +99,15 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 			.order('like_count', { ascending: false })
 			.limit(6);
 
+		console.log(`[Product Page] Successfully loaded product: ${product.title}`);
+		
 		return {
 			product,
 			relatedProducts: relatedProducts || [],
 			similarProducts: similarProducts || []
 		};
 	} catch (err) {
-		console.error('Error loading product:', err);
+		console.error('[Product Page] Error loading product:', err);
 		throw error(404, 'Product not found');
 	}
 };
