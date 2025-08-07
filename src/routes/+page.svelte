@@ -5,7 +5,11 @@
 	import SearchHeader from '$lib/components/navigation/SearchHeader.svelte';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import type { PageData } from './$types';
 
+	let { data }: { data: PageData } = $props();
+	
 	let isMobile = $state(false);
 	let feedType = $state<'for-you' | 'following' | 'trending'>('for-you');
 
@@ -41,7 +45,7 @@
 	<meta property="og:type" content="website" />
 </svelte:head>
 
-<!-- Search Header for Mobile -->
+<!-- Header (Mobile) -->
 {#if isMobile}
 	<SearchHeader />
 {/if}
@@ -74,7 +78,7 @@
 	</div>
 
 	<!-- Product Grid -->
-	<ProductGrid />
+	<ProductGrid products={data.products || []} />
 </main>
 
 <!-- Mobile Bottom Navigation -->
@@ -89,6 +93,7 @@
 		padding-bottom: 80px; /* Space for mobile bottom nav */
 	}
 
+
 	/* Feed Selector */
 	.feed-selector {
 		display: flex;
@@ -98,7 +103,7 @@
 		border-bottom: 1px solid var(--color-border);
 		position: sticky;
 		top: 0;
-		z-index: 50;
+		z-index: 40;
 	}
 
 	.feed-tab {
@@ -152,11 +157,12 @@
 
 	@media (min-width: 768px) {
 		.main-content {
+			padding-top: 0; /* No header on desktop for now */
 			padding-bottom: 0;
 		}
 
 		.feed-selector {
-			top: 60px; /* Account for desktop header */
+			top: 0; /* No header offset on desktop */
 		}
 	}
 </style>

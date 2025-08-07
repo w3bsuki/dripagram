@@ -119,12 +119,14 @@
 	</header>
 
 	<!-- Main Content -->
-	<main class="pt-14 pb-20 md:pt-15 md:pb-0">
+	<main class="{$page.url.pathname.includes('/sell') || $page.url.pathname.includes('/onboarding') || $page.url.pathname.includes('/auth') ? 'pt-14 pb-0 md:pt-15' : 'pt-14 pb-20 md:pt-15 md:pb-0'}">
 		{@render children?.()}
 	</main>
 
-	<!-- Bottom Navigation (Mobile Only) -->
-	<BottomNav />
+	<!-- Bottom Navigation (Mobile Only) - Hide on certain pages -->
+	{#if !$page.url.pathname.includes('/sell') && !$page.url.pathname.includes('/onboarding') && !$page.url.pathname.includes('/auth')}
+		<BottomNav />
+	{/if}
 	
 	<!-- Toast Notifications -->
 	<Toast />

@@ -1,12 +1,8 @@
 <script lang="ts">
 	import { uploadListingImages, type ImageUploadResult } from '$lib/services/imageService';
 	import { X, Upload, Camera } from '@lucide/svelte';
-	import { getContext } from 'svelte';
-	import type { SupabaseClient } from '@supabase/supabase-js';
-	import type { Database } from '$lib/supabase/database.types';
+	import { page } from '$app/stores';
 	import type { ProductImageUploaderProps } from './types';
-
-	const supabase = getContext<SupabaseClient<Database>>('supabase');
 
 	let { images, userId, onImagesChange }: ProductImageUploaderProps = $props();
 
@@ -29,6 +25,11 @@
 		uploading = true;
 
 		try {
+			// Get supabase from page data
+			const supabase = $page.data.supabase;
+			if (!supabase) {
+				throw new Error('Supabase client not available');
+			}
 			const uploadResults = await uploadListingImages(fileArray, userId, supabase);
 			const newImages = [...images, ...uploadResults.map((r) => r.url)];
 			onImagesChange(newImages);
@@ -68,15 +69,15 @@
 	}
 </script>
 
-<div class="mb-8">
-	<div class="mb-4">
-		<h3 class="mb-1 text-lg font-semibold text-gray-900">Photos</h3>
-		<p class="text-sm text-gray-600">Add up to 10 photos to showcase your item</p>
+<div class="mb-6">
+	<div class="mb-4 text-center">
+		<h3 class="mb-1 text-lg md:text-xl font-semibold text-gray-900">Photos</h3>
+		<p class="text-xs md:text-sm text-gray-600">Add up to 10 photos to showcase your item</p>
 	</div>
 
 	<!-- Image Grid -->
 	{#if images.length > 0}
-		<div class="mb-4 grid grid-cols-4 gap-4">
+		<div class="mb-4 grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4">
 			{#each images as imageUrl, index}
 				<div
 					class="relative aspect-square cursor-grab overflow-hidden rounded-lg border-2 border-gray-200 active:cursor-grabbing"
@@ -105,7 +106,7 @@
 	<!-- Upload Area -->
 	{#if images.length < 10}
 		<div
-			class="cursor-pointer rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center transition-all hover:border-blue-600 hover:bg-blue-50 {dragOver
+			class="cursor-pointer rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 md:p-12 text-center transition-all hover:border-blue-600 hover:bg-blue-50 {dragOver
 				? 'border-blue-600 bg-blue-50'
 				: ''}"
 			role="button"

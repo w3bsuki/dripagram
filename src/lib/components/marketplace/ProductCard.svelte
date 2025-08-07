@@ -13,6 +13,7 @@
 	import type { SupabaseClient } from '@supabase/supabase-js';
 	import type { Database } from '$lib/supabase/database.types';
 	import { page } from '$app/stores';
+	import QuickViewDialog from './QuickViewDialog.svelte';
 
 	const getSupabase = getContext<() => SupabaseClient<Database>>('supabase');
 	const supabase = getSupabase?.();
@@ -30,8 +31,16 @@
 			like_count: number;
 			view_count?: number;
 			size?: string;
+			brand?: string;
+			color?: string;
 			tags?: string[];
 			created_at?: string;
+			currency?: string;
+			original_price?: number;
+			shipping_available?: boolean;
+			shipping_price?: number;
+			location?: string;
+			city?: string;
 			seller: {
 				id: string;
 				username?: string;
@@ -40,6 +49,8 @@
 				verified?: boolean;
 				seller_verified?: boolean;
 				follower_count?: number;
+				seller_rating?: number;
+				total_sales?: number;
 			};
 			likes?: { count: number }[];
 			is_liked?: { user_id: string }[];
@@ -51,6 +62,7 @@
 		showEngagement?: boolean;
 		showTimestamp?: boolean;
 		enableDoubleTab?: boolean;
+		enableQuickView?: boolean;
 	}
 
 	let {
@@ -62,6 +74,7 @@
 		showEngagement = true,
 		showTimestamp = false,
 		enableDoubleTab = true,
+		enableQuickView = true,
 	}: Props = $props();
 
 	// Reactive state using $state()
@@ -70,6 +83,7 @@
 	let viewCount = $state(product.view_count || 0);
 	let saved = $state(false);
 	let showQuickShopModal = $state(false);
+	let showQuickViewDialog = $state(false);
 	let selectedSize = $state('');
 	let showHeartAnimation = $state(false);
 	let isLoading = $state(false);
@@ -78,6 +92,8 @@
 	let touchStartTime = $state(0);
 	let lastTap = $state(0);
 	let showLongPressMenu = $state(false);
+	let cardElement = $state<HTMLElement | null>(null);
+	let touchActive = $state(false);
 
 	// Derived values using $derived()
 	let currentUser = $derived($page.data.user);
@@ -274,6 +290,23 @@
 		if (!selectedSize && product.size) return;
 		showQuickShopModal = false;
 		// TODO: Add to cart logic
+	}
+
+	function handleTouchStart() {
+		touchActive = true;
+		if (cardElement) {
+			cardElement.classList.add('touch-active');
+		}
+	}
+
+	function handleTouchEnd() {
+		// Keep the touch active state for a brief moment to allow interaction
+		setTimeout(() => {
+			touchActive = false;
+			if (cardElement) {
+				cardElement.classList.remove('touch-active');
+			}
+		}, 100);
 	}
 </script>
 
@@ -490,7 +523,12 @@
 	</article>
 {:else}
 	<!-- Grid Style Card -->
-	<article class="product-card group relative">
+	<article 
+		class="product-card group relative" 
+		bind:this={cardElement}
+		ontouchstart={handleTouchStart}
+		ontouchend={handleTouchEnd}
+	>
 		<a href="/products/{product.id}" class="block">
 			<!-- Image Container -->
 			<div class="bg-surface-secondary relative aspect-square overflow-hidden">
@@ -514,6 +552,21 @@
 				>
 					<span class="text-interactive-primary font-mono text-sm font-bold">${product.price}</span>
 				</div>
+
+				<!-- Mobile Quick View Button -->
+				{#if enableQuickView}
+					<button
+						onclick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							showQuickViewDialog = true;
+						}}
+						class="mobile-quick-view-btn md:hidden absolute bottom-3 right-3 bg-[var(--color-surface-primary)]/95 backdrop-blur-sm rounded-full p-2 shadow-lg hover:bg-[var(--color-surface-primary)] transition-all duration-200"
+						aria-label="Quick view"
+					>
+						<Eye size={16} class="text-interactive-primary" />
+					</button>
+				{/if}
 
 				<!-- Multiple Images Indicator -->
 				{#if hasMultipleImages}
@@ -554,16 +607,42 @@
 
 				<!-- Action Buttons Overlay -->
 				<div class="product-card__actions">
-					<button onclick={toggleLike} class="action-button" aria-label="Like">
+					<button 
+						onclick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							toggleLike();
+						}} 
+						class="action-button" 
+						aria-label="Like"
+					>
 						<Heart
 							size={16}
 							class={isLiked ? 'text-text-error fill-current' : 'text-text-secondary'}
 						/>
 					</button>
 
+					{#if enableQuickView}
+						<button
+							onclick={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								showQuickViewDialog = true;
+							}}
+							class="action-button bg-interactive-primary text-text-inverse hover:bg-interactive-primary-hover"
+							aria-label="Quick view"
+						>
+							<Eye size={16} />
+						</button>
+					{/if}
+
 					{#if showQuickShop}
 						<button
-							onclick={() => (showQuickShopModal = true)}
+							onclick={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								showQuickShopModal = true;
+							}}
 							class="action-button bg-interactive-primary text-text-inverse hover:bg-interactive-primary-hover"
 							aria-label="Quick shop"
 						>
@@ -751,6 +830,13 @@
 	</div>
 {/if}
 
+<!-- Quick View Dialog -->
+<QuickViewDialog
+	{product}
+	isOpen={showQuickViewDialog}
+	onClose={() => (showQuickViewDialog = false)}
+/>
+
 <style>
 	/* Product Card - Container-Aware */
 	.product-card {
@@ -868,10 +954,27 @@
 		.product-card__actions {
 			opacity: 0;
 			transform: translateY(var(--space-2));
+			transition: all var(--duration-normal) var(--ease-out);
 		}
 
-		.product-card:hover .product-card__actions {
+		/* Show actions on hover OR on touch/focus for better accessibility */
+		.product-card:hover .product-card__actions,
+		.product-card:focus-within .product-card__actions,
+		.product-card.touch-active .product-card__actions {
 			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	/* Mobile quick view button */
+	.mobile-quick-view-btn {
+		z-index: 10;
+	}
+
+	/* Ensure quick view works on touch devices */
+	@media (hover: none) and (pointer: coarse) {
+		.product-card__actions {
+			opacity: 0.8;
 			transform: translateY(0);
 		}
 	}

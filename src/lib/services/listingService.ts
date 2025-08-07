@@ -44,16 +44,40 @@ export async function createListing(
 	// Set thumbnail to first image if not provided
 	const thumbnail_url = listingData.thumbnail_url || listingData.images[0] || null;
 
+	// Convert condition values to match database enum
+	const conditionMap: Record<string, string> = {
+		'new_with_tags': 'new',
+		'new_without_tags': 'new',
+		'like_new': 'like_new',
+		'very_good': 'very_good',
+		'good': 'good',
+		'fair': 'acceptable'
+	};
+
 	const { data, error } = await supabase
 		.from('products')
 		.insert({
-			...listingData,
-			seller_id: user.id,
+			title: listingData.title,
+			description: listingData.description,
+			price: listingData.price,
+			category_id: listingData.category_id || null,
+			brand: listingData.brand,
+			size: listingData.size,
+			condition: conditionMap[listingData.condition] || 'good',
+			color: listingData.color,
+			material: listingData.material,
+			images: listingData.images,
 			thumbnail_url,
+			location: listingData.location ? { city: listingData.location } : {},
+			city: listingData.city || listingData.location,
+			shipping_available: listingData.shipping_available,
+			shipping_price: listingData.shipping_price,
+			tags: listingData.tags || [],
+			seller_id: user.id,
 			status: 'active',
 			views: 0,
 			likes: 0,
-			like_count: 0,
+			like_count: 0
 		})
 		.select('id')
 		.single();
@@ -144,11 +168,15 @@ export async function getListingById(id: string, supabase: SupabaseClient<Databa
         id,
         username,
         full_name,
-        avatar_url
-      )
+        avatar_url,
+        verified,
+        created_at
+      ),
+      category:categories(name, slug)
     `
 		)
 		.eq('id', id)
+		.eq('status', 'active')
 		.single();
 
 	if (error) {

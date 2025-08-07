@@ -63,6 +63,7 @@
 						onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 						placeholder="Търси Supreme, Zara, vintage..."
 						class="text-primary placeholder-secondary w-full bg-transparent py-3 pr-4 pl-14 text-base focus:outline-none md:py-4"
+						style="font-size: 16px;"
 					/>
 					<Button
 						onclick={handleSearch}

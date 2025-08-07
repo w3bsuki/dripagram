@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { getContext } from 'svelte';
+	import { page } from '$app/stores';
 	import { createListing, type ListingData } from '$lib/services/listingService';
-	import type { SupabaseClient } from '@supabase/supabase-js';
-	import type { Database } from '$lib/supabase/database.types';
 	import type { SellFormProps, SellFormData } from './types';
 
 	// Components
@@ -15,7 +13,6 @@
 	import ListingPreview from './ListingPreview.svelte';
 	import FormNavigation from './FormNavigation.svelte';
 
-	const supabase = getContext<SupabaseClient<Database>>('supabase');
 	let { userId }: SellFormProps = $props();
 
 	// Form state
@@ -158,6 +155,10 @@
 				tags: listing.tags || [],
 			};
 
+			const supabase = $page.data.supabase;
+			if (!supabase) {
+				throw new Error('Supabase client not available');
+			}
 			const result = await createListing(listingData, supabase);
 
 			// Success! Redirect to the new listing
@@ -171,15 +172,15 @@
 	}
 </script>
 
-<div class="min-h-screen bg-gray-50 px-4 py-8">
+<div class="min-h-screen bg-gray-50 px-4 py-4 md:py-8">
 	<div class="mx-auto max-w-4xl">
 		<!-- Header -->
-		<div class="mb-8 text-center">
-			<h1 class="mb-8 text-3xl font-semibold text-gray-900">Create Listing</h1>
+		<div class="mb-6 text-center">
+			<h1 class="mb-4 text-2xl md:text-3xl font-semibold text-gray-900">Create Listing</h1>
 			<StepIndicator {currentStep} {totalSteps} />
 		</div>
 
-		<div class="rounded-xl bg-white p-8 shadow-sm">
+		<div class="rounded-xl bg-white p-4 md:p-8 shadow-sm">
 			<!-- Step 1: Category Selection -->
 			{#if currentStep === 1}
 				<CategorySelector {selectedCategory} onCategorySelect={handleCategorySelect} />
