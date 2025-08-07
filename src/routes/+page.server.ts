@@ -61,7 +61,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 			condition: product.condition
 		})) || [];
 
-		console.log(`[Homepage] Successfully loaded ${transformedProducts.length} products`);
+		console.log(`[Homepage] Successfully loaded ${transformedProducts.length} products from Supabase`);
 
 		return {
 			products: transformedProducts
