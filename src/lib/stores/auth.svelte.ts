@@ -13,7 +13,8 @@ class AuthState {
 	constructor(initialUser: User | null, initialSession: Session | null) {
 		this.user = initialUser;
 		this.session = initialSession;
-		this.loading = false;
+		// Start with loading true if we don't have initial data
+		this.loading = !initialSession && !initialUser;
 	}
 
 	setAuth(session: Session | null, user: User | null) {

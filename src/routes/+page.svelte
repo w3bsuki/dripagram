@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ProductGrid from '$lib/components/marketplace/ProductGrid.svelte';
+	import { ProductGrid } from '$lib/components/marketplace/ProductGrid';
 	import BrandShowcase from '$lib/components/social/BrandShowcase.svelte';
 	import BottomNav from '$lib/components/navigation/BottomNav.svelte';
 	import SearchHeader from '$lib/components/navigation/SearchHeader.svelte';
@@ -16,9 +16,14 @@
 	onMount(() => {
 		if (browser) {
 			isMobile = window.innerWidth < 768;
-			window.addEventListener('resize', () => {
+			const handleResize = () => {
 				isMobile = window.innerWidth < 768;
-			});
+			};
+			window.addEventListener('resize', handleResize);
+			
+			return () => {
+				window.removeEventListener('resize', handleResize);
+			};
 		}
 	});
 

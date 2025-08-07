@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Search, Filter, ChevronDown, X } from '@lucide/svelte';
-	import ProductGrid from '$lib/components/marketplace/ProductGrid.svelte';
+	import { ProductGrid } from '$lib/components/marketplace/ProductGrid';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 
@@ -61,9 +61,14 @@
 	onMount(() => {
 		if (browser) {
 			isMobile = window.innerWidth < 768;
-			window.addEventListener('resize', () => {
+			const handleResize = () => {
 				isMobile = window.innerWidth < 768;
-			});
+			};
+			window.addEventListener('resize', handleResize);
+			
+			return () => {
+				window.removeEventListener('resize', handleResize);
+			};
 		}
 	});
 

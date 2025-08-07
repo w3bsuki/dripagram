@@ -22,10 +22,17 @@
 	onMount(() => {
 		const { data: { subscription } } = data.supabase.auth.onAuthStateChange((event, session) => {
 			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-				// Update auth context
+				// Update auth context immediately
 				auth.setAuth(session, session?.user ?? null);
 				// Invalidate all data to trigger re-fetch
 				invalidate('supabase:auth');
+			}
+		});
+
+		// Also check current session on mount to sync state
+		data.supabase.auth.getSession().then(({ data: { session } }) => {
+			if (session && !auth.isAuthenticated) {
+				auth.setAuth(session, session.user);
 			}
 		});
 
@@ -36,7 +43,7 @@
 		{ href: '/', icon: Home, label: 'Home' },
 		{ href: '/discover', icon: Compass, label: 'Discover' },
 		{ href: '/sell', icon: PlusSquare, label: 'Create listing' },
-		{ href: '/cart', icon: ShoppingBag, label: 'Shopping bag', badge: cartCount },
+		{ href: '/cart', icon: ShoppingBag, label: 'Shopping bag', badge: () => cartCount },
 	];
 </script>
 
@@ -79,12 +86,12 @@
 						class="relative text-gray-900 transition-transform hover:scale-110 active:scale-95"
 						aria-label={item.label}
 					>
-						<svelte:component this={item.icon} size={24} strokeWidth={1.5} />
-						{#if item.badge}
+						<item.icon size={24} strokeWidth={1.5} />
+						{#if typeof item.badge === 'function' ? item.badge() : item.badge}
 							<span
 								class="absolute -top-2 -right-2 min-w-[18px] rounded-full bg-red-500 px-1.5 py-0.5 text-center text-[10px] font-semibold text-white"
 							>
-								{item.badge}
+								{typeof item.badge === 'function' ? item.badge() : item.badge}
 							</span>
 						{/if}
 					</a>

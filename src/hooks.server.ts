@@ -7,24 +7,24 @@ import type { Database } from '$lib/supabase/types';
 const supabase: Handle = async ({ event, resolve }) => {
 	/**
 	 * Creates a Supabase client specific to this server request.
-	 * The Supabase client gets the Auth token from the request cookies.
+	 * Uses the modern cookie handling pattern recommended for 2024/2025.
 	 */
 	event.locals.supabase = createServerClient<Database>(
 		PUBLIC_SUPABASE_URL,
 		PUBLIC_SUPABASE_ANON_KEY,
 		{
 			cookies: {
-				getAll: () => event.cookies.getAll(),
-				/**
-				 * SvelteKit's cookies API requires `path` to be explicitly set in
-				 * the cookie options. Setting `path` to `/` replicates previous/standard behavior.
-				 */
-				setAll: (cookiesToSet) => {
-					cookiesToSet.forEach(({ name, value, options }) => {
-						event.cookies.set(name, value, {
-							...options,
-							path: '/',
-						});
+				get: (key) => event.cookies.get(key),
+				set: (key, value, options) => {
+					event.cookies.set(key, value, { 
+						...options, 
+						path: '/' 
+					});
+				},
+				remove: (key, options) => {
+					event.cookies.delete(key, { 
+						...options, 
+						path: '/' 
 					});
 				},
 			},

@@ -61,7 +61,7 @@ export const actions: Actions = {
 			password,
 			options: {
 				data: metadata,
-				emailRedirectTo: `${url.origin}/auth/callback`
+				emailRedirectTo: `${url.origin}/auth/confirm`
 			}
 		});
 

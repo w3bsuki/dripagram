@@ -5,4 +5,6 @@ export interface ExtendedUser extends SupabaseUser {
 	avatar_url?: string;
 	username?: string;
 	full_name?: string;
+	account_type?: 'personal' | 'brand';
+	onboarding_completed?: boolean;
 }

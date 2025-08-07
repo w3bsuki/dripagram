@@ -17,18 +17,17 @@
 	
 	// Password strength indicators
 	let passwordStrength = $derived(() => {
-		if (!password) return { score: 0, text: '', color: '' };
-		
-		let score = 0;
 		const checks = {
-			length: password.length >= 8,
-			uppercase: /[A-Z]/.test(password),
-			lowercase: /[a-z]/.test(password),
-			numbers: /\d/.test(password),
-			special: /[!@#$%^&*]/.test(password)
+			length: password ? password.length >= 8 : false,
+			uppercase: password ? /[A-Z]/.test(password) : false,
+			lowercase: password ? /[a-z]/.test(password) : false,
+			numbers: password ? /\d/.test(password) : false,
+			special: password ? /[!@#$%^&*]/.test(password) : false
 		};
+
+		if (!password) return { score: 0, text: '', color: '', checks };
 		
-		score = Object.values(checks).filter(Boolean).length;
+		const score = Object.values(checks).filter(Boolean).length;
 		
 		const strength: Record<number, { text: string; color: string }> = {
 			0: { text: '', color: '' },
@@ -152,7 +151,7 @@
 								</div>
 								
 								<div class="mt-2 space-y-1 text-xs">
-									{#each Object.entries(passwordStrength().checks || {}) as [check, passed]}
+									{#each Object.entries(passwordStrength().checks) as [check, passed]}
 										<div class="flex items-center gap-1 {passed ? 'text-green-600' : 'text-gray-400'}">
 											<Check size={12} class="{passed ? 'opacity-100' : 'opacity-30'}" />
 											<span>

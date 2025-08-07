@@ -105,7 +105,7 @@
 		},
 	]);
 
-	const isBrand = auth.user?.account_type === 'brand';
+	const isBrand = auth.user?.user_metadata?.account_type === 'brand';
 
 	function nextStep() {
 		if (currentStep < steps.length - 1) {

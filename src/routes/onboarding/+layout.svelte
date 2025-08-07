@@ -16,7 +16,7 @@
 		}
 
 		// Check if onboarding is already completed
-		if (auth.user.onboarding_completed) {
+		if (auth.user.user_metadata?.onboarding_completed) {
 			await goto('/');
 		}
 	});

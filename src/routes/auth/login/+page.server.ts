@@ -1,31 +1,34 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { superValidate, message } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { loginSchema } from '$lib/schemas/auth';
 import type { Actions, PageServerLoad } from './$types';
+
+// Define adapter at module level for memoization
+const loginAdapter = zod(loginSchema as any);
 
 export const load: PageServerLoad = async ({ url, locals }) => {
 	const { session } = await locals.safeGetSession();
 	
-	// If already logged in, redirect to home or intended destination
 	if (session) {
 		const redirectTo = url.searchParams.get('redirectTo') || '/';
 		redirect(303, redirectTo);
 	}
 	
-	return {};
+	const form = await superValidate(loginAdapter, { id: 'login' });
+	return { form };
 };
 
 export const actions: Actions = {
 	default: async ({ request, locals, url }) => {
-		const formData = await request.formData();
-		const email = formData.get('email') as string;
-		const password = formData.get('password') as string;
-		const redirectTo = url.searchParams.get('redirectTo') || '/';
-
-		if (!email || !password) {
-			return fail(400, {
-				error: 'Email and password are required',
-				email
-			});
+		const form = await superValidate(request, loginAdapter, { id: 'login' });
+		
+		if (!form.valid) {
+			return fail(400, { form });
 		}
+		
+		const { email, password } = form.data as { email: string; password: string };
+		const redirectTo = url.searchParams.get('redirectTo') || '/';
 
 		const { error } = await locals.supabase.auth.signInWithPassword({
 			email,
@@ -33,21 +36,9 @@ export const actions: Actions = {
 		});
 
 		if (error) {
-			// Check if it's email not confirmed error
-			if (error.message === 'Email not confirmed') {
-				return fail(400, {
-					error: 'Please confirm your email before signing in. Check your inbox for the confirmation link.',
-					email
-				});
-			}
-			
-			return fail(400, {
-				error: error.message,
-				email
-			});
+			return message(form, error.message, { status: 400 });
 		}
 
-		// Successful login - redirect
 		redirect(303, redirectTo);
 	}
 };
