@@ -18,32 +18,64 @@ export async function uploadListingImages(
 	if (!files || files.length === 0) return [];
 
 	const uploadPromises = files.map(async (file, index) => {
-		// Generate unique filename
-		const timestamp = Date.now();
-		const extension = file.name.split('.').pop() || 'jpg';
-		const filename = `${userId}/${timestamp}-${index}.${extension}`;
+		try {
+			// Resize image if it's too large (especially for mobile)
+			let fileToUpload = file;
+			const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+			const MAX_DIMENSION = 2000; // Max 2000px width/height
+			
+			// Check if file needs resizing
+			if (file.size > MAX_SIZE || file.type.startsWith('image/')) {
+				try {
+					fileToUpload = await resizeImage(file, MAX_DIMENSION, MAX_DIMENSION);
+					console.log(`Resized image from ${file.size} to ${fileToUpload.size} bytes`);
+				} catch (resizeError) {
+					console.warn('Could not resize image, using original:', resizeError);
+					// Continue with original file if resize fails
+				}
+			}
 
-		// Upload to Supabase Storage
-		const { data, error } = await supabase.storage.from('listing-images').upload(filename, file, {
-			cacheControl: '3600',
-			upsert: false,
-		});
+			// Generate unique filename
+			const timestamp = Date.now();
+			const randomStr = Math.random().toString(36).substring(7);
+			const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+			const filename = `${userId}/${timestamp}-${randomStr}-${index}.${extension}`;
 
-		if (error) {
-			console.error('Upload error:', error);
-			throw new Error(`Failed to upload image: ${error.message}`);
+			// Upload to Supabase Storage
+			const { data, error } = await supabase.storage.from('listing-images').upload(filename, fileToUpload, {
+				cacheControl: '3600',
+				upsert: false,
+				contentType: fileToUpload.type || 'image/jpeg',
+			});
+
+			if (error) {
+				console.error(`Upload error for file ${index}:`, error);
+				// More specific error messages
+				if (error.message?.includes('row level security')) {
+					throw new Error('Storage permissions error. Please try again or contact support.');
+				} else if (error.message?.includes('Bucket not found')) {
+					throw new Error('Storage bucket not configured. Please contact support.');
+				} else if (error.message?.includes('Payload too large')) {
+					throw new Error('Image is too large. Please use a smaller image.');
+				} else {
+					throw new Error(`Failed to upload image: ${error.message}`);
+				}
+			}
+
+			// Get public URL
+			const {
+				data: { publicUrl },
+			} = supabase.storage.from('listing-images').getPublicUrl(filename);
+
+			return {
+				url: publicUrl,
+				filename: filename,
+				size: fileToUpload.size,
+			};
+		} catch (error) {
+			console.error(`Error processing file ${index}:`, error);
+			throw error;
 		}
-
-		// Get public URL
-		const {
-			data: { publicUrl },
-		} = supabase.storage.from('listing-images').getPublicUrl(filename);
-
-		return {
-			url: publicUrl,
-			filename: filename,
-			size: file.size,
-		};
 	});
 
 	return Promise.all(uploadPromises);

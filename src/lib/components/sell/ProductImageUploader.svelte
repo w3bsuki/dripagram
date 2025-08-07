@@ -2,6 +2,7 @@
 	import { uploadListingImages, type ImageUploadResult } from '$lib/services/imageService';
 	import { X, Upload, Camera } from '@lucide/svelte';
 	import { page } from '$app/stores';
+	import { toast } from 'svelte-sonner';
 	import type { ProductImageUploaderProps } from './types';
 
 	let { images, userId, onImagesChange }: ProductImageUploaderProps = $props();
@@ -18,24 +19,41 @@
 
 		// Limit to 10 images total
 		if (images.length + fileArray.length > 10) {
-			alert('Maximum 10 images allowed per listing');
+			toast.error('Maximum 10 images allowed per listing');
+			return;
+		}
+
+		// Check if userId is available
+		if (!userId) {
+			toast.error('Please sign in to upload images');
 			return;
 		}
 
 		uploading = true;
+		toast.info(`Uploading ${fileArray.length} image${fileArray.length > 1 ? 's' : ''}...`);
 
 		try {
 			// Get supabase from page data
 			const supabase = $page.data.supabase;
 			if (!supabase) {
-				throw new Error('Supabase client not available');
+				throw new Error('Authentication error. Please refresh the page and try again.');
 			}
+			
 			const uploadResults = await uploadListingImages(fileArray, userId, supabase);
 			const newImages = [...images, ...uploadResults.map((r) => r.url)];
 			onImagesChange(newImages);
-		} catch (error) {
+			toast.success(`Successfully uploaded ${uploadResults.length} image${uploadResults.length > 1 ? 's' : ''}`);
+		} catch (error: any) {
 			console.error('Upload error:', error);
-			alert('Failed to upload images. Please try again.');
+			
+			// Show specific error message
+			const errorMessage = error?.message || 'Failed to upload images';
+			toast.error(errorMessage);
+			
+			// Additional help for common issues
+			if (errorMessage.includes('Storage permissions') || errorMessage.includes('Bucket not found')) {
+				toast.info('This might be a configuration issue. Please try again later or contact support.');
+			}
 		} finally {
 			uploading = false;
 		}
