@@ -1,13 +1,79 @@
-import type { PageServerLoad } from './$types';
-import { redirect } from '@sveltejs/kit';
+import type { PageServerLoad, Actions } from './$types';
+import { redirect, fail } from '@sveltejs/kit';
+import { superValidate, message } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { listingSchema } from '$lib/schemas/listing';
+import { createListing } from '$lib/services/listingService';
 
-export const load: PageServerLoad = async ({ locals: { session, user } }) => {
-	if (!session) {
+const listingAdapter = zod(listingSchema as any);
+
+export const load: PageServerLoad = async ({ locals }) => {
+	const { session, user } = await locals.safeGetSession();
+	
+	if (!session || !user) {
 		throw redirect(303, '/auth/login');
 	}
+
+	// Initialize form with defaults
+	const form = await superValidate(listingAdapter, {
+		id: 'listing',
+		defaults: {
+			condition: 'like_new',
+			shipping_available: true,
+			shipping_price: 5,
+			location: 'Sofia, Bulgaria',
+			images: [],
+			tags: []
+		}
+	});
 
 	return {
 		session,
 		user,
+		form
 	};
+};
+
+export const actions: Actions = {
+	default: async ({ request, locals }) => {
+		const { session, user } = await locals.safeGetSession();
+		
+		if (!session || !user) {
+			throw redirect(303, '/auth/login');
+		}
+
+		const form = await superValidate(request, listingAdapter, { id: 'listing' });
+
+		if (!form.valid) {
+			return fail(400, { form });
+		}
+
+		try {
+			// Create listing in Supabase
+			const listingData = form.data as any;
+			
+			// Don't send category_id if it's not a valid UUID
+			const createData: any = {
+				...listingData,
+				thumbnail_url: listingData.images?.[0]
+			};
+			
+			// Remove the category field since it's not a UUID
+			delete createData.category;
+			
+			const listing = await createListing(createData, locals.supabase);
+
+			// Redirect to success page with listing info
+			const title = encodeURIComponent(listingData.title || '');
+			throw redirect(303, `/sell/success?id=${listing.id}&title=${title}`);
+		} catch (error) {
+			// If it's a redirect, it means success - rethrow it
+			if (error && typeof error === 'object' && 'status' in error && error.status === 303) {
+				throw error;
+			}
+			
+			console.error('Failed to create listing:', error);
+			return message(form, 'Failed to create listing. Please try again.', { status: 500 });
+		}
+	}
 };

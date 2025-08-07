@@ -5,4 +5,4 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<SellForm userId={data.user?.id || ''} />
+<SellForm {data} />

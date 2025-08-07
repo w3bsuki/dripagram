@@ -13,9 +13,15 @@
 		id: 'login',
 		resetForm: false,
 		taintedMessage: null,
-		delayMs: 300,
+		delayMs: 0,
 		timeoutMs: 8000,
-		dataType: 'form'
+		dataType: 'form',
+		onResult: ({ result }) => {
+			if (result.type === 'redirect') {
+				// Force a full page reload to ensure cookies are set
+				window.location.href = result.location;
+			}
+		}
 	});
 
 	// Cast the form stores for better type safety
@@ -65,8 +71,8 @@
 				</div>
 			{/if}
 			
-			<Button type="submit" class="w-full" disabled={$submitting}>
-				{$submitting ? 'Signing in...' : 'Sign in'}
+			<Button type="submit" class="w-full">
+				Sign in
 			</Button>
 		</form>
 

@@ -78,7 +78,7 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
 	if (isProtectedRoute && !session) {
 		const redirectTo = event.url.pathname + event.url.search;
-		redirect(303, `/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`);
+		throw redirect(303, `/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`);
 	}
 
 	// Redirect authenticated users away from auth pages (except verify)
@@ -87,7 +87,7 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
 	if (isAuthRoute && session) {
 		const redirectTo = event.url.searchParams.get('redirectTo') || '/';
-		redirect(303, redirectTo);
+		throw redirect(303, redirectTo);
 	}
 
 	return resolve(event);

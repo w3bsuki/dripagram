@@ -9,9 +9,9 @@
 </script>
 
 <div class="mb-8">
-	<div class="mb-8 text-center">
-		<h2 class="mb-2 text-2xl font-semibold text-gray-900">Preview Your Listing</h2>
-		<p class="text-gray-600">This is how your listing will appear to buyers</p>
+	<div class="mb-6 text-center">
+		<h2 class="mb-2 text-xl font-semibold text-gray-900">Preview Your Listing</h2>
+		<p class="text-sm text-gray-600">This is how your listing will appear to buyers</p>
 	</div>
 
 	<div
@@ -19,8 +19,8 @@
 	>
 		<!-- Images -->
 		{#if listing.images && listing.images.length > 0}
-			<div class="aspect-square bg-gray-100">
-				<img src={listing.images[0]} alt={listing.title} class="h-full w-full object-cover" />
+			<div class="aspect-square bg-gray-100 relative">
+				<img src={listing.images[0]} alt={listing.title || 'Product'} class="h-full w-full object-cover" />
 				{#if listing.images.length > 1}
 					<div class="absolute top-2 right-2 rounded-full bg-black/70 px-2 py-1 text-xs text-white">
 						+{listing.images.length - 1}
@@ -44,7 +44,7 @@
 					{listing.title || 'Untitled Item'}
 				</h3>
 				<p class="mt-1 text-2xl font-bold text-gray-900">
-					{listing.price ? `${listing.price} BGN` : '0 BGN'}
+					{listing.price > 0 ? `${listing.price.toFixed(2)} BGN` : '0.00 BGN'}
 				</p>
 			</div>
 

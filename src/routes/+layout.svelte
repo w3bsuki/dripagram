@@ -7,7 +7,7 @@
 	import { Search, Home, Compass, PlusSquare, ShoppingBag, User } from '@lucide/svelte';
 	import SearchHeader from '$lib/components/navigation/SearchHeader.svelte';
 	import BottomNav from '$lib/components/navigation/BottomNav.svelte';
-	import Toast from '$lib/components/ui/Toast.svelte';
+	import { Toaster } from '$lib/components/ui/sonner';
 	import { setAuthContext } from '$lib/stores/auth.svelte';
 	import type { PageData } from './$types';
 
@@ -136,5 +136,5 @@
 	{/if}
 	
 	<!-- Toast Notifications -->
-	<Toast />
+	<Toaster position="top-center" richColors closeButton />
 </div>

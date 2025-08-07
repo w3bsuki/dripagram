@@ -30,7 +30,7 @@ export const actions: Actions = {
 		const { email, password } = form.data as { email: string; password: string };
 		const redirectTo = url.searchParams.get('redirectTo') || '/';
 
-		const { error } = await locals.supabase.auth.signInWithPassword({
+		const { error, data } = await locals.supabase.auth.signInWithPassword({
 			email,
 			password
 		});
@@ -39,6 +39,6 @@ export const actions: Actions = {
 			return message(form, error.message, { status: 400 });
 		}
 
-		redirect(303, redirectTo);
+		throw redirect(303, redirectTo);
 	}
 };

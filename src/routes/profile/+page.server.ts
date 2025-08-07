@@ -2,18 +2,16 @@ import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 import { getUserListings } from '$lib/services/listingService';
 
-export const load: PageServerLoad = async ({ locals: { session, user, supabase } }) => {
-	if (!session) {
-		throw redirect(303, '/auth/login');
-	}
-
-	if (!user) {
+export const load: PageServerLoad = async ({ locals }) => {
+	const { session, user } = await locals.safeGetSession();
+	
+	if (!session || !user) {
 		throw redirect(303, '/auth/login');
 	}
 
 	try {
 		// Get user's listings
-		const listings = await getUserListings(supabase, user.id);
+		const listings = await getUserListings(locals.supabase, user.id);
 
 		// Get listing stats
 		const activeListings = listings.filter((l) => l.status === 'active');
