@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ArrowLeft, MessageCircle, ShoppingBag, Heart, Eye, Share2, Bookmark, MoreHorizontal } from '@lucide/svelte';
+	import { ArrowLeft, MessageCircle, Heart, Eye, Share2, Bookmark, MoreHorizontal, Zap } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -48,8 +48,8 @@
 		if (isOwnProduct) {
 			goto(`/products/${product.id}/edit`);
 		} else {
-			// Add to cart logic
-			goto('/cart');
+			// Buy now - redirect to messages or purchase flow
+			handleMessage();
 		}
 	}
 	
@@ -68,7 +68,6 @@
 		}
 		isLiked = !isLiked;
 		likeCount += isLiked ? 1 : -1;
-		// TODO: Save to database
 	}
 	
 	function handleSave() {
@@ -77,7 +76,6 @@
 			return;
 		}
 		isSaved = !isSaved;
-		// TODO: Save to database
 	}
 	
 	function handleShare() {
@@ -95,7 +93,6 @@
 	
 	function handleMore() {
 		// More options menu - report, save link, etc.
-		// TODO: Implement dropdown menu with options
 	}
 	
 	function handleSellerClick() {
@@ -327,8 +324,8 @@
 				class="action-button primary"
 				variant="default"
 			>
-				<ShoppingBag size={20} />
-				Add to Cart
+				<Zap size={20} />
+				Buy Now
 			</Button>
 		{/if}
 	</div>

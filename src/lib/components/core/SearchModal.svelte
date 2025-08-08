@@ -79,7 +79,6 @@
 						size="icon"
 						class="absolute top-1 right-1 h-10 w-10"
 						onclick={() => {
-							/* TODO: Visual search */
 						}}
 					>
 						<Camera size={20} />

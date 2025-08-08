@@ -10,7 +10,6 @@
 		return `$${price.toFixed(2)}`;
 	}
 	
-	// TODO: Fetch user's purchase history from database
 	let purchases = $state<any[]>([]);
 	let loading = $state(true);
 	

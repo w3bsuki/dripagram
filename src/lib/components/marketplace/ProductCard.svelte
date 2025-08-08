@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Heart, Eye, ShoppingBag } from '@lucide/svelte';
+	import { Heart, Eye, MessageCircle } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	
 	// Product type - using any for now since database structure is unclear
@@ -51,14 +51,16 @@
 		}
 	}
 	
-	function handleQuickAdd(e: MouseEvent) {
+	function handleQuickMessage(e: MouseEvent) {
 		e.stopPropagation();
-		// Add to cart logic here
+		// Quick message to seller
+		goto(`/messages?listing=${product.id}`);
 	}
 </script>
 
 <div 
 	class="product-card"
+	data-product-id={product.id}
 	onmouseenter={() => isHovered = true}
 	onmouseleave={() => isHovered = false}
 	role="article"
@@ -83,13 +85,13 @@
 		{#if isHovered}
 			<div class="overlay-actions">
 				<button 
-					class="action-btn quick-add"
-					onclick={handleQuickAdd}
-					aria-label="Add to cart"
+					class="action-btn quick-message"
+					onclick={handleQuickMessage}
+					aria-label="Message seller"
 					type="button"
 				>
-					<ShoppingBag size={18} />
-					Quick Add
+					<MessageCircle size={18} />
+					Message
 				</button>
 			</div>
 		{/if}
@@ -189,7 +191,6 @@
 <style>
 	.product-card {
 		background: var(--color-background);
-		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		overflow: hidden;
 		width: 100%;
@@ -199,14 +200,15 @@
 	}
 	
 	.product-card:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+		/* Remove transform to prevent stacking issues in grid */
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		z-index: 1;
 	}
 	
 	/* Image Container */
 	.image-container {
 		position: relative;
-		aspect-ratio: 3/4;
+		aspect-ratio: 1; /* Square for Instagram-style grid */
 		overflow: hidden;
 		background: var(--color-gray-50);
 		cursor: pointer;
@@ -332,8 +334,9 @@
 		padding: 8px;
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: 2px;
 		cursor: pointer;
+		min-height: 0; /* Prevent expansion */
 	}
 	
 	.product-info:focus {

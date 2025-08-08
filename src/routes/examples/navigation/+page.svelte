@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Home, Search, PlusCircle, ShoppingBag, User, Heart, Camera, Settings } from '@lucide/svelte';
+	import { Home, Search, PlusCircle, MessageCircle, User, Heart, Camera, Settings } from '@lucide/svelte';
 	import TabBar from '$lib/components/navigation/TabBar.svelte';
 	import BottomNav from '$lib/components/navigation/BottomNav.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -13,7 +13,7 @@
 		{ id: 'home', icon: Home, label: 'Home' },
 		{ id: 'search', icon: Search, label: 'Search' },
 		{ id: 'add', icon: PlusCircle, label: 'Add', accent: true },
-		{ id: 'cart', icon: ShoppingBag, label: 'Cart', badge: 3 },
+		{ id: 'messages', icon: MessageCircle, label: 'Messages' },
 		{ id: 'profile', icon: User, label: 'Profile' }
 	];
 	

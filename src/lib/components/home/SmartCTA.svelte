@@ -19,18 +19,12 @@
 	let lastScrollY = $state(0);
 	let isMobile = $state(false);
 
-	// Activity data (mock)
-	let liveActivity = $state([
-		{ user: 'Мария С.', action: 'продаде iPhone 13', time: 'току-що', price: 899 },
-		{ user: 'Георги М.', action: 'купи Nike обувки', time: '1 мин', price: 150 },
-		{ user: 'Ани Д.', action: 'публикува нова обява', time: '2 мин', item: 'Zara яке' },
-	]);
+	let liveActivity = $state<{user: string, action: string, time: string, price?: number, item?: string}[]>([]);
 
-	// Stats
 	let stats = {
-		activeUsers: 1247,
-		todayDeals: 89,
-		newListings: 156,
+		activeUsers: 0,
+		todayDeals: 0,
+		newListings: 0,
 	};
 
 	// Check mobile and handle scroll

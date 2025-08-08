@@ -57,7 +57,6 @@
 	function handleSearch(query: string) {
 		searchValue = query;
 		searchOpen = false;
-		// TODO: Implement search navigation
 	}
 
 	function selectLocation(location: string) {

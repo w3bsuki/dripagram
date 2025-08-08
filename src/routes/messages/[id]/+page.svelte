@@ -8,7 +8,9 @@
 	import ChatContainer from '$lib/components/messages/ChatContainer.svelte';
 	import type { Conversation, Message } from '$lib/types/messaging';
 	import { getAuthContext } from '$lib/stores/auth.svelte';
+	import type { PageData } from './$types';
 
+	let { data }: { data: PageData } = $props();
 	const supabase = getContext<SupabaseClient<Database>>('supabase');
 	const auth = getAuthContext();
 
@@ -17,7 +19,7 @@
 	let loading = $state(true);
 	let newMessage = $state('');
 
-	const conversationId = $page.params.id;
+	const conversationId = data.conversationId;
 	let realtimeChannel: any;
 
 	onMount(async () => {
@@ -34,10 +36,10 @@
 	});
 
 	async function loadConversation() {
-		if (!auth.user) return;
+		if (!data.user) return;
 
 		try {
-			const { data, error } = await supabase
+			const { data: conversationData, error } = await supabase
 				.from('conversations')
 				.select(
 					`
@@ -53,15 +55,15 @@
 			if (error) throw error;
 
 			// Check if user is part of conversation
-			if (data.buyer_id !== auth.user.id && data.seller_id !== auth.user.id) {
+			if (conversationData.buyer_id !== data.user.id && conversationData.seller_id !== data.user.id) {
 				goto('/messages');
 				return;
 			}
 
-			const otherUser = data.buyer_id === auth.user.id ? data.seller : data.buyer;
+			const otherUser = conversationData.buyer_id === data.user.id ? conversationData.seller : conversationData.buyer;
 
 			conversation = {
-				...data,
+				...conversationData,
 				other_user: otherUser,
 			};
 		} catch (error) {
@@ -71,7 +73,7 @@
 
 	async function loadMessages() {
 		try {
-			const { data, error } = await supabase
+			const { data: messageData, error } = await supabase
 				.from('messages')
 				.select('*')
 				.eq('conversation_id', conversationId)
@@ -80,7 +82,7 @@
 
 			if (error) throw error;
 
-			messages = data || [];
+			messages = messageData || [];
 		} catch (error) {
 		} finally {
 			loading = false;
@@ -102,7 +104,7 @@
 					messages = [...messages, payload.new as Message];
 
 					// Mark as read if not from current user
-					if (payload.new.sender_id !== auth.user?.id) {
+					if (payload.new.sender_id !== data.user?.id) {
 						markMessageAsRead(payload.new.id);
 					}
 				}
@@ -111,7 +113,7 @@
 	}
 
 	async function sendMessage() {
-		if (!newMessage.trim() || !auth.user || !conversation) return;
+		if (!newMessage.trim() || !data.user || !conversation) return;
 
 		// Check if user has messaging permissions
 		const canMessage = await checkMessagingPermissions();
@@ -124,7 +126,7 @@
 		try {
 			const { error } = await supabase.from('messages').insert({
 				conversation_id: conversationId,
-				sender_id: auth.user.id,
+				sender_id: data.user.id,
 				content: newMessage.trim(),
 				message_type: 'text',
 			});
@@ -137,22 +139,22 @@
 	}
 
 	async function checkMessagingPermissions(): Promise<boolean> {
-		if (!auth.user) return false;
+		if (!data.user) return false;
 
 		try {
-			const { data } = await supabase.rpc('user_can_message', { user_id: auth.user.id });
+			const { data: canMessage } = await supabase.rpc('user_can_message', { user_id: data.user.id });
 
-			return data || false;
+			return canMessage || false;
 		} catch (error) {
 			return false;
 		}
 	}
 
 	async function markMessagesAsRead() {
-		if (!auth.user) return;
+		if (!data.user) return;
 
 		const unreadMessages = messages.filter(
-			(msg) => !msg.is_read && msg.sender_id !== auth.user?.id
+			(msg) => !msg.is_read && msg.sender_id !== data.user?.id
 		);
 
 		for (const message of unreadMessages) {
@@ -161,12 +163,12 @@
 	}
 
 	async function markMessageAsRead(messageId: string) {
-		if (!auth.user) return;
+		if (!data.user) return;
 
 		try {
 			await supabase.from('message_reads').upsert({
 				message_id: messageId,
-				user_id: auth.user.id,
+				user_id: data.user.id,
 			});
 
 			await supabase
@@ -213,7 +215,7 @@
 	{messages}
 	{loading}
 	bind:newMessage
-	currentUserId={auth.user?.id}
+	currentUserId={data.user?.id}
 	onBack={handleBack}
 	onProfileClick={handleProfileClick}
 	onProductClick={handleProductClick}

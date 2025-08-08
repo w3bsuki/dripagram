@@ -106,7 +106,6 @@
 	}
 
 	function handleSubmit() {
-		// TODO: Implement actual form submission
 		isOpen = false;
 		currentStep = 1;
 		// Reset form

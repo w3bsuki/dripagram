@@ -5,11 +5,24 @@
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 
+	// New prop to control initial/conditional open state from layout/routes
+	let { defaultOpenSearch = false } = $props();
+
 	let searchQuery = $state('');
 	let showSearch = $state(false);
 	let showCategories = $state(false);
 	let isSticky = $state(false);
 	let headerRef = $state<HTMLElement | null>(null);
+	let openedOnce = $state(false);
+
+	// Open search once when requested (e.g., on /browse), but allow user to close it
+	$effect(() => {
+		if (defaultOpenSearch && !openedOnce) {
+			showSearch = true;
+			showCategories = false;
+			openedOnce = true;
+		}
+	});
 
 	function handleSearch(e: Event) {
 		e.preventDefault();
@@ -20,7 +33,6 @@
 	}
 
 	function openVisualSearch() {
-		// TODO: Implement visual search
 	}
 
 	function toggleCategories() {
@@ -75,26 +87,35 @@
 
 <header class="search-header {isSticky ? 'sticky' : ''}" bind:this={headerRef}>
 	<div class="header-content">
-		<!-- Logo -->
-		<a href="/" class="logo">driplo</a>
+		<!-- Logo (Instagram style - left aligned) -->
+		<a href="/" class="logo" aria-label="Driplo Home">
+			<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<rect width="32" height="32" rx="8" fill="#1877f2"/>
+				<text x="16" y="22" text-anchor="middle" fill="white" font-family="system-ui" font-weight="700" font-size="14">d</text>
+			</svg>
+			<span class="logo-text">driplo</span>
+		</a>
 
+		<!-- Actions (Instagram style - right aligned) -->
 		<div class="header-actions">
 			<!-- Search Button -->
 			<button 
 				class="action-btn search-trigger {showSearch ? 'active' : ''}" 
 				onclick={() => { showSearch = !showSearch; showCategories = false; }} 
-				aria-label="Search"
+				aria-label="Search products"
+				aria-expanded={showSearch}
 			>
-				<Search size={22} />
+				<Search size={24} strokeWidth={1.5} />
 			</button>
 
-			<!-- Categories Button -->
+			<!-- Categories/Browse Button -->
 			<button 
 				class="action-btn categories-trigger {showCategories ? 'active' : ''}" 
 				onclick={toggleCategories}
 				aria-label="Browse categories"
+				aria-expanded={showCategories}
 			>
-				<Grid3x3 size={22} />
+				<Grid3x3 size={24} strokeWidth={1.5} />
 			</button>
 		</div>
 	</div>
@@ -215,16 +236,33 @@
 	}
 
 	.logo {
-		font-size: 1.75rem;
-		font-weight: 800;
-		color: #262626;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 		text-decoration: none;
-		letter-spacing: -1px;
 		transition: transform 0.2s;
 	}
 
 	.logo:active {
 		transform: scale(0.95);
+	}
+
+	.logo-text {
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: #262626;
+		letter-spacing: -0.5px;
+	}
+
+	@media (max-width: 640px) {
+		.logo svg {
+			width: 28px;
+			height: 28px;
+		}
+		
+		.logo-text {
+			font-size: 1.375rem;
+		}
 	}
 
 	.header-actions {
@@ -236,28 +274,30 @@
 	.action-btn {
 		background: none;
 		border: none;
-		color: var(--color-text-primary);
+		color: #262626;
 		cursor: pointer;
-		padding: 0.625rem;
+		padding: 0.5rem;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		position: relative;
-		transition: all 0.2s;
-		border-radius: 12px;
+		transition: all 0.15s ease;
+		border-radius: 50%;
+		width: 44px;
+		height: 44px;
 	}
 
 	.action-btn:hover {
-		background: var(--color-gray-50);
+		background: rgba(0, 0, 0, 0.05);
 	}
 
 	.action-btn.active {
-		background: var(--color-gray-100);
-		color: var(--color-primary);
+		background: rgba(0, 0, 0, 0.1);
+		color: #1877f2;
 	}
 
 	.action-btn:active {
-		transform: scale(0.92);
+		transform: scale(0.9);
 	}
 
 	.categories-trigger {

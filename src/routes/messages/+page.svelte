@@ -7,7 +7,9 @@
 	import ConversationList from '$lib/components/messages/ConversationList.svelte';
 	import type { Conversation } from '$lib/types/messaging';
 	import { getAuthContext } from '$lib/stores/auth.svelte';
+	import type { PageData } from './$types';
 
+	let { data }: { data: PageData } = $props();
 	const supabase = getContext<SupabaseClient<Database>>('supabase');
 	const auth = getAuthContext();
 
@@ -21,10 +23,10 @@
 	});
 
 	async function loadConversations() {
-		if (!auth.user) return;
+		if (!data.user) return;
 
 		try {
-			const { data, error } = await supabase
+			const { data: conversationData, error } = await supabase
 				.from('conversations')
 				.select(
 					`
@@ -37,15 +39,15 @@
           )
         `
 				)
-				.or(`buyer_id.eq.${auth.user.id},seller_id.eq.${auth.user.id}`)
+				.or(`buyer_id.eq.${data.user.id},seller_id.eq.${data.user.id}`)
 				.order('last_message_at', { ascending: false });
 
 			if (error) throw error;
 
 			// Process conversations to add other_user and unread_count
 			conversations = await Promise.all(
-				data.map(async (conv: any) => {
-					const otherUser = conv.buyer_id === auth.user?.id ? conv.seller : conv.buyer;
+				(conversationData || []).map(async (conv: any) => {
+					const otherUser = conv.buyer_id === data.user?.id ? conv.seller : conv.buyer;
 
 					// Get unread count
 					const { count } = await supabase
@@ -53,7 +55,7 @@
 						.select('*', { count: 'exact', head: true })
 						.eq('conversation_id', conv.id)
 						.eq('is_read', false)
-						.neq('sender_id', auth.user?.id);
+						.neq('sender_id', data.user?.id);
 
 					return {
 						...conv,
@@ -70,7 +72,7 @@
 	}
 
 	function setupRealtime() {
-		if (!auth.user) return;
+		if (!data.user) return;
 
 		const channel = supabase
 			.channel('conversations')
@@ -96,7 +98,6 @@
 	}
 
 	function handleCompose() {
-		// TODO: Implement compose functionality
 	}
 
 	function handleSearchChange(query: string) {
@@ -112,8 +113,8 @@
 	{conversations}
 	{loading}
 	{searchQuery}
-	currentUserId={auth.user?.id}
-	username={auth.user?.user_metadata?.username || auth.user?.email?.split('@')[0] || 'Messages'}
+	currentUserId={data.user?.id}
+	username={data.user?.user_metadata?.username || data.user?.email?.split('@')[0] || 'Messages'}
 	onConversationClick={handleConversationClick}
 	onBack={handleBack}
 	onCompose={handleCompose}

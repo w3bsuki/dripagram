@@ -4,17 +4,15 @@
 	import { page } from '$app/stores';
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { Search, Home, Compass, PlusSquare, ShoppingBag, User } from '@lucide/svelte';
+	import { Search, Home, Compass, PlusSquare, MessageCircle, User } from '@lucide/svelte';
 	import SearchHeader from '$lib/components/navigation/SearchHeader.svelte';
 	import BottomNav from '$lib/components/navigation/BottomNav.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { setAuthContext } from '$lib/stores/auth.svelte';
-	import { cartStore } from '$lib/stores/cart.svelte.js';
 	import type { PageData } from './$types';
 
 	let { data, children }: { data: PageData; children?: any } = $props();
 	let showUserMenu = $state(false);
-	let cartCount = $derived(cartStore.count);
 
 	// Initialize auth context with SSR data
 	const auth = setAuthContext(data.user, data.session);
@@ -44,7 +42,7 @@
 		{ href: '/', icon: Home, label: 'Home' },
 		{ href: '/browse', icon: Compass, label: 'Discover' },
 		{ href: '/sell', icon: PlusSquare, label: 'Create listing' },
-		{ href: '/cart', icon: ShoppingBag, label: 'Shopping bag', badge: () => cartCount },
+		{ href: '/messages', icon: MessageCircle, label: 'Messages' },
 	];
 </script>
 
@@ -88,13 +86,6 @@
 						aria-label={item.label}
 					>
 						<item.icon size={24} strokeWidth={1.5} />
-						{#if typeof item.badge === 'function' ? item.badge() : item.badge}
-							<span
-								class="absolute -top-2 -right-2 min-w-[18px] rounded-full bg-red-500 px-1.5 py-0.5 text-center text-[10px] font-semibold text-white"
-							>
-								{typeof item.badge === 'function' ? item.badge() : item.badge}
-							</span>
-						{/if}
 					</a>
 				{/each}
 

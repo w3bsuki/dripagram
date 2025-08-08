@@ -3,6 +3,7 @@
 	import { createClient } from '$lib/supabase/client';
 	import { getAuthContext } from '$lib/stores/auth.svelte';
 	import { toast } from '$lib/utils/toast';
+	import { goto } from '$app/navigation';
 	import type { Listing } from '$lib/types';
 
 	interface Props {
@@ -30,10 +31,13 @@
 	
 	// Get auth context
 	let auth: ReturnType<typeof getAuthContext> | null = null;
+	let currentUser: any = null;
 	try {
 		auth = getAuthContext();
+		currentUser = auth.user;
 	} catch {
 		auth = null;
+		currentUser = null;
 	}
 	
 	const supabase = createClient();
@@ -105,14 +109,13 @@
 		}
 	}
 
-	function quickAddToCart() {
-		if (!selectedSize && item.size) {
-			toast.error('Please select a size');
+	function quickMessage() {
+		if (!currentUser) {
+			goto('/auth/login');
 			return;
 		}
-
-		// Add to cart logic
-		toast.success('Added to cart');
+		// Quick message to seller
+		goto(`/messages?listing=${item.id}`);
 		showQuickShop = false;
 	}
 
@@ -223,7 +226,7 @@
 						</div>
 					{/if}
 
-					<button class="add-to-cart-btn" onclick={quickAddToCart}> Add to Cart </button>
+					<button class="message-btn" onclick={quickMessage}> Message </button>
 				</div>
 			</div>
 		{/if}
@@ -554,7 +557,7 @@
 		background: var(--color-background);
 	}
 
-	.add-to-cart-btn {
+	.message-btn {
 		width: 100%;
 		background: var(--color-accent);
 		color: var(--color-text-primary);
@@ -566,7 +569,7 @@
 		transition: all 0.2s;
 	}
 
-	.add-to-cart-btn:hover {
+	.message-btn:hover {
 		background: #ffd93d;
 		transform: translateY(-2px);
 		box-shadow: 0 4px 12px rgba(255, 224, 102, 0.3);

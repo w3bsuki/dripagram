@@ -90,10 +90,20 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 			.order('like_count', { ascending: false })
 			.limit(6);
 
+		// Convert related and similar products to FeedProduct format
+		const convertToFeedProduct = (item: any) => ({
+			...item,
+			seller_id: item.seller?.id || '',
+			updated_at: item.created_at,
+			isLiked: false, // TODO: Check if user has liked this product
+			isSaved: false, // TODO: Check if user has saved this product
+			seller: Array.isArray(item.seller) ? item.seller[0] : item.seller
+		});
+
 		return {
 			product,
-			relatedProducts: relatedProducts || [],
-			similarProducts: similarProducts || []
+			relatedProducts: (relatedProducts || []).map(convertToFeedProduct),
+			similarProducts: (similarProducts || []).map(convertToFeedProduct)
 		};
 	} catch (err) {
 		throw error(404, 'Product not found');

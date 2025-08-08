@@ -179,16 +179,6 @@ export interface Review {
 }
 
 // Shopping Types
-export interface CartItem {
-	id: string;
-	user_id: string;
-	listing_id: string;
-	quantity?: number;
-	size?: string;
-	color?: string;
-	added_at: string;
-}
-
 export interface WishlistItem {
 	id: string;
 	user_id: string;
@@ -240,4 +230,25 @@ export interface TrendingItem {
 	time_window?: 'hourly' | 'daily' | 'weekly' | 'monthly';
 	created_at: string;
 	updated_at: string;
+}
+
+// Feed Types
+export interface FeedProduct extends Listing {
+	seller: {
+		id: string;
+		username: string;
+		full_name?: string;
+		avatar_url?: string;
+		verified: boolean;
+	};
+	isLiked: boolean;
+	isSaved?: boolean;
+	engagement_score?: number;
+}
+
+export interface FeedResponse {
+	products: FeedProduct[];
+	nextCursor: string | null;
+	currentTab: 'for-you' | 'following' | 'trending';
+	isAuthenticated: boolean;
 }

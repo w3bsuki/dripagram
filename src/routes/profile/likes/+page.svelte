@@ -6,7 +6,6 @@
 	
 	const auth = getAuthContext();
 	
-	// TODO: Fetch user's liked items from database
 	let likedItems = $state<any[]>([]);
 	let loading = $state(true);
 	
