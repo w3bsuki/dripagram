@@ -146,7 +146,7 @@
 					{product.seller.username || product.seller.full_name || 'Anonymous'}
 				</span>
 				{#if product.seller.verified || product.seller.seller_verified}
-					<span class="verified-badge">✓</span>
+					<span class="seller-verified">✓</span>
 				{/if}
 			</div>
 		{/if}
@@ -365,8 +365,8 @@
 		font-weight: 500;
 	}
 	
-	.verified-badge {
-		background: #3b82f6;
+	.seller-verified {
+		background: #000;
 		color: white;
 		width: 14px;
 		height: 14px;

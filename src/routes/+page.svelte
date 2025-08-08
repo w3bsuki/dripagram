@@ -39,16 +39,18 @@
 		nextCursor = data.nextCursor;
 		feedType = data.currentTab || 'for-you';
 		
-		// Update registered users
-		registeredUsers = data.registeredUsers?.map(user => ({
-			id: user.username || user.id,
-			title: user.username || user.full_name || 'User',
-			subtitle: user.verified ? 'Verified Seller' : 'Seller',
-			imageUrl: user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || user.full_name || 'U')}&background=random`,
-			isVerified: user.verified || false,
-			followerCount: user.follower_count || 0,
-			productCount: user.listing_count || user.product_count || 0
-		})) || [];
+		// Only update registered users if we have fresh data
+		if (data.registeredUsers && data.registeredUsers.length > 0) {
+			registeredUsers = data.registeredUsers.map(user => ({
+				id: user.username || user.id,
+				title: user.username || user.full_name || 'User',
+				subtitle: user.verified ? 'Verified Seller' : 'Seller',
+				imageUrl: user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || user.full_name || 'U')}&background=random`,
+				isVerified: user.verified || false,
+				followerCount: user.follower_count || 0,
+				productCount: user.listing_count || user.product_count || 0
+			}));
+		}
 	});
 
 	// Track views when products change (separate effect to avoid loops)
@@ -305,9 +307,11 @@
 							loading="lazy"
 						/>
 						{#if user.isVerified}
-							<svg class="verified-badge" viewBox="0 0 20 20" fill="currentColor">
-								<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-							</svg>
+							<div class="verified-badge">
+								<svg width="10" height="8" viewBox="0 0 10 8" fill="white">
+									<path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" fill="none"/>
+								</svg>
+							</div>
 						{/if}
 					</div>
 					<span class="brand-name">{user.title}</span>
@@ -455,13 +459,17 @@
 		background: white;
 		border-bottom: 1px solid #e5e7eb;
 		padding: 1rem 0;
-		/* NOT sticky - just a normal section */
+		overflow: hidden; /* Prevent any overflow */
+		touch-action: pan-x; /* Only horizontal touch */
+		position: relative;
+		z-index: 20; /* Below feed-tabs but visible */
 	}
 
 	.brands-container {
 		display: flex;
 		gap: 16px;
 		overflow-x: auto;
+		overflow-y: hidden; /* Prevent vertical scroll */
 		padding: 0 16px;
 		scroll-behavior: smooth;
 		-webkit-overflow-scrolling: touch;
@@ -469,6 +477,9 @@
 		-ms-overflow-style: none;
 		scroll-snap-type: x mandatory;
 		scroll-padding: 0 16px;
+		touch-action: pan-x; /* Only allow horizontal panning */
+		user-select: none; /* Prevent text selection */
+		-webkit-user-select: none;
 	}
 
 	.brands-container::-webkit-scrollbar {
@@ -501,8 +512,9 @@
 		aspect-ratio: 1;
 		max-width: 64px;
 		border-radius: 50%;
-		border: 1px solid #e5e7eb;
+		border: 2px solid #dbdbdb;
 		background: white;
+		overflow: visible;
 	}
 
 	.brand-image-wrapper img {
@@ -510,30 +522,26 @@
 		height: 100%;
 		object-fit: cover;
 		border-radius: 50%;
+		overflow: hidden;
 	}
 
 	.verified-badge {
 		position: absolute;
-		bottom: 0;
-		right: 0;
-		background: #10b981;
-		color: white;
+		bottom: -2px;
+		right: -2px;
 		width: 20px;
 		height: 20px;
 		border-radius: 50%;
+		border: 2px solid white;
+		background: #000;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		font-size: 12px;
-		border: 2px solid white;
-		padding: 3px;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 	}
 	
 	.verified-badge svg {
-		width: 100%;
-		height: 100%;
-		fill: white;
+		width: 12px;
+		height: 12px;
 	}
 
 	.brand-name {
@@ -762,7 +770,7 @@
 	}
 	
 	.verified-icon {
-		background: #3b82f6;
+		background: #000;
 		color: white;
 		width: 20px;
 		height: 20px;

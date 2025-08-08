@@ -301,16 +301,6 @@
    TRUST INDICATORS
    ═══════════════════════════════════════════════════════════════════════ */
 
-.verified-badge {
-	@apply inline-flex items-center gap-1 px-2 py-1 text-xs font-medium;
-	@apply rounded-full bg-green-50 text-green-600;
-}
-
-.verified-badge::before {
-	content: '✓';
-	@apply inline-block h-3 w-3 text-center text-[10px] leading-3;
-	@apply rounded-full bg-green-600 text-white;
-}
 
 .response-time {
 	@apply text-muted-foreground text-xs;
