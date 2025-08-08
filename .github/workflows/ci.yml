@@ -38,11 +38,16 @@ jobs:
 
       - name: 🔧 Prepare SvelteKit
         run: pnpm run prepare
+        env:
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-ci-build
 
       - name: 🏗️ Build application
         run: pnpm run build
         env:
           NODE_ENV: production
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-ci-build
 
       - name: ⚡ Cache build artifacts
         uses: actions/cache@v4
@@ -80,9 +85,15 @@ jobs:
 
       - name: 🔧 Prepare SvelteKit
         run: pnpm run prepare
+        env:
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-ci-build
 
       - name: 🔎 TypeScript & Svelte checks
         run: pnpm run check
+        env:
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-ci-build
 
       - name: 🧹 ESLint validation
         run: pnpm run lint || echo "ESLint found issues but build continues"
@@ -128,10 +139,17 @@ jobs:
 
       - name: 🔧 Prepare SvelteKit (if cache miss)
         run: pnpm run prepare
+        env:
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-ci-build
 
       - name: 🏗️ Build (if cache miss)
         run: pnpm run build
         if: steps.cache.outputs.cache-hit != 'true'
+        env:
+          NODE_ENV: production
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-ci-build
 
       - name: 🔍 Test preview server
         run: |
