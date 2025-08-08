@@ -220,7 +220,8 @@
 							<div
 								class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gray-100"
 							>
-								<svelte:component this={feature.icon} size={20} class="text-gray-600" />
+								{@const IconComponent = feature.icon}
+								<IconComponent size={20} class="text-gray-600" />
 							</div>
 							<div class="flex-1">
 								<h3 class="mb-1 font-semibold text-gray-900">{feature.title}</h3>

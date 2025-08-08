@@ -55,8 +55,8 @@
 			}}
 		>
 			<!-- Account Type Selection -->
-			<div class="form-group">
-				<label>Choose your account type</label>
+			<fieldset class="form-group">
+				<legend>Choose your account type</legend>
 				<div class="account-type-cards">
 					<button
 						type="button"
@@ -84,7 +84,7 @@
 				</div>
 				<!-- Hidden input for account type -->
 				<input type="hidden" name="accountType" value={accountType} />
-			</div>
+			</fieldset>
 
 			<!-- Brand Name Field (conditional) -->
 			{#if accountType === 'brand'}

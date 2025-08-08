@@ -78,9 +78,9 @@
 </script>
 
 {#snippet tabIcon(item: TabItem, isActive: boolean)}
+	{@const IconComponent = item.icon}
 	<div class="relative">
-		<svelte:component 
-			this={item.icon} 
+		<IconComponent 
 			size={currentSize.icon} 
 			strokeWidth={isActive ? 2 : 1.5}
 			class={cn(
@@ -154,7 +154,7 @@
 				aria-current={isActive ? 'page' : undefined}
 			>
 				{#if isActive && variant === 'default'}
-					<div class="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-gray-900" />
+					<div class="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-gray-900"></div>
 				{/if}
 				
 				{@render tabIcon(item, isActive)}

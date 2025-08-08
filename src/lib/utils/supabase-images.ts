@@ -2,6 +2,8 @@
  * Utility functions for handling Supabase Storage images
  */
 
+import { PUBLIC_SUPABASE_URL } from '$env/static/public';
+
 interface ImageTransformOptions {
 	width?: number;
 	height?: number;
@@ -23,7 +25,7 @@ interface UploadOptions {
  */
 export function getSupabaseImageUrl(path: string, options?: ImageTransformOptions): string {
 	// This is a placeholder - will be updated when Supabase is configured
-	const baseUrl = process.env.PUBLIC_SUPABASE_URL || '';
+	const baseUrl = PUBLIC_SUPABASE_URL || '';
 	const bucketUrl = `${baseUrl}/storage/v1/object/public`;
 
 	if (!options) {

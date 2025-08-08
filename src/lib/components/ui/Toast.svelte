@@ -32,8 +32,9 @@
 
 <div class="toast-container">
 	{#each $toast as item (item.id)}
+		{@const IconComponent = getIcon(item.type)}
 		<div class="toast {getStyles(item.type)}" transition:fly={{ y: 50, duration: 200 }}>
-			<svelte:component this={getIcon(item.type)} size={20} />
+			<IconComponent size={20} />
 			<span>{item.message}</span>
 			<button class="close-btn" onclick={() => toast.remove(item.id)} aria-label="Close">
 				<X size={16} />

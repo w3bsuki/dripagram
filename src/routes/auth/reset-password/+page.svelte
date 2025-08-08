@@ -145,7 +145,7 @@
 										{#each Array(5) as _, i}
 											<div 
 												class="h-1 w-8 rounded-full transition-colors {i < passwordStrength().score ? 'bg-green-500' : 'bg-gray-200'}"
-											/>
+											></div>
 										{/each}
 									</div>
 								</div>
@@ -153,7 +153,7 @@
 								<div class="mt-2 space-y-1 text-xs">
 									{#each Object.entries(passwordStrength().checks) as [check, passed]}
 										<div class="flex items-center gap-1 {passed ? 'text-green-600' : 'text-gray-400'}">
-											<Check size={12} class="{passed ? 'opacity-100' : 'opacity-30'}" />
+											<Check size={12} class={passed ? 'opacity-100' : 'opacity-30'} />
 											<span>
 												{check === 'length' && 'At least 8 characters'}
 												{check === 'uppercase' && 'One uppercase letter'}

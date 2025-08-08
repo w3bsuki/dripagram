@@ -104,7 +104,7 @@ function handleProductClick(product: any) {
 
 ```typescript
 // CORRECT - Proper transform typing
-import type { Database } from '$lib/supabase/database.types';
+import type { Database } from '$lib/types/database.types';
 
 type DatabaseProduct = Database['public']['Tables']['products']['Row'];
 type DatabaseProfile = Database['public']['Tables']['profiles']['Row'];

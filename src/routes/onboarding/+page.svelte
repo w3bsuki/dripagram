@@ -199,7 +199,8 @@
 						{#if step.completed}
 							<CheckCircle size={20} />
 						{:else}
-							<svelte:component this={step.icon} size={20} />
+							{@const IconComponent = step.icon}
+							<IconComponent size={20} />
 						{/if}
 					</div>
 					<span class="step-label">{step.title}</span>

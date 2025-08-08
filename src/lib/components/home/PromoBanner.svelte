@@ -128,7 +128,7 @@
 										? 'w-4 bg-white'
 										: 'bg-white/50'}"
 									aria-label="Go to banner {index + 1}"
-								/>
+								></button>
 							{/each}
 						</div>
 					{/if}
@@ -159,7 +159,7 @@
 			<div
 				class="h-full bg-white transition-all duration-[5000ms] ease-linear"
 				style="width: {((currentSlide + 1) / banners.length) * 100}%"
-			/>
+			></div>
 		</div>
 	</div>
 {/if}

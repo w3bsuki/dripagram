@@ -51,9 +51,9 @@
 </script>
 
 {#snippet navIcon(item: NavItem)}
+	{@const IconComponent = item.icon}
 	<div class="relative">
-		<svelte:component 
-			this={item.icon} 
+		<IconComponent 
 			size={24} 
 			strokeWidth={isActive(item.href) ? 2 : 1.5}
 			class={cn(
@@ -96,7 +96,7 @@
 				aria-current={active ? 'page' : undefined}
 			>
 				{#if active}
-					<div class="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-gray-900" />
+					<div class="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-gray-900"></div>
 				{/if}
 				
 				{@render navIcon(item)}

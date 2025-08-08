@@ -271,7 +271,7 @@
 				bind:value={searchValue}
 				onkeydown={handleSearch}
 				class="flex-1 text-lg outline-none"
-				autofocus
+				aria-label="Search products"
 			/>
 			{#if searchValue}
 				<button onclick={performSearch} class="text-primary font-medium"> Търси </button>
@@ -302,7 +302,14 @@
 
 <!-- Click outside handlers -->
 {#if notificationOpen}
-	<div class="fixed inset-0 z-40" onclick={() => (notificationOpen = false)}></div>
+	<div 
+		class="fixed inset-0 z-40" 
+		role="button"
+		tabindex="0"
+		onclick={() => (notificationOpen = false)}
+		onkeydown={(e) => e.key === 'Escape' && (notificationOpen = false)}
+		aria-label="Close notifications"
+	></div>
 {/if}
 
 <style>

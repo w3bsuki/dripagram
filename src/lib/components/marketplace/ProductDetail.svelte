@@ -177,7 +177,7 @@
 						class="indicator {currentImageIndex === index ? 'active' : ''}"
 						onclick={() => selectImage(index)}
 						aria-label="View image {index + 1}"
-					/>
+					></button>
 				{/each}
 			</div>
 		{/if}

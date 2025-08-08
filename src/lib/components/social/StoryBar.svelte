@@ -1,4 +1,4 @@
-<script context="module">
+<script module>
 	function formatTimeLeft(endTime: Date): string {
 		const now = new Date();
 		const diff = endTime.getTime() - now.getTime();
@@ -150,8 +150,20 @@
 
 <!-- Story Viewer Modal -->
 {#if activeStory}
-	<div class="story-viewer" onclick={closeStory}>
-		<div class="story-content" onclick={(e) => e.stopPropagation()}>
+	<div 
+		class="story-viewer" 
+		role="dialog"
+		aria-modal="true"
+		aria-label="Story viewer"
+		tabindex="0"
+		onclick={closeStory}
+		onkeydown={(e) => e.key === 'Escape' && closeStory()}
+	>
+		<div 
+			class="story-content" 
+			role="presentation"
+			onclick={(e) => e.stopPropagation()}
+		>
 			<!-- Progress Bar -->
 			<div class="progress-bar">
 				<div class="progress-fill" style="width: {storyProgress}%"></div>

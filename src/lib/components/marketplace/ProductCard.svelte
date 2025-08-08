@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Heart, Eye, ShoppingBag } from 'lucide-svelte';
+	import { Heart, Eye, ShoppingBag } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	
 	// Product type - using any for now since database structure is unclear
@@ -386,6 +386,7 @@
 		text-overflow: ellipsis;
 		display: -webkit-box;
 		-webkit-line-clamp: 1;
+		line-clamp: 1;
 		-webkit-box-orient: vertical;
 		line-height: 1.2;
 	}

@@ -218,7 +218,14 @@
 
 	<!-- Mobile Filter Sheet -->
 	{#if showFilters}
-		<div class="filter-overlay" onclick={() => (showFilters = false)}></div>
+		<div 
+			class="filter-overlay" 
+			role="button"
+			tabindex="0"
+			onclick={() => (showFilters = false)}
+			onkeydown={(e) => e.key === 'Escape' && (showFilters = false)}
+			aria-label="Close filters"
+		></div>
 		<div class="filter-sheet">
 			<div class="filter-header">
 				<h2>Filters</h2>

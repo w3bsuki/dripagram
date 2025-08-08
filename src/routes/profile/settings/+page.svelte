@@ -102,12 +102,13 @@
 				<h3 class="section-title">{section.title}</h3>
 				<div class="section-items">
 					{#each section.items as item, index}
+						{@const IconComponent = item.icon}
 						<button
 							onclick={() => goto(item.href)}
 							class="setting-item"
 						>
 							<div class="item-icon">
-								<svelte:component this={item.icon} size={20} />
+								<IconComponent size={20} />
 							</div>
 							<div class="item-content">
 								<span class="item-label">{item.label}</span>

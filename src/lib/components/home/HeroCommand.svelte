@@ -151,6 +151,7 @@
 			<p class="mb-4 text-lg font-semibold text-gray-900">Започни веднага</p>
 			<div class="mx-auto grid max-w-3xl grid-cols-1 gap-4 md:grid-cols-3">
 				{#each quickActions as action}
+					{@const IconComponent = action.icon}
 					<a
 						href={action.href}
 						class="group hover:border-primary/30 rounded-xl border border-gray-200 bg-white p-6 transition-all hover:shadow-lg"
@@ -159,7 +160,7 @@
 							<div
 								class="h-12 w-12 {action.color} mb-3 flex items-center justify-center rounded-xl transition-transform group-hover:scale-110"
 							>
-								<svelte:component this={action.icon} size={24} />
+								<IconComponent size={24} />
 							</div>
 							<h3 class="mb-1 font-semibold text-gray-900">{action.title}</h3>
 							<p class="text-sm text-gray-600">{action.description}</p>
@@ -189,18 +190,30 @@
 
 <!-- Click outside to close dropdowns -->
 {#if locationOpen}
-	<div class="fixed inset-0 z-40" onclick={() => (locationOpen = false)}></div>
+	<div 
+		class="fixed inset-0 z-40" 
+		role="button"
+		tabindex="0"
+		onclick={() => (locationOpen = false)}
+		onkeydown={(e) => e.key === 'Escape' && (locationOpen = false)}
+		aria-label="Close location selector"
+	></div>
 {/if}
 
 <!-- Simple Search Modal (temporary replacement for Command Dialog) -->
 {#if searchOpen}
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+		role="dialog"
+		aria-modal="true"
+		aria-label="Search products"
+		tabindex="0"
 		onclick={() => (searchOpen = false)}
+		onkeydown={(e) => e.key === 'Escape' && (searchOpen = false)}
 	>
 		<div
 			class="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white"
-			onclick={(e) => e.stopPropagation()}
+			role="document"
 		>
 			<div class="p-6">
 				<div class="mb-6">
@@ -209,7 +222,7 @@
 						type="search"
 						placeholder="Търси продукти, марки, категории, потребители..."
 						class="focus:ring-primary focus:border-primary w-full rounded-lg border border-gray-300 px-4 py-3 text-lg outline-none focus:ring-2"
-						autofocus
+						aria-label="Search input"
 					/>
 				</div>
 

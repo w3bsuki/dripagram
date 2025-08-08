@@ -181,8 +181,8 @@
 		{#if loading}
 			{#each Array(5) as _}
 				<div class="flex flex-shrink-0 flex-col items-center gap-2">
-					<div class="h-16 w-16 animate-pulse rounded-full bg-gray-200" />
-					<div class="h-2 w-12 animate-pulse rounded bg-gray-200" />
+					<div class="h-16 w-16 animate-pulse rounded-full bg-gray-200"></div>
+					<div class="h-2 w-12 animate-pulse rounded bg-gray-200"></div>
 				</div>
 			{/each}
 		{:else}

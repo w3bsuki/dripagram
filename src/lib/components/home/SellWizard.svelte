@@ -285,7 +285,8 @@
 							{#if currentStep > step.id}
 								<CheckCircle size={16} />
 							{:else}
-								<svelte:component this={step.icon} size={16} />
+								{@const IconComponent = step.icon}
+								<IconComponent size={16} />
 							{/if}
 						</div>
 						<span

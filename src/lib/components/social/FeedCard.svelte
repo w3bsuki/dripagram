@@ -150,7 +150,14 @@
 	</header>
 
 	<!-- Product Image(s) -->
-	<div class="image-container" ondblclick={toggleLike}>
+	<div 
+		class="image-container" 
+		role="button"
+		tabindex="0"
+		ondblclick={toggleLike}
+		onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleLike()}
+		aria-label="Double-click to like product"
+	>
 		{#if item.video_url}
 			<video
 				src={item.video_url}
@@ -158,7 +165,9 @@
 				controls
 				playsinline
 				class="product-media"
-			/>
+			>
+				<track kind="captions" srclang="en" label="English captions" />
+			</video>
 		{:else if item.images && item.images.length > 0}
 			<img
 				src={item.images[imageIndex] || item.thumbnail_url}
@@ -185,15 +194,29 @@
 
 		<!-- Quick Shop -->
 		{#if showQuickShop}
-			<div class="quick-shop-overlay" onclick={() => (showQuickShop = false)}>
-				<div class="quick-shop-modal" onclick={(e) => e.stopPropagation()}>
+			<div 
+				class="quick-shop-overlay" 
+				role="button"
+				tabindex="0"
+				onclick={() => (showQuickShop = false)}
+				onkeydown={(e) => e.key === 'Escape' && (showQuickShop = false)}
+				aria-label="Close quick shop"
+			>
+				<div 
+					class="quick-shop-modal" 
+					role="dialog"
+					aria-modal="true"
+					tabindex="0"
+					onclick={(e) => e.stopPropagation()}
+					onkeydown={(e) => e.stopPropagation()}
+				>
 					<h3>{item.title}</h3>
 					<p class="price">€{item.price}</p>
 
 					{#if item.size}
 						<div class="size-selector">
-							<label>Size:</label>
-							<select bind:value={selectedSize}>
+							<label for="size-select-{item.id}">Size:</label>
+							<select id="size-select-{item.id}" bind:value={selectedSize}>
 								<option value="">Select size</option>
 								<option value={item.size}>{item.size}</option>
 							</select>
@@ -452,6 +475,7 @@
 		margin: 0.25rem 0;
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
+		line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}
