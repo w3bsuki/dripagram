@@ -5,6 +5,8 @@
 	let { data }: { data: PageData } = $props();
 	
 	let product = $derived(data?.product);
+	let isLiked = $derived(data?.isLiked || false);
+	let isSaved = $derived(data?.isSaved || false);
 	let relatedProducts = $derived(data?.relatedProducts || []);
 	let similarProducts = $derived(data?.similarProducts || []);
 </script>
@@ -18,7 +20,7 @@
 </svelte:head>
 
 {#if product}
-	<ProductDetail {product} {relatedProducts} />
+	<ProductDetail {product} {relatedProducts} {isLiked} {isSaved} />
 	
 	{#if relatedProducts.length > 0}
 		<section class="related-section">

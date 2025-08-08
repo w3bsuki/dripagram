@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto, invalidateAll } from '$app/navigation';
 	import { getAuthContext } from '$lib/stores/auth.svelte';
-	import { Settings, Grid3x3, Bookmark, Plus, MessageCircle, UserPlus, Camera, Package, ShoppingBag, Heart } from '@lucide/svelte';
+	import { Settings, Grid3x3, Plus, Package, Heart } from '@lucide/svelte';
 	import type { PageData } from './$types';
 	
 	let { data }: { data: PageData } = $props();
 	const auth = getAuthContext();
 	
-	let activeTab = $state<'listings' | 'saved'>('listings');
+	let activeTab = $state<'listings' | 'sold' | 'liked'>('listings');
 	
 	// User profile data - prioritize profiles table data over user metadata
 	let profile = $derived({
@@ -33,20 +33,6 @@
 </script>
 
 <div class="profile-page">
-	<!-- Header -->
-	<header class="profile-header">
-		<div class="header-content">
-			<h1 class="username">{profile.username}</h1>
-			<button 
-				onclick={() => goto('/profile/settings')}
-				class="settings-btn"
-				aria-label="Settings"
-			>
-				<Settings size={24} />
-			</button>
-		</div>
-	</header>
-	
 	<!-- Profile Info -->
 	<div class="profile-info">
 		<!-- Avatar Section -->
@@ -69,65 +55,59 @@
 			{/if}
 		</div>
 		
-		<!-- Stats Section -->
-		<div class="stats-section">
-			<button class="stat-item" onclick={() => activeTab = 'listings'}>
-				<span class="stat-count">{data.stats.listings}</span>
-				<span class="stat-label">listings</span>
-			</button>
-			<button class="stat-item">
-				<span class="stat-count">{data.stats.followers}</span>
-				<span class="stat-label">followers</span>
-			</button>
-			<button class="stat-item">
-				<span class="stat-count">{data.stats.following}</span>
-				<span class="stat-label">following</span>
-			</button>
+		<!-- Right Section -->
+		<div class="profile-right">
+			<!-- Username and Settings Row -->
+			<div class="username-row">
+				<h1 class="username">{profile.username}</h1>
+				<button 
+					onclick={() => goto('/profile/settings')}
+					class="settings-btn"
+					aria-label="Settings"
+				>
+					<Settings size={20} />
+				</button>
+			</div>
+			
+			<!-- Stats Section -->
+			<div class="stats-section">
+				<button class="stat-item" onclick={() => activeTab = 'listings'}>
+					<span class="stat-count">{data.stats.listings}</span>
+					<span class="stat-label">listings</span>
+				</button>
+				<button class="stat-item">
+					<span class="stat-count">{data.stats.followers}</span>
+					<span class="stat-label">followers</span>
+				</button>
+				<button class="stat-item">
+					<span class="stat-count">{data.stats.following}</span>
+					<span class="stat-label">following</span>
+				</button>
+			</div>
+			
+			<!-- Bio in same container -->
+			<div class="bio-content">
+				<div class="bio-header">
+					<div>
+						<div class="full-name">{profile.full_name || ''}</div>
+						{#if profile.is_brand && profile.brand_name}
+							<div class="brand-name">{profile.brand_name}</div>
+						{/if}
+						{#if profile.bio}
+							<div class="bio">{profile.bio}</div>
+						{/if}
+					</div>
+					<button 
+						onclick={() => goto('/profile/edit')}
+						class="edit-profile-btn"
+					>
+						Edit profile
+					</button>
+				</div>
+			</div>
 		</div>
 	</div>
 	
-	<!-- Bio Section -->
-	<div class="bio-section">
-		<h2 class="full-name">{profile.full_name || profile.username}</h2>
-		{#if profile.is_brand && profile.brand_name}
-			<p class="brand-name">{profile.brand_name}</p>
-		{/if}
-		{#if profile.bio}
-			<p class="bio">{profile.bio}</p>
-		{/if}
-	</div>
-	
-	<!-- Action Buttons -->
-	<div class="action-buttons">
-		<button 
-			onclick={() => goto('/profile/edit')}
-			class="btn btn-primary"
-		>
-			Edit Profile
-		</button>
-		<button 
-			onclick={() => goto('/profile/insights')}
-			class="btn btn-secondary"
-		>
-			View Insights
-		</button>
-	</div>
-	
-	<!-- Quick Actions -->
-	<div class="quick-actions">
-		<a href="/profile/listings" class="quick-action">
-			<Package />
-			<span>My Sales</span>
-		</a>
-		<a href="/profile/purchases" class="quick-action">
-			<ShoppingBag />
-			<span>Purchases</span>
-		</a>
-		<a href="/profile/likes" class="quick-action">
-			<Heart />
-			<span>Likes</span>
-		</a>
-	</div>
 	
 	<!-- Tabs -->
 	<div class="profile-tabs">
@@ -139,11 +119,18 @@
 			<span class="tab-label">LISTINGS</span>
 		</button>
 		<button 
-			class="tab {activeTab === 'saved' ? 'active' : ''}"
-			onclick={() => activeTab = 'saved'}
+			class="tab {activeTab === 'sold' ? 'active' : ''}"
+			onclick={() => activeTab = 'sold'}
 		>
-			<Bookmark size={20} />
-			<span class="tab-label">SAVED</span>
+			<Package size={20} />
+			<span class="tab-label">SOLD</span>
+		</button>
+		<button 
+			class="tab {activeTab === 'liked' ? 'active' : ''}"
+			onclick={() => activeTab = 'liked'}
+		>
+			<Heart size={20} />
+			<span class="tab-label">LIKED</span>
 		</button>
 	</div>
 	
@@ -184,12 +171,19 @@
 					{/each}
 				</div>
 			{/if}
-		{:else}
-			<!-- Saved Tab -->
+		{:else if activeTab === 'sold'}
+			<!-- Sold Tab -->
 			<div class="empty-state">
-				<Bookmark size={48} class="empty-icon" />
-				<h3>Save Your Favorites</h3>
-				<p>Items you save will appear here</p>
+				<Package size={48} class="empty-icon" />
+				<h3>Sold Items</h3>
+				<p>Items you've sold will appear here</p>
+			</div>
+		{:else if activeTab === 'liked'}
+			<!-- Liked Tab -->
+			<div class="empty-state">
+				<Heart size={48} class="empty-icon" />
+				<h3>Liked Items</h3>
+				<p>Items you've liked will appear here</p>
 			</div>
 		{/if}
 	</div>
@@ -202,28 +196,50 @@
 		padding-bottom: 60px; /* Space for bottom nav */
 	}
 	
-	/* Header */
-	.profile-header {
-		position: sticky;
-		top: 0;
-		z-index: 100;
-		background: var(--color-background);
-		border-bottom: 1px solid var(--color-border);
-		padding: 12px 16px;
-	}
-	
-	.header-content {
+	/* Profile Info */
+	.profile-info {
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		max-width: 600px;
+		align-items: flex-start;
+		gap: 32px;
+		padding: 30px 16px 20px;
+		max-width: 935px;
 		margin: 0 auto;
 	}
 	
+	/* Profile Right Section */
+	.profile-right {
+		flex: 1;
+	}
+	
+	/* Username Row */
+	.username-row {
+		display: flex;
+		align-items: center;
+		gap: 20px;
+		margin-bottom: 20px;
+	}
+	
 	.username {
-		font-size: 20px;
-		font-weight: 600;
+		font-size: 28px;
+		font-weight: 300;
 		margin: 0;
+		line-height: 32px;
+	}
+	
+	.edit-profile-btn {
+		padding: 7px 16px;
+		font-size: 14px;
+		font-weight: 600;
+		background: var(--color-secondary);
+		color: var(--color-foreground);
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		cursor: pointer;
+		transition: background 200ms;
+	}
+	
+	.edit-profile-btn:hover {
+		background: var(--color-muted);
 	}
 	
 	.settings-btn {
@@ -231,17 +247,7 @@
 		border: none;
 		color: var(--color-foreground);
 		cursor: pointer;
-		padding: 4px;
-	}
-	
-	/* Profile Info */
-	.profile-info {
-		display: flex;
-		align-items: center;
-		gap: 32px;
-		padding: 20px 16px;
-		max-width: 600px;
-		margin: 0 auto;
+		padding: 8px;
 	}
 	
 	.avatar-section {
@@ -250,11 +256,11 @@
 	}
 	
 	.avatar {
-		width: 80px;
-		height: 80px;
+		width: 150px;
+		height: 150px;
 		border-radius: 50%;
 		object-fit: cover;
-		border: 2px solid var(--color-border);
+		border: 1px solid var(--color-border);
 	}
 	
 	.avatar-placeholder {
@@ -288,121 +294,66 @@
 	/* Stats */
 	.stats-section {
 		display: flex;
-		gap: 32px;
-		flex: 1;
+		gap: 40px;
+		margin-bottom: 20px;
 	}
 	
 	.stat-item {
 		display: flex;
-		flex-direction: column;
 		align-items: center;
+		gap: 4px;
 		background: none;
 		border: none;
 		cursor: pointer;
 		padding: 0;
+		font-size: 16px;
 	}
 	
 	.stat-count {
-		font-size: 18px;
 		font-weight: 600;
 		color: var(--color-foreground);
 	}
 	
 	.stat-label {
-		font-size: 14px;
-		color: var(--color-muted-foreground);
-		margin-top: 2px;
+		font-weight: 400;
+		color: var(--color-foreground);
 	}
 	
-	/* Bio Section */
-	.bio-section {
-		padding: 0 16px;
-		max-width: 600px;
-		margin: 0 auto 16px;
+	/* Bio Content */
+	.bio-content {
+		font-size: 14px;
+		line-height: 18px;
+	}
+	
+	.bio-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 16px;
 	}
 	
 	.full-name {
-		font-size: 14px;
 		font-weight: 600;
-		margin: 0 0 4px 0;
+		margin-bottom: 2px;
 	}
 	
 	.brand-name {
-		font-size: 14px;
 		color: #3b82f6;
-		margin: 0 0 8px 0;
+		margin-bottom: 2px;
 	}
 	
 	.bio {
-		font-size: 14px;
-		line-height: 1.4;
 		color: var(--color-foreground);
-		margin: 0;
 	}
 	
-	/* Action Buttons */
-	.action-buttons {
-		display: flex;
-		gap: 8px;
-		padding: 0 16px;
-		max-width: 600px;
-		margin: 0 auto 16px;
-	}
-	
-	.btn {
-		flex: 1;
-		padding: 8px 16px;
-		font-size: 14px;
-		font-weight: 600;
-		border-radius: 8px;
-		border: none;
-		cursor: pointer;
-		transition: all 200ms;
-	}
-	
-	.btn-primary {
-		background: var(--color-foreground);
-		color: var(--color-background);
-	}
-	
-	.btn-secondary {
-		background: var(--color-secondary);
-		color: var(--color-foreground);
-		border: 1px solid var(--color-border);
-	}
-	
-	/* Quick Actions */
-	.quick-actions {
-		display: flex;
-		gap: 24px;
-		padding: 16px;
-		max-width: 600px;
-		margin: 0 auto;
-		border-top: 1px solid var(--color-border);
-		border-bottom: 1px solid var(--color-border);
-	}
-	
-	.quick-action {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 4px;
-		text-decoration: none;
-		color: var(--color-muted-foreground);
-		font-size: 12px;
-	}
-	
-	.quick-action :global(svg) {
-		width: 24px;
-		height: 24px;
-	}
 	
 	/* Tabs */
 	.profile-tabs {
 		display: flex;
+		border-top: 1px solid var(--color-border);
 		border-bottom: 1px solid var(--color-border);
-		max-width: 600px;
-		margin: 0 auto;
+		max-width: 935px;
+		margin: 20px auto 0;
 	}
 	
 	.tab {
@@ -529,18 +480,38 @@
 	}
 	
 	/* Mobile optimization */
-	@media (min-width: 640px) {
+	@media (max-width: 735px) {
 		.profile-info {
-			gap: 48px;
+			padding: 16px;
+			gap: 28px;
 		}
 		
 		.avatar {
-			width: 100px;
-			height: 100px;
+			width: 77px;
+			height: 77px;
+		}
+		
+		.username {
+			font-size: 20px;
+		}
+		
+		.username-row {
+			flex-wrap: wrap;
+			gap: 8px;
+		}
+		
+		.bio-header {
+			flex-direction: column;
+			gap: 8px;
+		}
+		
+		.edit-profile-btn {
+			width: 100%;
 		}
 		
 		.stats-section {
-			gap: 48px;
+			gap: 12px;
+			font-size: 14px;
 		}
 	}
 	

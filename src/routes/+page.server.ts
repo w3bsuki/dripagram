@@ -397,7 +397,7 @@ function transformProduct(product: any, userLikes: string[]): FeedProduct {
 		images: product.images || [],
 		thumbnail_url: product.thumbnail_url || product.images?.[0] || '/placeholder.jpg',
 		status: product.status || 'active',
-		view_count: product.views || product.view_count || 0,
+		view_count: product.views || 0,
 		like_count: product.like_count || 0,
 		tags: product.tags || [],
 		created_at: product.created_at,

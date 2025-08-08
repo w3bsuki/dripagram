@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { createClient } from '$lib/supabase/client';
 	
 	// Product type - using any for now since database structure is unclear
 	type Product = any;
@@ -10,12 +11,15 @@
 	interface Props {
 		product: Product;
 		relatedProducts?: Product[];
+		isLiked?: boolean;
+		isSaved?: boolean;
 	}
 	
-	let { product, relatedProducts = [] }: Props = $props();
+	let { product, relatedProducts = [], isLiked: initialIsLiked = false, isSaved: initialIsSaved = false }: Props = $props();
 	
 	let currentImageIndex = $state(0);
 	let currentUser = $derived($page.data.user);
+	const supabase = createClient();
 	
 	let images = $derived(
 		product.images && product.images.length > 0
@@ -31,10 +35,11 @@
 	);
 	
 	let isOwnProduct = $derived(currentUser?.id === product.seller_id);
-	let isLiked = $state(false);
-	let isSaved = $state(false);
-	let likeCount = $state(product.like_count || 0);
-	let viewCount = $state(product.view_count || 0);
+	let isLiked = $state(initialIsLiked);
+	let isSaved = $state(initialIsSaved);
+	// Use actual database values, defaulting to 0 if undefined
+	let likeCount = $state(product.like_count ?? 0);
+	let viewCount = $state(product.views ?? 0);
 	
 	function goBack() {
 		if (window.history.length > 1) {
@@ -61,13 +66,48 @@
 		goto(`/messages/${product.seller_id}?listing=${product.id}`);
 	}
 	
-	function handleLike() {
+	async function handleLike() {
 		if (!currentUser) {
 			goto('/auth/login');
 			return;
 		}
+		
+		// Optimistically update UI
+		const wasLiked = isLiked;
 		isLiked = !isLiked;
 		likeCount += isLiked ? 1 : -1;
+		
+		try {
+			if (isLiked) {
+				// Add like
+				const { error } = await supabase
+					.from('product_likes')
+					.insert({ 
+						user_id: currentUser.id, 
+						product_id: product.id 
+					});
+				
+				if (error) throw error;
+			} else {
+				// Remove like
+				const { error } = await supabase
+					.from('product_likes')
+					.delete()
+					.match({ 
+						user_id: currentUser.id, 
+						product_id: product.id 
+					});
+				
+				if (error) throw error;
+			}
+			// The database trigger will automatically update the like_count
+				
+		} catch (error) {
+			// Revert on error
+			console.error('Error updating like:', error);
+			isLiked = wasLiked;
+			likeCount += wasLiked ? 1 : -1;
+		}
 	}
 	
 	function handleSave() {
@@ -252,6 +292,13 @@
 							{/if}
 						</p>
 						<p class="seller-label">Seller</p>
+						{#if product.seller?.rating_average !== undefined}
+							<p class="seller-rating">
+								<span class="rating-stars">★</span>
+								<span>{product.seller.rating_average || 0}</span>
+								<span>({product.seller.rating_count || 0} reviews)</span>
+							</p>
+						{/if}
 					</div>
 				</button>
 				<button class="follow-btn">
@@ -621,6 +668,19 @@
 		font-size: 12px;
 		color: #8e8e8e;
 		margin: 2px 0 0 0;
+	}
+	
+	.seller-rating {
+		font-size: 12px;
+		color: #262626;
+		margin: 2px 0 0 0;
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+	
+	.rating-stars {
+		color: #fbbf24;
 	}
 	
 	.follow-btn {

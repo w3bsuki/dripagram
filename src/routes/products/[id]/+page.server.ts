@@ -3,6 +3,9 @@ import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
 	try {
+		// Get current user
+		const { data: { user } } = await supabase.auth.getUser();
+		
 		// Get the product with seller information and engagement data
 		const { data: product, error: productError } = await supabase
 			.from('products')
@@ -14,7 +17,9 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 					full_name,
 					avatar_url,
 					verified,
-					created_at
+					created_at,
+					rating_average,
+					rating_count
 				),
 				category:categories(name, slug)
 			`)
@@ -32,6 +37,31 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 
 		// Increment view count asynchronously (fire and forget)
 		supabase.rpc('increment_view_count', { listing_id: params.id });
+		
+		// Check if current user has liked this product
+		let isLiked = false;
+		let isSaved = false;
+		
+		if (user) {
+			const { data: likeData } = await supabase
+				.from('product_likes')
+				.select('id')
+				.eq('user_id', user.id)
+				.eq('product_id', params.id)
+				.single();
+			
+			isLiked = !!likeData;
+			
+			// Check if saved/bookmarked (if we have a saves table)
+			const { data: saveData } = await supabase
+				.from('product_saves')
+				.select('id')
+				.eq('user_id', user.id)
+				.eq('product_id', params.id)
+				.single();
+			
+			isSaved = !!saveData;
+		}
 
 		// Get related products from the same seller
 		const { data: relatedProducts } = await supabase
@@ -43,7 +73,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 				thumbnail_url,
 				images,
 				like_count,
-				view_count,
+				views,
 				size,
 				condition,
 				created_at,
@@ -71,7 +101,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 				thumbnail_url,
 				images,
 				like_count,
-				view_count,
+				views,
 				size,
 				condition,
 				created_at,
@@ -102,6 +132,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 
 		return {
 			product,
+			isLiked,
+			isSaved,
 			relatedProducts: (relatedProducts || []).map(convertToFeedProduct),
 			similarProducts: (similarProducts || []).map(convertToFeedProduct)
 		};

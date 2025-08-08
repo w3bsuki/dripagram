@@ -30,7 +30,7 @@
 		product.like_count || product.likes?.[0]?.count || 0
 	);
 	
-	let viewCount = $derived(product.view_count || 0);
+	let viewCount = $derived(product.views || product.view_count || 0);
 	
 	function handleClick() {
 		if (onclick) {
