@@ -10,23 +10,35 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	try {
-		// Get user's listings
-		const listings = await getUserListings(locals.supabase, user.id);
+		// Get user's profile data from the profiles table
+		const { data: profile } = await locals.supabase
+			.from('profiles')
+			.select('*')
+			.eq('id', user.id)
+			.single();
+
+		// Get user's listings from the products table
+		const { data: products } = await locals.supabase
+			.from('products')
+			.select('*')
+			.eq('seller_id', user.id)
+			.order('created_at', { ascending: false });
 
 		// Get listing stats
-		const activeListings = listings.filter((l) => l.status === 'active');
-		const soldListings = listings.filter((l) => l.status === 'sold');
+		const activeListings = products?.filter((l) => l.status === 'active') || [];
+		const soldListings = products?.filter((l) => l.status === 'sold') || [];
 
 		return {
 			session,
 			user,
+			profile,
 			listings: activeListings,
 			soldListings,
 			stats: {
 				listings: activeListings.length,
 				sold: soldListings.length,
-				followers: user.user_metadata?.follower_count || 0,
-				following: user.user_metadata?.following_count || 0,
+				followers: profile?.follower_count || 0,
+				following: profile?.following_count || 0,
 			},
 		};
 	} catch (error) {
@@ -36,6 +48,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		return {
 			session,
 			user,
+			profile: null,
 			listings: [],
 			soldListings: [],
 			stats: {

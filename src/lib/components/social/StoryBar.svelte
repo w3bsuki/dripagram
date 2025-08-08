@@ -77,7 +77,7 @@
 	let progressInterval: ReturnType<typeof setInterval> | undefined;
 	
 	// Get auth context
-	let auth: ReturnType<typeof getAuthContext> | null = null;
+	let auth = $state<ReturnType<typeof getAuthContext> | null>(null);
 	try {
 		auth = getAuthContext();
 	} catch {

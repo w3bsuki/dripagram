@@ -1,23 +1,69 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { getContext } from 'svelte';
+	import { Camera, ArrowLeft } from '@lucide/svelte';
 	import type { PageData } from './$types';
 	import type { SupabaseClient } from '@supabase/supabase-js';
 
 	let { data }: { data: PageData } = $props();
 
-	// Get supabase client from parent context - we'll use page data instead
-	import { page } from '$app/stores';
-	let supabase = $derived($page.data.supabase as SupabaseClient);
-
 	let loading = $state(false);
+	let uploading = $state(false);
 	let message = $state('');
+	let avatarInput: HTMLInputElement;
+	
 	let profile = $state({
 		username: data.user?.user_metadata?.username || data.user?.email?.split('@')[0] || '',
 		full_name: data.user?.user_metadata?.full_name || '',
 		bio: data.user?.user_metadata?.bio || '',
 		avatar_url: data.user?.user_metadata?.avatar_url || '',
 	});
+
+	function getInitials(name: string): string {
+		return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+	}
+
+	async function uploadAvatar(event: Event) {
+		const input = event.target as HTMLInputElement;
+		const file = input.files?.[0];
+		
+		if (!file || !data.user) {
+			return;
+		}
+
+		const fileExt = file.name.split('.').pop();
+		const fileName = `${data.user.id}-${Math.random()}.${fileExt}`;
+		const filePath = `avatars/${fileName}`;
+
+		try {
+			uploading = true;
+			message = '';
+
+			// Upload file to Supabase Storage
+			const { error: uploadError, data: uploadData } = await data.supabase.storage
+				.from('profile-images')
+				.upload(filePath, file);
+
+			if (uploadError) {
+				throw uploadError;
+			}
+
+			// Get the public URL
+			const { data: urlData } = data.supabase.storage
+				.from('profile-images')
+				.getPublicUrl(filePath);
+
+			if (urlData.publicUrl) {
+				profile.avatar_url = urlData.publicUrl;
+				message = 'Avatar uploaded successfully!';
+			}
+
+		} catch (error) {
+			console.error('Error uploading avatar:', error);
+			message = 'Error uploading avatar. Please try again.';
+		} finally {
+			uploading = false;
+		}
+	}
 
 	async function updateProfile(event: Event) {
 		event.preventDefault();
@@ -28,7 +74,7 @@
 
 		try {
 			// Update the user metadata
-			const { error } = await supabase.auth.updateUser({
+			const { error } = await data.supabase.auth.updateUser({
 				data: {
 					username: profile.username,
 					full_name: profile.full_name,
@@ -38,6 +84,22 @@
 			});
 
 			if (error) throw error;
+
+			// Also update the profiles table
+			const { error: profileError } = await data.supabase
+				.from('profiles')
+				.update({
+					username: profile.username,
+					full_name: profile.full_name,
+					bio: profile.bio,
+					avatar_url: profile.avatar_url,
+					updated_at: new Date().toISOString()
+				})
+				.eq('id', data.user!.id);
+
+			if (profileError) {
+				console.warn('Error updating profiles table:', profileError);
+			}
 
 			message = 'Profile updated successfully!';
 			setTimeout(() => {
@@ -53,224 +115,325 @@
 </script>
 
 <div class="edit-profile-page">
-	<div class="header">
-		<h1>Edit Profile</h1>
-		<a href="/profile" class="cancel-btn">Cancel</a>
-	</div>
+	<!-- Header -->
+	<header class="edit-header">
+		<div class="header-content">
+			<button 
+				onclick={() => goto('/profile')}
+				class="back-btn"
+				aria-label="Cancel"
+			>
+				<ArrowLeft size={24} />
+			</button>
+			<h1 class="header-title">Edit Profile</h1>
+			<button 
+				onclick={updateProfile}
+				disabled={loading}
+				class="save-btn"
+			>
+				{loading ? 'Saving...' : 'Done'}
+			</button>
+		</div>
+	</header>
 
-	<form onsubmit={updateProfile} class="edit-form">
-		<!-- Avatar Preview -->
+	<div class="edit-content">
+		<!-- Avatar Section -->
 		<div class="avatar-section">
-			<img
-				src={profile.avatar_url ||
-					`https://ui-avatars.com/api/?name=${profile.username || 'User'}&background=1877f2&color=fff`}
-				alt="Profile"
-				class="avatar-preview"
-			/>
-			<p class="avatar-hint">Profile photo</p>
+			<div class="avatar-container">
+				{#if profile.avatar_url}
+					<img 
+						src={profile.avatar_url} 
+						alt="Profile"
+						class="avatar"
+					/>
+				{:else}
+					<div class="avatar avatar-placeholder">
+						<span class="initials">
+							{getInitials(profile.full_name || profile.username)}
+						</span>
+					</div>
+				{/if}
+				
+				<button 
+					onclick={() => avatarInput?.click()}
+					disabled={uploading}
+					class="change-photo-btn"
+				>
+					<Camera size={16} />
+					{uploading ? 'Uploading...' : 'Change Profile Photo'}
+				</button>
+				
+				<input
+					bind:this={avatarInput}
+					type="file"
+					accept="image/*"
+					onchange={uploadAvatar}
+					class="avatar-input"
+				/>
+			</div>
 		</div>
 
 		<!-- Form Fields -->
-		<div class="form-group">
-			<label for="username">Username</label>
-			<input
-				id="username"
-				type="text"
-				bind:value={profile.username}
-				placeholder="your_username"
-				required
-				class="form-input"
-			/>
-		</div>
-
-		<div class="form-group">
-			<label for="full_name">Full Name</label>
-			<input
-				id="full_name"
-				type="text"
-				bind:value={profile.full_name}
-				placeholder="Your Full Name"
-				class="form-input"
-			/>
-		</div>
-
-		<div class="form-group">
-			<label for="bio">Bio</label>
-			<textarea
-				id="bio"
-				bind:value={profile.bio}
-				placeholder="Tell people about yourself..."
-				maxlength="150"
-				rows="3"
-				class="form-textarea"
-			></textarea>
-			<span class="char-count">{profile.bio.length}/150</span>
-		</div>
-
-		<div class="form-group">
-			<label for="avatar_url">Avatar URL</label>
-			<input
-				id="avatar_url"
-				type="url"
-				bind:value={profile.avatar_url}
-				placeholder="https://example.com/your-photo.jpg"
-				class="form-input"
-			/>
-		</div>
-
-		{#if message}
-			<div class="message {message.includes('Error') ? 'error' : 'success'}">
-				{message}
+		<form onsubmit={updateProfile} class="edit-form">
+			<div class="form-group">
+				<label for="username" class="form-label">Username</label>
+				<input
+					id="username"
+					type="text"
+					bind:value={profile.username}
+					placeholder="username"
+					required
+					class="form-input"
+				/>
 			</div>
-		{/if}
 
-		<div class="form-actions">
-			<button type="submit" disabled={loading} class="btn-primary">
-				{loading ? 'Saving...' : 'Save Changes'}
-			</button>
-		</div>
-	</form>
+			<div class="form-group">
+				<label for="full_name" class="form-label">Name</label>
+				<input
+					id="full_name"
+					type="text"
+					bind:value={profile.full_name}
+					placeholder="Name"
+					class="form-input"
+				/>
+			</div>
+
+			<div class="form-group">
+				<label for="bio" class="form-label">Bio</label>
+				<textarea
+					id="bio"
+					bind:value={profile.bio}
+					placeholder="Bio"
+					maxlength="150"
+					rows="3"
+					class="form-textarea"
+				></textarea>
+				<div class="char-count">{profile.bio.length}/150</div>
+			</div>
+
+			{#if message}
+				<div class="message {message.includes('Error') ? 'error' : 'success'}">
+					{message}
+				</div>
+			{/if}
+		</form>
+	</div>
 </div>
 
 <style>
 	.edit-profile-page {
-		max-width: 500px;
-		margin: 0 auto;
-		padding: 1rem;
+		min-height: 100vh;
+		background: var(--color-background);
+		padding-bottom: 60px; /* Space for bottom nav */
 	}
-
-	.header {
+	
+	/* Header */
+	.edit-header {
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		background: var(--color-background);
+		border-bottom: 1px solid var(--color-border);
+		padding: 12px 16px;
+	}
+	
+	.header-content {
 		display: flex;
-		justify-content: space-between;
 		align-items: center;
-		margin-bottom: 2rem;
+		justify-content: space-between;
+		max-width: 600px;
+		margin: 0 auto;
 	}
-
-	.header h1 {
-		font-size: 1.5rem;
+	
+	.back-btn {
+		background: none;
+		border: none;
+		color: var(--color-foreground);
+		cursor: pointer;
+		padding: 4px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	.header-title {
+		font-size: 18px;
 		font-weight: 600;
-		color: var(--color-text-primary);
+		margin: 0;
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
 	}
-
-	.cancel-btn {
-		color: var(--color-text-secondary);
-		text-decoration: none;
-		padding: 0.5rem 1rem;
-		border-radius: 6px;
-		transition: background 0.2s;
+	
+	.save-btn {
+		background: none;
+		border: none;
+		color: #0095f6;
+		font-size: 16px;
+		font-weight: 600;
+		cursor: pointer;
+		padding: 4px 8px;
 	}
-
-	.cancel-btn:hover {
-		background: var(--color-surface-secondary);
+	
+	.save-btn:disabled {
+		opacity: 0.3;
+		cursor: not-allowed;
 	}
-
-	.edit-form {
-		background: var(--color-surface-primary);
-		border-radius: 12px;
-		padding: 2rem;
-		box-shadow: var(--shadow-sm);
+	
+	/* Content */
+	.edit-content {
+		max-width: 600px;
+		margin: 0 auto;
 	}
-
+	
+	/* Avatar Section */
 	.avatar-section {
-		text-align: center;
-		margin-bottom: 2rem;
+		display: flex;
+		justify-content: center;
+		padding: 32px 16px;
+		border-bottom: 1px solid var(--color-border);
 	}
-
-	.avatar-preview {
+	
+	.avatar-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 12px;
+	}
+	
+	.avatar {
 		width: 80px;
 		height: 80px;
 		border-radius: 50%;
 		object-fit: cover;
-		border: 2px solid var(--color-border-primary);
-		margin-bottom: 0.5rem;
+		border: 2px solid var(--color-border);
 	}
-
-	.avatar-hint {
-		color: var(--color-text-secondary);
-		font-size: 0.875rem;
+	
+	.avatar-placeholder {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		color: white;
 	}
-
+	
+	.initials {
+		font-size: 28px;
+		font-weight: 600;
+		text-transform: uppercase;
+	}
+	
+	.change-photo-btn {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		background: none;
+		border: none;
+		color: #0095f6;
+		font-size: 14px;
+		font-weight: 600;
+		cursor: pointer;
+		padding: 4px;
+	}
+	
+	.change-photo-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+	
+	.avatar-input {
+		display: none;
+	}
+	
+	/* Form */
+	.edit-form {
+		padding: 0 16px;
+	}
+	
 	.form-group {
-		margin-bottom: 1.5rem;
+		display: flex;
+		align-items: center;
+		padding: 12px 0;
+		border-bottom: 1px solid var(--color-border);
 	}
-
-	.form-group label {
-		display: block;
-		margin-bottom: 0.5rem;
+	
+	.form-group:last-of-type {
+		border-bottom: none;
+	}
+	
+	.form-label {
+		width: 100px;
+		font-size: 16px;
 		font-weight: 500;
-		color: var(--color-text-primary);
+		color: var(--color-foreground);
+		flex-shrink: 0;
 	}
-
+	
 	.form-input,
 	.form-textarea {
-		width: 100%;
-		padding: 0.75rem;
-		border: 1px solid var(--color-border-primary);
-		border-radius: 8px;
-		font-size: 1rem;
-		transition: border-color 0.2s;
-		box-sizing: border-box;
+		flex: 1;
+		background: none;
+		border: none;
+		font-size: 16px;
+		padding: 8px 12px;
+		color: var(--color-foreground);
+		margin-left: 16px;
 	}
-
+	
 	.form-input:focus,
 	.form-textarea:focus {
 		outline: none;
-		border-color: var(--color-interactive-primary);
 	}
-
+	
+	.form-input::placeholder,
+	.form-textarea::placeholder {
+		color: var(--color-muted-foreground);
+	}
+	
 	.form-textarea {
 		resize: vertical;
-		min-height: 80px;
+		min-height: 60px;
+		font-family: inherit;
 	}
-
+	
 	.char-count {
-		display: block;
-		text-align: right;
-		font-size: 0.8rem;
-		color: var(--color-text-secondary);
-		margin-top: 0.25rem;
+		position: absolute;
+		right: 16px;
+		bottom: 8px;
+		font-size: 12px;
+		color: var(--color-muted-foreground);
 	}
-
+	
+	/* Message */
 	.message {
-		padding: 0.75rem;
+		margin: 16px;
+		padding: 12px;
 		border-radius: 8px;
-		margin-bottom: 1rem;
 		text-align: center;
+		font-size: 14px;
 	}
-
+	
 	.message.success {
-		background: var(--color-surface-brand-subtle);
-		color: var(--color-text-success);
-		border: 1px solid var(--color-border-success);
+		background: #e8f5e8;
+		color: #2d7d32;
+		border: 1px solid #81c784;
 	}
-
+	
 	.message.error {
-		background: var(--color-surface-error);
-		color: var(--color-text-error);
-		border: 1px solid var(--color-border-error);
+		background: #ffebee;
+		color: #c62828;
+		border: 1px solid #ef5350;
 	}
-
-	.form-actions {
-		text-align: center;
-	}
-
-	.btn-primary {
-		background: var(--color-interactive-primary);
-		color: var(--color-text-inverse);
-		padding: 0.75rem 2rem;
-		border: none;
-		border-radius: 8px;
-		font-weight: 500;
-		cursor: pointer;
-		transition: background 0.2s;
-	}
-
-	.btn-primary:hover:not(:disabled) {
-		background: var(--color-interactive-primary-hover);
-	}
-
-	.btn-primary:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
+	
+	/* Mobile optimization */
+	@media (min-width: 640px) {
+		.avatar {
+			width: 100px;
+			height: 100px;
+		}
+		
+		.initials {
+			font-size: 32px;
+		}
 	}
 </style>

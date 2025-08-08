@@ -43,23 +43,29 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 		}
 
 		// Transform products to match the expected format
-		const transformedProducts = products?.map(product => ({
-			id: product.id,
-			title: product.title,
-			price: product.price,
-			image: product.thumbnail_url || product.images?.[0] || '/placeholder.jpg',
-			images: product.images || [],
-			seller: {
-				username: product.seller?.username || 'anonymous',
-				avatar: product.seller?.avatar_url || '',
-				verified: product.seller?.verified || false
-			},
-			likes: product.like_count || 0,
-			isLiked: false, // TODO: Check if current user liked this
-			brand: product.brand,
-			size: product.size,
-			condition: product.condition
-		})) || [];
+		const transformedProducts = products?.map(product => {
+			// Handle seller as array (Supabase returns single relation as array)
+			const seller = Array.isArray(product.seller) ? product.seller[0] : product.seller;
+			
+			return {
+				id: product.id,
+				title: product.title,
+				price: product.price,
+				image: product.thumbnail_url || product.images?.[0] || '/placeholder.jpg',
+				images: product.images || [],
+				seller: {
+					id: seller?.id || product.id,
+					username: seller?.username || 'anonymous',
+					avatar: seller?.avatar_url || '',
+					verified: seller?.verified || false
+				},
+				like_count: product.like_count || 0,
+				isLiked: false, // TODO: Check if current user liked this
+				brand: product.brand,
+				size: product.size,
+				condition: product.condition
+			};
+		}) || [];
 
 		console.log(`[Homepage] Successfully loaded ${transformedProducts.length} products from Supabase`);
 

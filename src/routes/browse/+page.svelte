@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Search, Filter, ChevronDown, X } from '@lucide/svelte';
-	import { ProductGrid } from '$lib/components/marketplace/ProductGrid';
+	import { ProductGrid } from '$lib/components/marketplace';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 
@@ -57,6 +57,9 @@
 		'Cottagecore',
 		'Minimalist style',
 	];
+
+	// TODO: Replace with actual product fetching from Supabase
+	let products = $state<any[]>([]);
 
 	onMount(() => {
 		if (browser) {
@@ -210,7 +213,7 @@
 
 	<!-- Products Grid -->
 	<div class="products-section">
-		<ProductGrid />
+		<ProductGrid products={products} />
 	</div>
 
 	<!-- Mobile Filter Sheet -->

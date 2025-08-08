@@ -1,10 +1,10 @@
 import { createBrowserClient } from '@supabase/ssr';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
-import type { Database } from '$lib/supabase/types';
+import type { Database } from '$lib/types/database.types';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // Types
-export type Product = Database['public']['Tables']['products']['Row'] & {
+export type Product = Database['public']['Tables']['listings']['Row'] & {
 	seller?: {
 		name: string;
 		avatar?: string;
@@ -39,7 +39,7 @@ function getSupabaseClient(): SupabaseClient<Database> {
  */
 export async function getProducts(filters: ProductFilters = {}) {
 	const supabase = getSupabaseClient();
-	let query = supabase.from('products').select('*').eq('status', 'active');
+	let query = supabase.from('listings').select('*').eq('status', 'active');
 
 	// Apply filters
 	if (filters.category) {

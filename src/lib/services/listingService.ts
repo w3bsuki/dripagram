@@ -1,6 +1,6 @@
 import { createClient } from '$lib/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '$lib/supabase/types';
+import type { Database } from '$lib/types/database.types';
 
 const supabase = createClient();
 
@@ -55,7 +55,7 @@ export async function createListing(
 	};
 
 	const { data, error } = await supabase
-		.from('products')
+		.from('listings')
 		.insert({
 			title: listingData.title,
 			description: listingData.description,
@@ -101,7 +101,7 @@ export async function updateListing(
 	if (!user) throw new Error('Must be logged in to update listing');
 
 	const { error } = await supabase
-		.from('products')
+		.from('listings')
 		.update({
 			...listingData,
 			updated_at: new Date().toISOString(),
@@ -122,7 +122,7 @@ export async function deleteListing(id: string, supabase: SupabaseClient<Databas
 	if (!user) throw new Error('Must be logged in to delete listing');
 
 	const { error } = await supabase
-		.from('products')
+		.from('listings')
 		.update({ status: 'deleted' })
 		.eq('id', id)
 		.eq('seller_id', user.id); // Ensure user owns the listing
@@ -139,7 +139,7 @@ export async function getUserListings(
 	status?: string
 ): Promise<any[]> {
 	let query = supabase
-		.from('products')
+		.from('listings')
 		.select('*')
 		.eq('seller_id', userId)
 		.order('created_at', { ascending: false });
@@ -160,7 +160,7 @@ export async function getUserListings(
 
 export async function getListingById(id: string, supabase: SupabaseClient<Database>): Promise<any> {
 	const { data, error } = await supabase
-		.from('products')
+		.from('listings')
 		.select(
 			`
       *,

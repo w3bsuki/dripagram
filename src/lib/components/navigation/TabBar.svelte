@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
-	import type { ComponentType } from 'svelte';
+	import type { Component } from 'svelte';
 	
 	// Types
 	export interface TabItem {
 		id: string;
-		icon: ComponentType;
+		icon: Component<any>;
 		label: string;
 		href?: string;
 		badge?: number | string;

@@ -5,7 +5,7 @@
 	import { getAuthContext } from '$lib/stores/auth.svelte';
 	import { UserCircle, CreditCard, Settings } from '@lucide/svelte';
 	import type { SupabaseClient } from '@supabase/supabase-js';
-	import type { Database } from '$lib/supabase/types';
+	import type { Database } from '$lib/types/database.types';
 
 	import OnboardingProgress from './OnboardingProgress.svelte';
 	import OnboardingNavigation from './OnboardingNavigation.svelte';

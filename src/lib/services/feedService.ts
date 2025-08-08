@@ -1,6 +1,6 @@
 import { createClient } from '$lib/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '$lib/supabase/types';
+import type { Database } from '$lib/types/database.types';
 
 const supabase = createClient();
 

@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { getContext } from 'svelte';
 	import type { SupabaseClient } from '@supabase/supabase-js';
-	import type { Database } from '$lib/supabase/types';
+	import type { Database } from '$lib/types/database.types';
 	import ConversationList from '$lib/components/messages/ConversationList.svelte';
 	import type { Conversation } from '$lib/types/messaging';
 	import { getAuthContext } from '$lib/stores/auth.svelte';

@@ -29,10 +29,8 @@ export default defineConfig({
 		include: [
 			'svelte',
 			'@supabase/supabase-js',
-			'@stripe/stripe-js',
 			'bits-ui',
 			'@lucide/svelte',
-			'@tanstack/svelte-query',
 			'date-fns',
 			'zod',
 			'clsx',

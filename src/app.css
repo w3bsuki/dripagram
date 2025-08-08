@@ -13,11 +13,23 @@
 	--color-gray-500: oklch(0.446 0.03 256.802); /* Secondary text */
 	--color-gray-900: oklch(0.13 0.028 261.692); /* Primary text */
 
-	/* Brand Colors - Clean OKLCH colors */
+	/* Brand Colors - Professional Ecommerce Palette */
 	--color-brand: oklch(0.55 0.25 260); /* Deeper blue */
 	--color-brand-dark: oklch(0.45 0.23 260); /* Hover state */
 	--color-accent: oklch(0.723 0.219 149.579); /* Success green */
 	--color-danger: oklch(0.637 0.237 25.331); /* Error red */
+	
+	/* Condition Badge Colors - Professional System */
+	--color-condition-new: oklch(0.62 0.18 145); /* Emerald green */
+	--color-condition-like-new: oklch(0.60 0.21 255); /* Vibrant blue */
+	--color-condition-good: oklch(0.70 0.15 85); /* Amber */
+	--color-condition-fair: oklch(0.65 0.20 45); /* Orange */
+	
+	/* Professional Ecommerce Accents */
+	--color-premium: oklch(0.45 0.08 260); /* Dark navy for premium feel */
+	--color-sale: oklch(0.60 0.25 15); /* Bright red for sales */
+	--color-trending: oklch(0.68 0.18 300); /* Purple for trending */
+	--color-verified: oklch(0.58 0.22 220); /* Trust blue */
 
 	/* Semantic color mappings for Tailwind utilities */
 	--color-background: oklch(1 0 0);

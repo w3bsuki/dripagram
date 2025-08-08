@@ -77,13 +77,13 @@
 
 		try {
 			if (saved) {
-				await supabase.from('wishlists').insert({ user_id: $auth.user.id, listing_id: item.id });
+				await supabase.from('wishlists').insert({ user_id: auth.user!.id, listing_id: item.id });
 				toast.success('Added to wishlist');
 			} else {
 				await supabase
 					.from('wishlists')
 					.delete()
-					.match({ user_id: $auth.user.id, listing_id: item.id });
+					.match({ user_id: auth.user!.id, listing_id: item.id });
 			}
 		} catch (err) {
 			saved = !saved;

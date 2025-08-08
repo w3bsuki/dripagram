@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ProductGrid } from '$lib/components/marketplace/ProductGrid';
+	import { ProductGrid } from '$lib/components/marketplace';
 	import BrandShowcase from '$lib/components/social/BrandShowcase.svelte';
 	import BottomNav from '$lib/components/navigation/BottomNav.svelte';
 	import SearchHeader from '$lib/components/navigation/SearchHeader.svelte';

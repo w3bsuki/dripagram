@@ -134,7 +134,7 @@
 	}
 </script>
 
-{#snippet brandAvatar(brand)}
+{#snippet brandAvatar(brand: Brand & { isVerified?: boolean })}
 	<div class="flex flex-col items-center gap-2">
 		<div class="relative">
 			<div
@@ -162,10 +162,15 @@
 	<div class="scrollbar-hide flex gap-4 overflow-x-auto px-4">
 		{#if auth?.user?.user_metadata?.account_type === 'brand'}
 			{@const brandItem = {
+				id: auth?.user?.id || '',
+				username: auth?.user?.user_metadata?.username || 'your-brand',
 				brand_logo_url:
 					auth?.user?.user_metadata?.brand_logo_url ||
 					'https://ui-avatars.com/api/?name=Your+Brand&background=3b82f6&color=fff',
 				brand_name: 'Your Brand',
+				brand_category: auth?.user?.user_metadata?.brand_category || 'Fashion',
+				follower_count: 0,
+				listing_count: 0,
 				isVerified: false,
 			}}
 			<button class="group flex-shrink-0" onclick={() => goto('/dashboard')}>
@@ -245,7 +250,7 @@
 			<div class="flex gap-3 p-6">
 				<button
 					class="flex-1 rounded-lg bg-blue-500 py-3 font-semibold text-white transition-colors hover:bg-blue-600"
-					onclick={() => navigateToBrand(selectedBrand)}
+					onclick={() => selectedBrand && navigateToBrand(selectedBrand)}
 				>
 					View Shop
 				</button>

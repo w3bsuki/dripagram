@@ -272,9 +272,20 @@
 					location={$form.location}
 					shippingAvailable={$form.shipping_available}
 					shippingPrice={$form.shipping_price}
+					tags={$form.tags || []}
 					onLocationChange={(val) => handleFieldChange('location', val)}
 					onShippingToggle={(val) => handleFieldChange('shipping_available', val)}
 					onShippingPriceChange={(val) => handleFieldChange('shipping_price', val)}
+					onTagAdd={(tag) => {
+						const currentTags = $form.tags || [];
+						if (!currentTags.includes(tag)) {
+							handleFieldChange('tags', [...currentTags, tag]);
+						}
+					}}
+					onTagRemove={(tag) => {
+						const currentTags = $form.tags || [];
+						handleFieldChange('tags', currentTags.filter((t: string) => t !== tag));
+					}}
 				/>
 			{/if}
 

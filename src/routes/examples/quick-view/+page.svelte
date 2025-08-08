@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ProductCard from '$lib/components/marketplace/ProductCard.svelte';
+	import { ProductCard } from '$lib/components/marketplace';
 
 	// Sample product data for testing the QuickViewDialog
 	const sampleProducts = [
@@ -134,12 +134,7 @@
 
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 			{#each sampleProducts as product}
-				<ProductCard 
-					{product} 
-					variant="grid" 
-					enableQuickView={true}
-					showQuickShop={false}
-				/>
+				<ProductCard {product} />
 			{/each}
 		</div>
 

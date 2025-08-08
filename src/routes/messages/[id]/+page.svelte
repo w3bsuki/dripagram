@@ -4,7 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { getContext } from 'svelte';
 	import type { SupabaseClient } from '@supabase/supabase-js';
-	import type { Database } from '$lib/supabase/types';
+	import type { Database } from '$lib/types/database.types';
 	import ChatContainer from '$lib/components/messages/ChatContainer.svelte';
 	import type { Conversation, Message } from '$lib/types/messaging';
 	import { getAuthContext } from '$lib/stores/auth.svelte';

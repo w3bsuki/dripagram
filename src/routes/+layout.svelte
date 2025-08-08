@@ -9,11 +9,12 @@
 	import BottomNav from '$lib/components/navigation/BottomNav.svelte';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { setAuthContext } from '$lib/stores/auth.svelte';
+	import { cartStore } from '$lib/stores/cart.svelte.js';
 	import type { PageData } from './$types';
 
 	let { data, children }: { data: PageData; children?: any } = $props();
 	let showUserMenu = $state(false);
-	let cartCount = $state(3);
+	let cartCount = $derived(cartStore.count);
 
 	// Initialize auth context with SSR data
 	const auth = setAuthContext(data.user, data.session);
@@ -41,7 +42,7 @@
 
 	const navItems = [
 		{ href: '/', icon: Home, label: 'Home' },
-		{ href: '/discover', icon: Compass, label: 'Discover' },
+		{ href: '/browse', icon: Compass, label: 'Discover' },
 		{ href: '/sell', icon: PlusSquare, label: 'Create listing' },
 		{ href: '/cart', icon: ShoppingBag, label: 'Shopping bag', badge: () => cartCount },
 	];
