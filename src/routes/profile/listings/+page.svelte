@@ -7,69 +7,7 @@
 	
 	const auth = getAuthContext();
 	
-	// Mock data for demonstration
-	let listings = $state<any[]>([
-		{
-			id: '1',
-			title: 'Vintage Denim Jacket',
-			price: 89,
-			condition: 'like_new',
-			thumbnail_url: 'https://images.unsplash.com/photo-1495105787522-5334e3ffa0ef?w=400',
-			images: ['https://images.unsplash.com/photo-1495105787522-5334e3ffa0ef?w=800'],
-			like_count: 24,
-			view_count: 156,
-			size: 'M',
-			brand: 'Levi\'s',
-			tags: ['vintage', 'denim', 'streetwear'],
-			created_at: new Date(Date.now() - 86400000).toISOString(),
-			seller: {
-				id: 'seller1',
-				username: 'vintage_finds',
-				avatar_url: 'https://i.pravatar.cc/150?img=1',
-				verified: true
-			}
-		},
-		{
-			id: '2',
-			title: 'Nike Air Max 90',
-			price: 120,
-			condition: 'new',
-			thumbnail_url: 'https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=400',
-			images: ['https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=800'],
-			like_count: 45,
-			view_count: 289,
-			size: '42',
-			brand: 'Nike',
-			tags: ['sneakers', 'nike', 'airmax'],
-			created_at: new Date(Date.now() - 172800000).toISOString(),
-			seller: {
-				id: 'seller1',
-				username: 'vintage_finds',
-				avatar_url: 'https://i.pravatar.cc/150?img=1',
-				verified: true
-			}
-		},
-		{
-			id: '3',
-			title: 'Designer Leather Bag',
-			price: 250,
-			condition: 'good',
-			original_price: 450,
-			thumbnail_url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400',
-			images: ['https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800'],
-			like_count: 67,
-			view_count: 412,
-			brand: 'Coach',
-			tags: ['bag', 'designer', 'luxury'],
-			created_at: new Date(Date.now() - 259200000).toISOString(),
-			seller: {
-				id: 'seller1',
-				username: 'vintage_finds',
-				avatar_url: 'https://i.pravatar.cc/150?img=1',
-				verified: true
-			}
-		}
-	]);
+	let listings = $state<any[]>([]);
 	
 	let loading = $state(false);
 	let viewMode = $state<'grid' | 'list'>('grid');

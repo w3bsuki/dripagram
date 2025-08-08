@@ -218,7 +218,6 @@ export function subscribeToLikes(
 					const stats = await getLikeStats(productId);
 					callback(stats);
 				} catch (error) {
-					console.error('Error refreshing like stats:', error);
 				}
 			}
 		)

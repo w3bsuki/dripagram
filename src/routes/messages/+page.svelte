@@ -64,7 +64,6 @@
 				})
 			);
 		} catch (error) {
-			console.error('Error loading conversations:', error);
 		} finally {
 			loading = false;
 		}
@@ -98,7 +97,6 @@
 
 	function handleCompose() {
 		// TODO: Implement compose functionality
-		console.log('Compose clicked');
 	}
 
 	function handleSearchChange(query: string) {

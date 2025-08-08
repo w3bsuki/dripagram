@@ -89,7 +89,6 @@ export const actions: Actions = {
 					.upsert(profileUpdates);
 
 				if (profileError) {
-					console.error('Profile update error:', profileError);
 				}
 			}
 		}

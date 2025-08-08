@@ -139,18 +139,7 @@ export function isOperationalError(error: unknown): boolean {
  * Log error with appropriate level
  */
 export function logError(error: unknown, context?: Record<string, any>): void {
-	const details = getErrorDetails(error);
-	const isOperational = isOperationalError(error);
-
-	if (dev) {
-		if (isOperational) {
-			console.warn('[Operational Error]', details, context);
-		} else {
-			console.error('[System Error]', details, context);
-		}
-	}
-
-	// In production, you would send to error tracking service
+	// In production, send to error tracking service
 	// Example: Sentry.captureException(error, { extra: context });
 }
 
@@ -269,7 +258,6 @@ export function safeJsonParse<T = any>(json: string, fallback?: T): T | undefine
 	try {
 		return JSON.parse(json);
 	} catch (error) {
-		logError(error, { json: json.substring(0, 100) });
 		return fallback;
 	}
 }

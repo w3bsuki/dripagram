@@ -28,7 +28,6 @@
 			submitted = true;
 			toast.success('Password reset link sent to your email');
 		} catch (error: any) {
-			console.error('Password reset error:', error);
 			toast.error(error.message || 'Failed to send reset email');
 		} finally {
 			loading = false;

@@ -54,7 +54,6 @@
 	function handleQuickAdd(e: MouseEvent) {
 		e.stopPropagation();
 		// Add to cart logic here
-		console.log('Add to cart:', product.title);
 	}
 </script>
 

@@ -73,7 +73,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		});
 
 	} catch (error) {
-		console.error('Error in follow API:', error);
 		return json({ error: 'Internal server error' }, { status: 500 });
 	}
 };

@@ -28,9 +28,7 @@ export async function uploadListingImages(
 			if (file.size > MAX_SIZE || file.type.startsWith('image/')) {
 				try {
 					fileToUpload = await resizeImage(file, MAX_DIMENSION, MAX_DIMENSION);
-					console.log(`Resized image from ${file.size} to ${fileToUpload.size} bytes`);
 				} catch (resizeError) {
-					console.warn('Could not resize image, using original:', resizeError);
 					// Continue with original file if resize fails
 				}
 			}
@@ -49,7 +47,6 @@ export async function uploadListingImages(
 			});
 
 			if (error) {
-				console.error(`Upload error for file ${index}:`, error);
 				// More specific error messages
 				if (error.message?.includes('row level security')) {
 					throw new Error('Storage permissions error. Please try again or contact support.');
@@ -73,7 +70,6 @@ export async function uploadListingImages(
 				size: fileToUpload.size,
 			};
 		} catch (error) {
-			console.error(`Error processing file ${index}:`, error);
 			throw error;
 		}
 	});
@@ -88,7 +84,6 @@ export async function deleteListingImage(
 	const { error } = await supabase.storage.from('listing-images').remove([filename]);
 
 	if (error) {
-		console.error('Delete error:', error);
 		throw new Error(`Failed to delete image: ${error.message}`);
 	}
 }

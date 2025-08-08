@@ -65,7 +65,6 @@
 				other_user: otherUser,
 			};
 		} catch (error) {
-			console.error('Error loading conversation:', error);
 			goto('/messages');
 		}
 	}
@@ -83,7 +82,6 @@
 
 			messages = data || [];
 		} catch (error) {
-			console.error('Error loading messages:', error);
 		} finally {
 			loading = false;
 		}
@@ -135,7 +133,6 @@
 
 			newMessage = '';
 		} catch (error) {
-			console.error('Error sending message:', error);
 		}
 	}
 
@@ -147,7 +144,6 @@
 
 			return data || false;
 		} catch (error) {
-			console.error('Error checking permissions:', error);
 			return false;
 		}
 	}
@@ -181,7 +177,6 @@
 				})
 				.eq('id', messageId);
 		} catch (error) {
-			console.error('Error marking message as read:', error);
 		}
 	}
 

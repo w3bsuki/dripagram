@@ -52,14 +52,12 @@
 		{ name: 'Стара Загора', region: 'Старозагорска област' },
 	];
 
-	// Recent searches (mock data)
-	let recentSearches = ['Зимно яке', 'iPhone чехол', 'Adidas маратонки'];
+	let recentSearches: string[] = [];
 
 	function handleSearch(query: string) {
 		searchValue = query;
 		searchOpen = false;
 		// TODO: Implement search navigation
-		console.log('Searching for:', query);
 	}
 
 	function selectLocation(location: string) {

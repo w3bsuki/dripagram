@@ -72,7 +72,6 @@
 			isLoading = true;
 			likeStats = await getLikeStats(listingId);
 		} catch (error) {
-			console.error('Error loading like stats:', error);
 		} finally {
 			isLoading = false;
 		}
@@ -105,7 +104,6 @@
 				totalLikes: result.totalLikes,
 			};
 		} catch (error) {
-			console.error('Error toggling like:', error);
 			// Revert optimistic update on error
 			await loadLikeStats();
 		}

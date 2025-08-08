@@ -95,7 +95,6 @@
 	
 	function handleMore() {
 		// More options menu - report, save link, etc.
-		console.log('More options clicked');
 		// TODO: Implement dropdown menu with options
 	}
 	

@@ -72,7 +72,6 @@ export const actions: Actions = {
 				throw error;
 			}
 			
-			console.error('Failed to create listing:', error);
 			return message(form, 'Failed to create listing. Please try again.', { status: 500 });
 		}
 	}

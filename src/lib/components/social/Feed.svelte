@@ -72,7 +72,6 @@
 				currentPage++;
 			}
 		} catch (err) {
-			console.error('Error loading feed:', err);
 		} finally {
 			loading = false;
 			loadingMore = false;

@@ -26,7 +26,6 @@
 			
 			toast.success('Verification email sent! Please check your inbox.');
 		} catch (err: any) {
-			console.error('Resend error:', err);
 			toast.error(err.message || 'Failed to resend verification email');
 		} finally {
 			resending = false;

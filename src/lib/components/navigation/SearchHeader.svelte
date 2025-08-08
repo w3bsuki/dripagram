@@ -21,7 +21,6 @@
 
 	function openVisualSearch() {
 		// TODO: Implement visual search
-		console.log('Opening visual search...');
 	}
 
 	function toggleCategories() {

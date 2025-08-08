@@ -20,7 +20,6 @@ export async function getAllCategories(): Promise<Category[]> {
 		.order('sort_order', { ascending: true });
 
 	if (error) {
-		console.error('Error fetching categories:', error);
 		return [];
 	}
 
@@ -39,7 +38,6 @@ export async function getTopLevelCategories(): Promise<Category[]> {
 		.order('sort_order', { ascending: true });
 
 	if (error) {
-		console.error('Error fetching top-level categories:', error);
 		return [];
 	}
 
@@ -58,7 +56,6 @@ export async function getSubcategories(parentId: string): Promise<Category[]> {
 		.order('sort_order', { ascending: true });
 
 	if (error) {
-		console.error('Error fetching subcategories:', error);
 		return [];
 	}
 
@@ -72,7 +69,6 @@ export async function getCategoriesWithCounts(): Promise<CategoryWithCount[]> {
 	const { data, error } = await supabase.rpc('get_categories_with_counts');
 
 	if (error) {
-		console.error('Error fetching categories with counts:', error);
 		return [];
 	}
 
@@ -97,7 +93,6 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 		.single();
 
 	if (error) {
-		console.error('Error fetching category by slug:', error);
 		return null;
 	}
 

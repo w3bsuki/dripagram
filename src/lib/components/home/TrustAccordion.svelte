@@ -213,6 +213,7 @@
 		<div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
 			<Accordion.Root type="multiple" bind:value={openValues} class="w-full">
 				{#each trustFeatures as feature, index}
+					{@const IconComponent = feature.icon}
 					<Accordion.Item value={feature.value}>
 						<Accordion.Trigger
 							class="flex w-full items-center gap-4 px-6 py-4 text-left transition-colors hover:bg-gray-50"
@@ -220,7 +221,6 @@
 							<div
 								class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gray-100"
 							>
-								{@const IconComponent = feature.icon}
 								<IconComponent size={20} class="text-gray-600" />
 							</div>
 							<div class="flex-1">

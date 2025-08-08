@@ -83,7 +83,6 @@ export async function createListing(
 		.single();
 
 	if (error) {
-		console.error('Create listing error:', error);
 		throw new Error(`Failed to create listing: ${error.message}`);
 	}
 
@@ -110,7 +109,6 @@ export async function updateListing(
 		.eq('seller_id', user.id); // Ensure user owns the listing
 
 	if (error) {
-		console.error('Update listing error:', error);
 		throw new Error(`Failed to update listing: ${error.message}`);
 	}
 }
@@ -128,7 +126,6 @@ export async function deleteListing(id: string, supabase: SupabaseClient<Databas
 		.eq('seller_id', user.id); // Ensure user owns the listing
 
 	if (error) {
-		console.error('Delete listing error:', error);
 		throw new Error(`Failed to delete listing: ${error.message}`);
 	}
 }
@@ -151,7 +148,6 @@ export async function getUserListings(
 	const { data, error } = await query;
 
 	if (error) {
-		console.error('Get user listings error:', error);
 		throw new Error(`Failed to get listings: ${error.message}`);
 	}
 
@@ -180,7 +176,6 @@ export async function getListingById(id: string, supabase: SupabaseClient<Databa
 		.single();
 
 	if (error) {
-		console.error('Get listing error:', error);
 		throw new Error(`Failed to get listing: ${error.message}`);
 	}
 

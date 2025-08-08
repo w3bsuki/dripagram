@@ -20,8 +20,7 @@
 		'Зимни обувки',
 	];
 
-	// Recent searches (mock data)
-	let recentSearches = ['Зимно яке', 'iPhone чехол', 'Adidas маратонки'];
+	let recentSearches: string[] = [];
 
 	// Categories with emojis
 	let categories = [

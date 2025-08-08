@@ -92,5 +92,4 @@ export const sentryConfig: SentryConfig = {
  */
 export async function initSentry() {
 	// This will be implemented when @sentry/sveltekit is installed
-	console.log('Sentry initialization placeholder - install @sentry/sveltekit when ready');
 }

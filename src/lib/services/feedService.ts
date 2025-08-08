@@ -80,7 +80,6 @@ export async function getForYouFeed(
 		const { data: listings, error } = await query;
 
 		if (error) {
-			console.error('Feed query error:', error);
 			throw error;
 		}
 
@@ -113,7 +112,6 @@ export async function getForYouFeed(
 			nextCursor: listings.length > 0 ? listings[listings.length - 1].created_at : undefined,
 		};
 	} catch (error) {
-		console.error('Error fetching For You feed:', error);
 		throw error;
 	}
 }
@@ -177,7 +175,6 @@ export async function getNewestFeed(
 				listings && listings.length > 0 ? listings[listings.length - 1].created_at : undefined,
 		};
 	} catch (error) {
-		console.error('Error fetching Newest feed:', error);
 		throw error;
 	}
 }
@@ -244,7 +241,6 @@ export async function getTrendingFeed(
 			nextCursor: undefined, // Trending doesn't use cursor pagination
 		};
 	} catch (error) {
-		console.error('Error fetching Trending feed:', error);
 		throw error;
 	}
 }
@@ -275,7 +271,6 @@ async function personalizeListings(
 			.limit(50);
 
 		if (likesError) {
-			console.error('Error fetching user likes:', likesError);
 		}
 
 		// Extract user preferences
@@ -295,7 +290,6 @@ async function personalizeListings(
 			};
 		});
 	} catch (error) {
-		console.error('Error personalizing listings:', error);
 		// Fallback to basic scoring
 		return listings.map((item) => ({
 			...item,

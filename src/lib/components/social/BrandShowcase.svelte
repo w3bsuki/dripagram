@@ -21,7 +21,7 @@
 	let loading = $state(true);
 	
 	// Get auth context
-	let auth: ReturnType<typeof getAuthContext> | null = null;
+	let auth = $state<ReturnType<typeof getAuthContext> | null>(null);
 	try {
 		auth = getAuthContext();
 	} catch {
@@ -47,7 +47,6 @@
 				brands = data;
 			}
 		} catch (error) {
-			console.error('Error loading brands:', error);
 			brands = getDemoBrands();
 		} finally {
 			loading = false;

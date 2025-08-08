@@ -94,7 +94,6 @@ export async function getProducts(filters: ProductFilters = {}) {
 	const { data, error } = await query;
 
 	if (error) {
-		console.error('Error fetching products:', error);
 		return [];
 	}
 
@@ -132,7 +131,6 @@ export async function getProductById(id: string) {
 	const { data, error } = await supabase.from('listings').select('*').eq('id', id).single();
 
 	if (error) {
-		console.error('Error fetching product:', error);
 		return null;
 	}
 
@@ -185,7 +183,6 @@ export async function createListing(listing: {
 		.single();
 
 	if (error) {
-		console.error('Error creating listing:', error);
 		throw error;
 	}
 
@@ -218,7 +215,6 @@ export async function updateListing(
 		.single();
 
 	if (error) {
-		console.error('Error updating listing:', error);
 		throw error;
 	}
 
@@ -233,7 +229,6 @@ export async function deleteListing(id: string) {
 	const { error } = await supabase.from('listings').delete().eq('id', id);
 
 	if (error) {
-		console.error('Error deleting listing:', error);
 		throw error;
 	}
 
@@ -260,7 +255,6 @@ export async function incrementViewCount(id: string) {
 		.eq('id', id);
 
 	if (error) {
-		console.error('Error incrementing view count:', error);
 	}
 }
 

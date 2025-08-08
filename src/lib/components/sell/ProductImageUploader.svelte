@@ -44,7 +44,6 @@
 			onImagesChange(newImages);
 			toast.success(`Successfully uploaded ${uploadResults.length} image${uploadResults.length > 1 ? 's' : ''}`);
 		} catch (error: any) {
-			console.error('Upload error:', error);
 			
 			// Show specific error message
 			const errorMessage = error?.message || 'Failed to upload images';

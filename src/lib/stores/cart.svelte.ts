@@ -19,7 +19,6 @@ function createCartStore() {
 			try {
 				initialItems = JSON.parse(savedCart);
 			} catch (e) {
-				console.error('Failed to load cart from localStorage:', e);
 			}
 		}
 	}

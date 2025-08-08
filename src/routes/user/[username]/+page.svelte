@@ -70,7 +70,6 @@
 			data.stats.followers = result.followerCount;
 			
 		} catch (error) {
-			console.error('Error updating follow status:', error);
 		} finally {
 			followLoading = false;
 		}

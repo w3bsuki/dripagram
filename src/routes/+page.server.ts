@@ -30,12 +30,6 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 			.limit(50);
 
 		if (error) {
-			console.error('[Supabase Error] Failed to fetch products:', {
-				message: error.message,
-				details: error.details,
-				hint: error.hint,
-				code: error.code
-			});
 			// Return empty array if there's an error
 			return {
 				products: []
@@ -67,13 +61,10 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 			};
 		}) || [];
 
-		console.log(`[Homepage] Successfully loaded ${transformedProducts.length} products from Supabase`);
-
 		return {
 			products: transformedProducts
 		};
 	} catch (err) {
-		console.error('[Homepage] Unexpected error loading products:', err);
 		return {
 			products: []
 		};

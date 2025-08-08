@@ -86,7 +86,6 @@
 				goto('/auth/login');
 			}, 2000);
 		} catch (error: any) {
-			console.error('Password update error:', error);
 			toast.error(error.message || 'Failed to update password');
 		} finally {
 			loading = false;

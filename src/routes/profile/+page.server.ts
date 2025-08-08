@@ -42,7 +42,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 			},
 		};
 	} catch (error) {
-		console.error('Error loading profile:', error);
 
 		// Return empty data if there's an error
 		return {

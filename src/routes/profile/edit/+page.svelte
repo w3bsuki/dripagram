@@ -58,7 +58,6 @@
 			}
 
 		} catch (error) {
-			console.error('Error uploading avatar:', error);
 			message = 'Error uploading avatar. Please try again.';
 		} finally {
 			uploading = false;
@@ -98,7 +97,6 @@
 				.eq('id', data.user!.id);
 
 			if (profileError) {
-				console.warn('Error updating profiles table:', profileError);
 			}
 
 			message = 'Profile updated successfully!';
@@ -106,7 +104,6 @@
 				goto('/profile');
 			}, 1500);
 		} catch (error) {
-			console.error('Error updating profile:', error);
 			message = 'Error updating profile. Please try again.';
 		} finally {
 			loading = false;

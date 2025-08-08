@@ -43,7 +43,6 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
 	const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
 
 	if (error) {
-		console.error('Error fetching user profile:', error);
 		return null;
 	}
 
@@ -145,7 +144,6 @@ export async function getUserListings(userId: string) {
 		.order('created_at', { ascending: false });
 
 	if (error) {
-		console.error('Error fetching user listings:', error);
 		return [];
 	}
 

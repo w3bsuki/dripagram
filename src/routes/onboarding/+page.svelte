@@ -165,7 +165,6 @@
 			toast.success('Welcome to Driplo! Your profile is all set up.');
 			await goto('/');
 		} catch (error) {
-			console.error('Onboarding error:', error);
 			toast.error('Failed to complete onboarding. Please try again.');
 		} finally {
 			loading = false;

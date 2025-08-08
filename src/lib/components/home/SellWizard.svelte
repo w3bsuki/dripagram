@@ -106,7 +106,6 @@
 	}
 
 	function handleSubmit() {
-		console.log('Submitting form:', formData);
 		// TODO: Implement actual form submission
 		isOpen = false;
 		currentStep = 1;
