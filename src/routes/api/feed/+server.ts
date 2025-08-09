@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { createSupabaseServerClient } from '$lib/supabase/server';
+import { feedRequestSchema, validateRequest } from '$lib/schemas/api';
 
 export const GET: RequestHandler = async ({ cookies, url }) => {
 	const supabase = createSupabaseServerClient(cookies);
@@ -9,10 +10,24 @@ export const GET: RequestHandler = async ({ cookies, url }) => {
 	const { data: { session } } = await supabase.auth.getSession();
 	const userId = session?.user?.id;
 	
-	// Parse URL parameters
+	// Parse and validate URL parameters
+	const requestData = {
+		page: parseInt(url.searchParams.get('page') || '0'),
+		limit: parseInt(url.searchParams.get('limit') || '20'),
+		cursor: url.searchParams.get('cursor') || undefined,
+		user_id: userId
+	};
+
+	const validation = validateRequest(feedRequestSchema, requestData);
+	if (!validation.success) {
+		return json({ 
+			error: 'Invalid request parameters',
+			details: validation.error 
+		}, { status: 400 });
+	}
+
 	const tab = url.searchParams.get('tab') || 'for-you';
-	const cursor = url.searchParams.get('cursor');
-	const pageSize = 20;
+	const { cursor, limit: pageSize } = validation.data;
 
 	try {
 		let products: any[] = [];
@@ -100,7 +115,7 @@ async function loadForYouFeed(
 			.filter(Boolean) || [];
 
 		if (categoryIds.length > 0) {
-			query = query.or(`category_id.in.(${categoryIds.join(',')})`);
+			query = query.in('category_id', categoryIds);
 		}
 	}
 

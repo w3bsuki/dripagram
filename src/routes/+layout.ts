@@ -2,6 +2,8 @@ import { createBrowserClient, isBrowser, parse } from '@supabase/ssr';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 import type { LayoutLoad } from './$types';
 import type { Database } from '$lib/types/database.types';
+import posthog from 'posthog-js';
+import { browser } from '$app/environment';
 
 export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 	/**
@@ -56,9 +58,13 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 		data: { session },
 	} = await supabase.auth.getSession();
 
+	// PostHog initialization is handled in hooks.client.ts and ConsentBanner
+	// to avoid conflicts and ensure proper consent gating
+
 	return {
 		session,
 		supabase,
 		user: data.user,
+		lang: data.lang,
 	};
 };

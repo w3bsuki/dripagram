@@ -228,7 +228,7 @@
 	.edit-header {
 		position: sticky;
 		top: 0;
-		z-index: 100;
+		z-index: var(--z-higher);
 		background: var(--color-background);
 		border-bottom: 1px solid var(--color-border);
 		padding: 12px 16px;
@@ -254,7 +254,7 @@
 	}
 	
 	.header-title {
-		font-size: 18px;
+		font-size: var(--font-size-lg);
 		font-weight: 600;
 		margin: 0;
 		position: absolute;
@@ -266,7 +266,7 @@
 		background: none;
 		border: none;
 		color: #0095f6;
-		font-size: 16px;
+		font-size: var(--font-size-base);
 		font-weight: 600;
 		cursor: pointer;
 		padding: 4px 8px;
@@ -315,7 +315,7 @@
 	}
 	
 	.initials {
-		font-size: 28px;
+		font-size: var(--font-size-3xl);
 		font-weight: 600;
 		text-transform: uppercase;
 	}
@@ -327,7 +327,7 @@
 		background: none;
 		border: none;
 		color: #0095f6;
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		font-weight: 600;
 		cursor: pointer;
 		padding: 4px;
@@ -360,7 +360,7 @@
 	
 	.form-label {
 		width: 100px;
-		font-size: 16px;
+		font-size: var(--font-size-base);
 		font-weight: 500;
 		color: var(--color-foreground);
 		flex-shrink: 0;
@@ -371,7 +371,7 @@
 		flex: 1;
 		background: none;
 		border: none;
-		font-size: 16px;
+		font-size: var(--font-size-base);
 		padding: 8px 12px;
 		color: var(--color-foreground);
 		margin-left: 16px;
@@ -397,7 +397,7 @@
 		position: absolute;
 		right: 16px;
 		bottom: 8px;
-		font-size: 12px;
+		font-size: var(--font-size-xs);
 		color: var(--color-muted-foreground);
 	}
 	
@@ -407,7 +407,7 @@
 		padding: 12px;
 		border-radius: 8px;
 		text-align: center;
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 	}
 	
 	.message.success {
@@ -430,7 +430,7 @@
 		}
 		
 		.initials {
-			font-size: 32px;
+			font-size: var(--font-size-4xl);
 		}
 	}
 </style>

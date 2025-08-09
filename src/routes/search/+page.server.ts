@@ -98,8 +98,9 @@ export const load = async ({ cookies, url }: { cookies: Cookies; url: URL }) => 
 		.eq('status', 'active')
 		.limit(pageSize);
 
-	// Search across title, description, brand, and tags
-	query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%,brand.ilike.%${q}%,tags.cs.{${q}}`);
+	// Search across title, description, brand, and tags - safely escape special characters
+	const escapedQuery = q.replace(/[%_]/g, '\\$&');
+	query = query.or(`title.ilike.%${escapedQuery}%,description.ilike.%${escapedQuery}%,brand.ilike.%${escapedQuery}%,tags.cs.{${escapedQuery}}`);
 
 	// Pagination
 	const offset = (page - 1) * pageSize;

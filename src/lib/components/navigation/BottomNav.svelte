@@ -120,10 +120,6 @@
 					aria-label={item.label}
 					aria-current={active ? 'page' : undefined}
 				>
-					{#if active}
-						<div class="absolute top-0 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-gray-900"></div>
-					{/if}
-					
 					{@render navIcon(item)}
 					
 					<span class={cn(

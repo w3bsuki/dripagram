@@ -48,7 +48,7 @@
 		position: fixed;
 		bottom: 1rem;
 		right: 1rem;
-		z-index: 9999;
+		z-index: var(--z-max);
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;

@@ -10,10 +10,13 @@ declare global {
 			safeGetSession(): Promise<{ session: Session | null; user: User | null }>;
 			session: Session | null;
 			user: User | null;
+			lang: 'bg' | 'en';
+			requestId: string;
 		}
 		interface PageData {
 			session: Session | null;
 			user: User | null;
+			lang: 'bg' | 'en';
 		}
 		// interface Error {}
 		// interface PageState {}

@@ -53,7 +53,7 @@
 	}
 	
 	.section-title {
-		font-size: 18px;
+		font-size: var(--font-size-lg);
 		font-weight: 600;
 		color: var(--color-foreground);
 		margin: 0 0 16px 0;
@@ -71,14 +71,14 @@
 	}
 	
 	.not-found h1 {
-		font-size: 24px;
+		font-size: var(--font-size-2xl);
 		font-weight: 600;
 		color: var(--color-foreground);
 		margin: 0 0 8px 0;
 	}
 	
 	.not-found p {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		color: var(--color-muted-foreground);
 		margin: 0 0 24px 0;
 	}
@@ -88,7 +88,7 @@
 		background: var(--color-foreground);
 		color: var(--color-background);
 		text-decoration: none;
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		font-weight: 600;
 		border-radius: 6px;
 	}

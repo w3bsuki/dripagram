@@ -260,7 +260,7 @@ async function personalizeListings(
 			.select(
 				`
         listing_id,
-        listings (
+        products (
           brand,
           condition,
           price
@@ -273,7 +273,7 @@ async function personalizeListings(
 		if (likesError) {
 		}
 
-		// Extract user preferences
+		// Extract user preferences  
 		const userPreferences = extractUserPreferences(userLikes || []);
 
 		// Score each listing based on user preferences
@@ -308,7 +308,7 @@ function extractUserPreferences(userLikes: any[]) {
 	const priceRanges: { [key: string]: number } = {};
 
 	userLikes.forEach((like) => {
-		const listing = like.listings;
+		const listing = like.products;
 		if (!listing) return;
 
 		// Count brand preferences

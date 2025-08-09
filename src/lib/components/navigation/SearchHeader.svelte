@@ -14,6 +14,63 @@
 	let isSticky = $state(false);
 	let headerRef = $state<HTMLElement | null>(null);
 	let openedOnce = $state(false);
+	let selectedDemographic = $state<string | null>(null);
+
+	// Category data
+	const demographics = [
+		{ id: 'men', name: 'Men', emoji: '👨' },
+		{ id: 'women', name: 'Women', emoji: '👩' },
+		{ id: 'kids', name: 'Kids', emoji: '👶' },
+		{ id: 'pets', name: 'Pets', emoji: '🐾' }
+	];
+
+	const subcategories: Record<string, Array<{id: string; name: string; emoji: string; type?: string}>> = {
+		men: [
+			{ id: 'all-mens', name: "All Men's", emoji: '👔' },
+			{ id: 'mens-shoes', name: 'Shoes', emoji: '👟' },
+			{ id: 'mens-tshirts', name: 'T-shirts', emoji: '👕' },
+			{ id: 'mens-jackets', name: 'Jackets', emoji: '🧥' },
+			{ id: 'mens-jeans', name: 'Jeans', emoji: '👖' },
+			{ id: 'mens-bags', name: 'Bags', emoji: '🎒' },
+			{ id: 'new-tags', name: 'New with tags', emoji: '🏷️', type: 'filter' },
+			{ id: 'fair', name: 'Fair', emoji: '👌', type: 'filter' },
+			{ id: 'trending', name: 'Trending', emoji: '🔥', type: 'filter' }
+		],
+		women: [
+			{ id: 'all-womens', name: "All Women's", emoji: '👗' },
+			{ id: 'womens-shoes', name: 'Shoes', emoji: '👠' },
+			{ id: 'womens-dresses', name: 'Dresses', emoji: '👗' },
+			{ id: 'womens-tops', name: 'Tops', emoji: '👚' },
+			{ id: 'womens-bags', name: 'Bags', emoji: '👜' },
+			{ id: 'womens-accessories', name: 'Accessories', emoji: '💍' },
+			{ id: 'new-tags', name: 'New with tags', emoji: '🏷️', type: 'filter' },
+			{ id: 'fair', name: 'Fair', emoji: '👌', type: 'filter' },
+			{ id: 'trending', name: 'Trending', emoji: '🔥', type: 'filter' }
+		],
+		kids: [
+			{ id: 'all-kids', name: "All Kids'", emoji: '👶' },
+			{ id: 'kids-shoes', name: 'Shoes', emoji: '👟' },
+			{ id: 'kids-clothes', name: 'Clothes', emoji: '👕' },
+			{ id: 'kids-toys', name: 'Toys', emoji: '🧸' },
+			{ id: 'new-tags', name: 'New with tags', emoji: '🏷️', type: 'filter' },
+			{ id: 'fair', name: 'Fair', emoji: '👌', type: 'filter' }
+		],
+		pets: [
+			{ id: 'all-pets', name: 'All Pets', emoji: '🐾' },
+			{ id: 'pet-clothes', name: 'Clothes', emoji: '🦺' },
+			{ id: 'pet-accessories', name: 'Accessories', emoji: '🦴' },
+			{ id: 'new-tags', name: 'New with tags', emoji: '🏷️', type: 'filter' }
+		]
+	};
+
+	const conditions = [
+		{ id: 'new-tags', name: 'New with tags', emoji: '🏷️' },
+		{ id: 'new-no-tags', name: 'New without tags', emoji: '✨' },
+		{ id: 'fair', name: 'Fair', emoji: '👌' },
+		{ id: 'under50', name: 'Under 50лв', emoji: '💰' },
+		{ id: 'trending', name: 'Trending', emoji: '🔥' },
+		{ id: 'verified', name: 'Verified Only', emoji: '✅' }
+	];
 
 	// Open search once when requested (e.g., on /browse), but allow user to close it
 	$effect(() => {
@@ -42,6 +99,16 @@
 		}
 	}
 
+	function handleDemographicClick(demographicId: string) {
+		if (selectedDemographic === demographicId) {
+			// If clicking the same demographic, deselect it (close subcategories)
+			selectedDemographic = null;
+		} else {
+			// Otherwise, select it to show subcategories
+			selectedDemographic = demographicId;
+		}
+	}
+
 	function handleCategorySelect(type: string, value: string) {
 		if (type === 'category') {
 			goto(`/browse?category=${value}`);
@@ -49,6 +116,15 @@
 			goto(`/browse?filter=${value}`);
 		}
 		showCategories = false;
+	}
+
+	function scrollCategoryRow(direction: 'left' | 'right', rowElement: HTMLElement | null) {
+		if (!rowElement) return;
+		const scrollAmount = 200;
+		rowElement.scrollBy({
+			left: direction === 'left' ? -scrollAmount : scrollAmount,
+			behavior: 'smooth'
+		});
 	}
 
 	// Handle scroll for sticky behavior
@@ -143,65 +219,41 @@
 	<!-- Categories Dropdown -->
 	{#if showCategories}
 		<div class="categories-dropdown">
-			<div class="dropdown-section">
-				<h4 class="dropdown-label">Shop by Category</h4>
-				<div class="category-grid">
-					<button class="category-item" onclick={() => handleCategorySelect('category', 'women')}>
-						<span class="cat-emoji">👗</span>
-						<span>Women</span>
-					</button>
-					<button class="category-item" onclick={() => handleCategorySelect('category', 'men')}>
-						<span class="cat-emoji">👔</span>
-						<span>Men</span>
-					</button>
-					<button class="category-item" onclick={() => handleCategorySelect('category', 'shoes')}>
-						<span class="cat-emoji">👟</span>
-						<span>Shoes</span>
-					</button>
-					<button class="category-item" onclick={() => handleCategorySelect('category', 'bags')}>
-						<span class="cat-emoji">👜</span>
-						<span>Bags</span>
-					</button>
-					<button class="category-item" onclick={() => handleCategorySelect('category', 'accessories')}>
-						<span class="cat-emoji">💍</span>
-						<span>Accessories</span>
-					</button>
-					<button class="category-item" onclick={() => handleCategorySelect('category', 'kids')}>
-						<span class="cat-emoji">👶</span>
-						<span>Kids</span>
-					</button>
-					<button class="category-item" onclick={() => handleCategorySelect('category', 'vintage')}>
-						<span class="cat-emoji">📿</span>
-						<span>Vintage</span>
-					</button>
-					<button class="category-item" onclick={() => handleCategorySelect('category', 'luxury')}>
-						<span class="cat-emoji">💎</span>
-						<span>Luxury</span>
-					</button>
+			<!-- Demographics Row -->
+			<div class="category-row-container">
+				<div class="category-row" id="demographics-row">
+					{#each demographics as demographic}
+						<button 
+							class="category-pill {selectedDemographic === demographic.id ? 'active' : ''}" 
+							onclick={() => handleDemographicClick(demographic.id)}
+						>
+							<span class="pill-emoji">{demographic.emoji}</span>
+							<span>{demographic.name}</span>
+							{#if selectedDemographic === demographic.id}
+								<span class="pill-close">✕</span>
+							{/if}
+						</button>
+					{/each}
+				</div>
 			</div>
+			
+			<!-- Dynamic Subcategories Row -->
+			{#if selectedDemographic && subcategories[selectedDemographic]}
+				<div class="category-row-container subcategories">
+					<div class="category-row" id="subcategories-row">
+						{#each subcategories[selectedDemographic] as subcategory}
+							<button 
+								class="category-pill subcategory" 
+								onclick={() => handleCategorySelect(subcategory.type || 'category', subcategory.id)}
+							>
+								<span class="pill-emoji">{subcategory.emoji}</span>
+								<span>{subcategory.name}</span>
+							</button>
+						{/each}
+					</div>
+				</div>
+			{/if}
 		</div>
-		
-		<div class="dropdown-section">
-			<h4 class="dropdown-label">Quick Filters</h4>
-			<div class="filter-list">
-				<button class="filter-chip" onclick={() => handleCategorySelect('filter', 'new')}>
-					🏷️ New with tags
-				</button>
-				<button class="filter-chip" onclick={() => handleCategorySelect('filter', 'under50')}>
-					💰 Under 50лв
-				</button>
-				<button class="filter-chip" onclick={() => handleCategorySelect('filter', 'trending')}>
-					🔥 Trending
-				</button>
-				<button class="filter-chip" onclick={() => handleCategorySelect('filter', 'sale')}>
-					🎯 On Sale
-				</button>
-				<button class="filter-chip" onclick={() => handleCategorySelect('filter', 'verified')}>
-					✅ Verified Only
-				</button>
-			</div>
-		</div>
-	</div>
 	{/if}
 </header>
 
@@ -213,7 +265,7 @@
 		right: 0;
 		background: white;
 		border-bottom: 1px solid rgb(219, 219, 219);
-		z-index: 100;
+		z-index: var(--z-higher);
 		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
@@ -246,7 +298,7 @@
 	.logo-text {
 		font-size: 1.5rem;
 		font-weight: 700;
-		color: #262626;
+		color: var(--color-text-primary);
 		letter-spacing: -0.5px;
 		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 	}
@@ -271,7 +323,7 @@
 	.action-btn {
 		background: none;
 		border: none;
-		color: #262626;
+		color: var(--color-text-primary);
 		cursor: pointer;
 		padding: 0.5rem;
 		display: flex;
@@ -290,7 +342,7 @@
 
 	.action-btn.active {
 		background: rgba(0, 0, 0, 0.1);
-		color: #1877f2;
+		color: var(--color-text-brand);
 	}
 
 	.action-btn:active {
@@ -372,161 +424,97 @@
 		border-radius: 50%;
 	}
 
-	/* Categories Dropdown */
+	/* Categories Dropdown - Clean Design */
 	.categories-dropdown {
 		padding: 1rem;
-		background: white;
-		border-top: 1px solid var(--color-border);
-		animation: slideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-		max-height: calc(100vh - 56px);
-		overflow-y: auto;
-		-webkit-overflow-scrolling: touch;
+		animation: slideDown 0.2s ease;
+		background: var(--color-surface);
+		border-radius: 12px;
+		margin: 0 1rem;
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+		border: 1px solid var(--color-border);
 	}
 
-	.dropdown-section {
-		margin-bottom: 1.25rem;
+	.category-row-container {
+		margin-bottom: 0.75rem;
 	}
 
-	.dropdown-section:last-child {
+	.category-row-container:last-child {
 		margin-bottom: 0;
 	}
 
-	.dropdown-label {
-		font-size: 0.6875rem;
-		font-weight: 600;
-		color: var(--color-text-secondary);
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-		margin: 0 0 0.75rem;
-		padding: 0 0.25rem;
+	.category-row-container.subcategories {
+		border-top: 1px solid var(--color-border);
+		padding-top: 0.75rem;
 	}
 
-	.category-grid {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 0.5rem;
-	}
-
-	@media (max-width: 360px) {
-		.category-grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
-	}
-
-	.category-item {
+	.category-row {
 		display: flex;
-		flex-direction: column;
+		gap: 0.5rem;
+		overflow-x: auto;
+		padding: 0.25rem 0;
+		scroll-behavior: smooth;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+	}
+
+	.category-row::-webkit-scrollbar {
+		display: none;
+	}
+
+	.category-pill {
+		display: flex;
 		align-items: center;
 		gap: 0.375rem;
-		padding: 0.875rem 0.5rem;
-		background: var(--color-gray-50);
-		border: 1px solid transparent;
-		border-radius: 12px;
-		font-size: 0.75rem;
-		font-weight: 500;
-		color: var(--color-text-primary);
-		cursor: pointer;
-		transition: all 0.2s;
-		position: relative;
-		overflow: hidden;
-	}
-
-	.category-item::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background: linear-gradient(135deg, transparent, rgba(59, 130, 246, 0.1));
-		opacity: 0;
-		transition: opacity 0.2s;
-	}
-
-	.category-item:hover {
-		background: white;
-		border-color: var(--color-primary);
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-	}
-
-	.category-item:hover::before {
-		opacity: 1;
-	}
-
-	.category-item:active {
-		transform: translateY(0);
-		box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15);
-	}
-
-	.cat-emoji {
-		font-size: 1.5rem;
-		line-height: 1;
-	}
-
-	.filter-list {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-	}
-
-	.filter-chip {
 		padding: 0.5rem 0.875rem;
 		background: white;
 		border: 1px solid var(--color-border);
 		border-radius: 999px;
-		font-size: 0.8125rem;
+		font-size: 0.875rem;
 		font-weight: 500;
 		color: var(--color-text-primary);
 		cursor: pointer;
-		transition: all 0.2s;
+		transition: all 0.15s ease;
 		white-space: nowrap;
+		flex-shrink: 0;
 	}
 
-	.filter-chip:hover {
-		background: var(--color-primary);
+	.category-pill:hover {
+		background: var(--color-surface-tertiary);
+		border-color: var(--color-text-secondary);
+	}
+
+	.category-pill.active {
+		background: #000;
 		color: white;
-		border-color: var(--color-primary);
-		transform: translateY(-1px);
-		box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+		border-color: #000;
 	}
 
-	.filter-chip:active {
-		transform: translateY(0);
-		box-shadow: 0 1px 4px rgba(59, 130, 246, 0.25);
+	.category-pill.subcategory {
+		background: var(--color-surface-secondary);
+		font-size: 0.8125rem;
+		padding: 0.4375rem 0.75rem;
 	}
 
-	/* Mobile optimizations */
-	@media (max-width: 640px) {
-		.header-content {
-			padding: 0.625rem 0.875rem;
-		}
+	.category-pill.subcategory:hover {
+		background: #000;
+		color: white;
+		border-color: #000;
+	}
 
-		.logo {
-			font-size: 1.5rem;
-		}
+	.pill-emoji {
+		font-size: 1rem;
+	}
 
-		.action-btn {
-			padding: 0.5rem;
-		}
+	.pill-close {
+		font-size: 0.875rem;
+		font-weight: 600;
+		opacity: 0.9;
+	}
 
-		.categories-dropdown {
-			padding: 0.875rem;
-		}
-
-		.category-item {
-			padding: 0.75rem 0.25rem;
-			font-size: 0.7rem;
-		}
-
-		.cat-emoji {
-			font-size: 1.25rem;
-		}
-
-		.filter-chip {
-			font-size: 0.75rem;
-			padding: 0.4375rem 0.75rem;
-		}
+	.category-pill.subcategory .pill-emoji {
+		font-size: 0.875rem;
 	}
 
 	/* Prevent body scroll when dropdown is open on mobile */

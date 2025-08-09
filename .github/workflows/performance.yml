@@ -1,0 +1,359 @@
+name: ⚡ Performance Monitoring
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run performance tests daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: 'latest'
+
+jobs:
+  # Lighthouse performance audit
+  lighthouse:
+    name: 🔍 Lighthouse Performance Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📋 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔧 Prepare SvelteKit
+        run: pnpm run prepare
+        env:
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-performance
+
+      - name: 🏗️ Build application
+        run: pnpm run build
+        env:
+          NODE_ENV: production
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-performance
+
+      - name: 🚀 Start preview server
+        run: |
+          pnpm run preview &
+          PREVIEW_PID=$!
+          echo "PREVIEW_PID=$PREVIEW_PID" >> $GITHUB_ENV
+          sleep 10
+
+      - name: 🔬 Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli
+          
+          # Run lighthouse on key pages
+          lhci collect \
+            --url http://localhost:4173 \
+            --url http://localhost:4173/browse \
+            --url http://localhost:4173/profile \
+            --numberOfRuns 3
+          
+          lhci upload --target filesystem --outputDir ./lighthouse-reports
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: 📊 Analyze performance results
+        run: |
+          echo "## ⚡ Performance Results" >> $GITHUB_STEP_SUMMARY
+          
+          # Parse lighthouse results and add to summary
+          for report in lighthouse-reports/*.json; do
+            if [ -f "$report" ]; then
+              PERFORMANCE_SCORE=$(jq '.categories.performance.score * 100 | round' "$report")
+              ACCESSIBILITY_SCORE=$(jq '.categories.accessibility.score * 100 | round' "$report")
+              BEST_PRACTICES_SCORE=$(jq '.categories."best-practices".score * 100 | round' "$report")
+              SEO_SCORE=$(jq '.categories.seo.score * 100 | round' "$report")
+              LCP=$(jq '.audits."largest-contentful-paint".displayValue // "N/A"' "$report" | tr -d '"')
+              FID=$(jq '.audits."max-potential-fid".displayValue // "N/A"' "$report" | tr -d '"')
+              CLS=$(jq '.audits."cumulative-layout-shift".displayValue // "N/A"' "$report" | tr -d '"')
+              
+              echo "| Metric | Score |" >> $GITHUB_STEP_SUMMARY
+              echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+              echo "| Performance | ${PERFORMANCE_SCORE}% |" >> $GITHUB_STEP_SUMMARY
+              echo "| Accessibility | ${ACCESSIBILITY_SCORE}% |" >> $GITHUB_STEP_SUMMARY
+              echo "| Best Practices | ${BEST_PRACTICES_SCORE}% |" >> $GITHUB_STEP_SUMMARY
+              echo "| SEO | ${SEO_SCORE}% |" >> $GITHUB_STEP_SUMMARY
+              echo "| LCP | ${LCP} |" >> $GITHUB_STEP_SUMMARY
+              echo "| FID | ${FID} |" >> $GITHUB_STEP_SUMMARY
+              echo "| CLS | ${CLS} |" >> $GITHUB_STEP_SUMMARY
+              
+              # Check performance thresholds
+              if [ "$PERFORMANCE_SCORE" -lt 80 ]; then
+                echo "❌ Performance score below 80! Current: ${PERFORMANCE_SCORE}%" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "✅ Performance score meets threshold: ${PERFORMANCE_SCORE}%" >> $GITHUB_STEP_SUMMARY
+              fi
+              
+              break
+            fi
+          done
+
+      - name: 📁 Upload Lighthouse reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-reports
+          path: lighthouse-reports/
+
+      - name: 🛑 Stop preview server
+        if: always()
+        run: |
+          if [ -n "$PREVIEW_PID" ]; then
+            kill $PREVIEW_PID || true
+          fi
+
+  # Bundle size analysis
+  bundle-analysis:
+    name: 📦 Bundle Size Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📋 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔧 Prepare SvelteKit
+        run: pnpm run prepare
+        env:
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-bundle
+
+      - name: 🏗️ Build with analysis
+        run: pnpm run build
+        env:
+          NODE_ENV: production
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-bundle
+
+      - name: 📊 Analyze bundle size
+        run: |
+          echo "## 📦 Bundle Size Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Output Size" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          du -sh build/ >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Largest Files" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          find build -type f -name "*.js" -o -name "*.css" -o -name "*.html" | head -20 | xargs ls -lh | sort -hr | head -10 >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          
+          # Check bundle size thresholds
+          BUILD_SIZE=$(du -sb build | cut -f1)
+          BUILD_SIZE_MB=$((BUILD_SIZE / 1024 / 1024))
+          
+          echo "Total build size: ${BUILD_SIZE_MB}MB" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$BUILD_SIZE_MB" -gt 10 ]; then
+            echo "⚠️ Build size is quite large: ${BUILD_SIZE_MB}MB" >> $GITHUB_STEP_SUMMARY
+            echo "Consider code splitting or removing unused dependencies" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Build size is reasonable: ${BUILD_SIZE_MB}MB" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 📈 Generate bundle report
+        run: |
+          # Create a simple bundle report
+          echo "# Bundle Analysis Report" > bundle-report.md
+          echo "Generated: $(date)" >> bundle-report.md
+          echo "" >> bundle-report.md
+          echo "## Build Size" >> bundle-report.md
+          du -sh build/ >> bundle-report.md
+          echo "" >> bundle-report.md
+          echo "## File Breakdown" >> bundle-report.md
+          find build -type f | wc -l | xargs echo "Total files:" >> bundle-report.md
+          find build -name "*.js" | wc -l | xargs echo "JavaScript files:" >> bundle-report.md
+          find build -name "*.css" | wc -l | xargs echo "CSS files:" >> bundle-report.md
+          find build -name "*.html" | wc -l | xargs echo "HTML files:" >> bundle-report.md
+
+      - name: 📁 Upload bundle report
+        uses: actions/upload-artifact@v3
+        with:
+          name: bundle-analysis
+          path: bundle-report.md
+
+  # Memory and runtime performance
+  runtime-performance:
+    name: 🧠 Runtime Performance Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📋 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧪 Install Playwright
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: 🔧 Prepare SvelteKit
+        run: pnpm run prepare
+        env:
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-runtime
+
+      - name: 🏗️ Build application
+        run: pnpm run build
+        env:
+          NODE_ENV: production
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-runtime
+
+      - name: 🚀 Start preview server
+        run: |
+          pnpm run preview &
+          PREVIEW_PID=$!
+          echo "PREVIEW_PID=$PREVIEW_PID" >> $GITHUB_ENV
+          sleep 10
+
+      - name: 🧠 Run memory and performance tests
+        run: |
+          cat > performance-test.js << 'EOF'
+          const { chromium } = require('@playwright/test');
+          
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage();
+            
+            console.log('Testing home page performance...');
+            
+            // Navigate and measure
+            const startTime = Date.now();
+            await page.goto('http://localhost:4173');
+            await page.waitForLoadState('networkidle');
+            const loadTime = Date.now() - startTime;
+            
+            console.log(`Page load time: ${loadTime}ms`);
+            
+            // Measure memory usage
+            const metrics = await page.evaluate(() => {
+              return new Promise((resolve) => {
+                if ('memory' in performance) {
+                  resolve({
+                    heapUsed: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
+                    heapTotal: Math.round(performance.memory.totalJSHeapSize / 1024 / 1024),
+                    heapLimit: Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024)
+                  });
+                } else {
+                  resolve({ message: 'Memory API not available' });
+                }
+              });
+            });
+            
+            console.log('Memory usage:', JSON.stringify(metrics, null, 2));
+            
+            // Test interaction performance
+            const clickStart = Date.now();
+            await page.click('button, a, [role="button"]').catch(() => {
+              console.log('No interactive elements found for click test');
+            });
+            const clickTime = Date.now() - clickStart;
+            console.log(`Interaction time: ${clickTime}ms`);
+            
+            await browser.close();
+            
+            // Output results for GitHub Actions
+            console.log('\n=== PERFORMANCE SUMMARY ===');
+            console.log(`Load Time: ${loadTime}ms ${loadTime < 2000 ? '✅' : '❌'}`);
+            console.log(`Memory Used: ${metrics.heapUsed || 'N/A'}MB ${(metrics.heapUsed || 0) < 50 ? '✅' : '❌'}`);
+            console.log(`Interaction: ${clickTime}ms ${clickTime < 100 ? '✅' : '❌'}`);
+            
+            // Exit with error if performance is poor
+            if (loadTime > 3000 || (metrics.heapUsed || 0) > 100) {
+              process.exit(1);
+            }
+          })();
+          EOF
+          
+          node performance-test.js
+
+      - name: 🛑 Stop preview server
+        if: always()
+        run: |
+          if [ -n "$PREVIEW_PID" ]; then
+            kill $PREVIEW_PID || true
+          fi
+
+  # Performance summary
+  performance-summary:
+    name: 📊 Performance Summary
+    runs-on: ubuntu-latest
+    needs: [lighthouse, bundle-analysis, runtime-performance]
+    if: always()
+
+    steps:
+      - name: 📋 Generate performance summary
+        run: |
+          echo "## ⚡ Performance Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Test | Status | Notes |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lighthouse Audit | ${{ needs.lighthouse.result == 'success' && '✅ Pass' || '❌ Fail' }} | Core Web Vitals and accessibility |" >> $GITHUB_STEP_SUMMARY
+          echo "| Bundle Analysis | ${{ needs.bundle-analysis.result == 'success' && '✅ Pass' || '❌ Fail' }} | Build size and optimization |" >> $GITHUB_STEP_SUMMARY
+          echo "| Runtime Performance | ${{ needs.runtime-performance.result == 'success' && '✅ Pass' || '❌ Fail' }} | Memory usage and interaction speed |" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📈 Performance Recommendations" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.lighthouse.result }}" != "success" ]]; then
+            echo "- Review Lighthouse report for Core Web Vitals improvements" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.bundle-analysis.result }}" != "success" ]]; then
+            echo "- Consider code splitting and tree shaking to reduce bundle size" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.runtime-performance.result }}" != "success" ]]; then
+            echo "- Optimize JavaScript execution and memory usage" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.lighthouse.result }}" == "success" && "${{ needs.bundle-analysis.result }}" == "success" && "${{ needs.runtime-performance.result }}" == "success" ]]; then
+            echo "✅ All performance tests passed! Your application is performing well." >> $GITHUB_STEP_SUMMARY
+          fi

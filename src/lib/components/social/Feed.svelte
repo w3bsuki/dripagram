@@ -43,8 +43,8 @@
             seller_verified,
             follower_count
           ),
-          likes:listing_likes(count),
-          is_liked:listing_likes!inner(user_id)
+          likes:product_likes(count),
+          is_liked:product_likes!inner(user_id)
         `
 				)
 				.eq('status', 'active')
@@ -186,7 +186,7 @@
 		border-bottom: 1px solid var(--color-border);
 		position: sticky;
 		top: 60px;
-		z-index: 10;
+		z-index: var(--z-low);
 		backdrop-filter: blur(10px);
 		background: rgba(255, 255, 255, 0.95);
 	}
@@ -240,7 +240,7 @@
 
 	.skeleton-image {
 		aspect-ratio: 4/5;
-		background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+		background: linear-gradient(90deg, var(--color-surface-secondary) 25%, var(--color-surface-tertiary) 50%, var(--color-surface-secondary) 75%);
 		background-size: 200% 100%;
 		animation: shimmer 1.5s infinite;
 	}
@@ -251,7 +251,7 @@
 
 	.skeleton-line {
 		height: 12px;
-		background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+		background: linear-gradient(90deg, var(--color-surface-secondary) 25%, var(--color-surface-tertiary) 50%, var(--color-surface-secondary) 75%);
 		background-size: 200% 100%;
 		animation: shimmer 1.5s infinite;
 		margin-bottom: 0.5rem;

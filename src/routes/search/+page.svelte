@@ -340,7 +340,7 @@
 		padding: 1rem;
 		position: sticky;
 		top: 0;
-		z-index: 50;
+		z-index: var(--z-high);
 	}
 
 	.search-form {
@@ -392,7 +392,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		font-size: 16px;
+		font-size: var(--font-size-base);
 		font-weight: bold;
 	}
 
@@ -568,7 +568,7 @@
 
 	.product-card:hover {
 		transform: scale(1.02);
-		z-index: 10;
+		z-index: var(--z-low);
 		box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 	}
 
@@ -660,6 +660,7 @@
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
+		line-clamp: 2;
 	}
 
 	/* Load More */

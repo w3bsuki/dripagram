@@ -5,11 +5,53 @@
 	let {
 		value = $bindable(),
 		onSend,
+		onTyping,
 		disabled = false,
 		placeholder = 'Message...',
+		typingUsers = []
 	}: MessageInputProps = $props();
 
 	let textareaRef = $state<HTMLTextAreaElement>();
+	let typingTimeout = $state<NodeJS.Timeout | null>(null);
+	let isCurrentlyTyping = $state(false);
+
+	// Auto-resize textarea
+	$effect(() => {
+		if (textareaRef && value) {
+			textareaRef.style.height = 'auto';
+			textareaRef.style.height = `${Math.min(textareaRef.scrollHeight, 120)}px`;
+		}
+	});
+
+	// Handle typing indicator
+	$effect(() => {
+		if (value && value.trim().length > 0 && !isCurrentlyTyping) {
+			// Start typing
+			isCurrentlyTyping = true;
+			onTyping?.(true);
+			
+			// Clear existing timeout
+			if (typingTimeout) {
+				clearTimeout(typingTimeout);
+			}
+			
+			// Set new timeout to stop typing after 3 seconds of inactivity
+			typingTimeout = setTimeout(() => {
+				isCurrentlyTyping = false;
+				onTyping?.(false);
+			}, 3000);
+		} else if (!value || value.trim().length === 0) {
+			// Stop typing if input is empty
+			if (isCurrentlyTyping) {
+				isCurrentlyTyping = false;
+				onTyping?.(false);
+			}
+			if (typingTimeout) {
+				clearTimeout(typingTimeout);
+				typingTimeout = null;
+			}
+		}
+	});
 
 	function handleKeyDown(event: KeyboardEvent) {
 		if (event.key === 'Enter' && !event.shiftKey) {
@@ -22,12 +64,34 @@
 
 	function handleSend() {
 		if (value.trim() && !disabled) {
+			// Stop typing indicator
+			if (isCurrentlyTyping) {
+				isCurrentlyTyping = false;
+				onTyping?.(false);
+			}
+			if (typingTimeout) {
+				clearTimeout(typingTimeout);
+				typingTimeout = null;
+			}
+			
 			onSend();
 		}
 	}
 </script>
 
 <div class="message-input-container">
+	{#if typingUsers && typingUsers.length > 0}
+		<div class="typing-indicator">
+			<span class="typing-dots">
+				<span class="dot"></span>
+				<span class="dot"></span>
+				<span class="dot"></span>
+			</span>
+			<span class="typing-text">
+				{typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+			</span>
+		</div>
+	{/if}
 	<div class="input-wrapper">
 		<button class="attachment-btn" {disabled}>
 			<Image size={20} />
@@ -131,5 +195,59 @@
 	button:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
+	}
+
+	/* Typing indicator styles */
+	.typing-indicator {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 1rem;
+		color: var(--color-text-secondary);
+		font-size: 0.875rem;
+		animation: fadeIn 0.3s ease;
+	}
+
+	.typing-dots {
+		display: flex;
+		gap: 0.25rem;
+	}
+
+	.dot {
+		width: 8px;
+		height: 8px;
+		background: var(--color-text-secondary);
+		border-radius: 50%;
+		animation: bounce 1.4s infinite ease-in-out;
+	}
+
+	.dot:nth-child(1) {
+		animation-delay: -0.32s;
+	}
+
+	.dot:nth-child(2) {
+		animation-delay: -0.16s;
+	}
+
+	@keyframes bounce {
+		0%, 80%, 100% {
+			transform: scale(0.8);
+			opacity: 0.5;
+		}
+		40% {
+			transform: scale(1);
+			opacity: 1;
+		}
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(5px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 </style>

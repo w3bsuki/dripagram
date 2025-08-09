@@ -1,18 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { createSupabaseServerClient } from '$lib/supabase/server';
-import type { Listing } from '$lib/types';
-
-interface FeedProduct extends Listing {
-	seller: {
-		id: string;
-		username: string;
-		full_name?: string;
-		avatar_url?: string;
-		verified: boolean;
-	};
-	isLiked: boolean;
-	engagement_score?: number;
-}
+import type { Listing, FeedProduct } from '$lib/types';
 
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const supabase = createSupabaseServerClient(cookies);
@@ -47,10 +35,11 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 		// Fetch all registered users for brands section
 		const { data: registeredUsers } = await supabase
 			.from('profiles')
-			.select('id, username, full_name, avatar_url, verified, follower_count, listing_count')
-			.order('follower_count', { ascending: false })
-			.order('listing_count', { ascending: false })
-			.limit(20); // Get top 20 users by followers and products
+			.select('id, username, avatar_url, seller_verified, total_sales')
+			.eq('status', 'active')
+			.not('username', 'is', null)
+			.order('total_sales', { ascending: false })
+			.limit(20); // Get top 20 users by sales
 
 		return {
 			products,
@@ -84,6 +73,7 @@ async function loadForYouFeed(
 			title,
 			description,
 			price,
+			category_id,
 			thumbnail_url,
 			images,
 			brand,
@@ -100,6 +90,10 @@ async function loadForYouFeed(
 				full_name,
 				avatar_url,
 				verified
+			),
+			category:categories!category_id (
+				id,
+				name
 			)
 		`)
 		.eq('status', 'active')
@@ -124,7 +118,7 @@ async function loadForYouFeed(
 
 		if (categoryIds.length > 0) {
 			// Weight products from liked categories higher
-			query = query.or(`category_id.in.(${categoryIds.join(',')})`);
+			query = query.in('category_id', categoryIds);
 		}
 	}
 
@@ -187,6 +181,7 @@ async function loadFollowingFeed(
 			title,
 			description,
 			price,
+			category_id,
 			thumbnail_url,
 			images,
 			brand,
@@ -204,6 +199,10 @@ async function loadFollowingFeed(
 				full_name,
 				avatar_url,
 				verified
+			),
+			category:categories!category_id (
+				id,
+				name
 			),
 			user_follows!inner(follower_id)
 		`)
@@ -279,6 +278,7 @@ async function loadTrendingFeed(
 				title,
 				description,
 				price,
+				category_id,
 				thumbnail_url,
 				images,
 				brand,
@@ -294,6 +294,10 @@ async function loadTrendingFeed(
 					full_name,
 					avatar_url,
 					verified
+				),
+				category:categories!category_id (
+					id,
+					name
 				)
 			),
 			promotions(
@@ -308,8 +312,16 @@ async function loadTrendingFeed(
 
 	// Apply cursor-based pagination using engagement score + created_at
 	if (cursor) {
-		const [score, timestamp, id] = cursor.split(':');
-		query = query.or(`and(engagement_score.lt.${score},created_at.lt.${timestamp}),and(engagement_score.eq.${score},created_at.lt.${timestamp})`);
+		const [scoreStr, timestamp, id] = cursor.split(':');
+		const score = parseFloat(scoreStr);
+		
+		// Validate cursor parameters
+		if (isNaN(score) || !timestamp) {
+			throw new Error('Invalid cursor format');
+		}
+		
+		// Apply cursor filters: (score < cursor_score) OR (score = cursor_score AND created_at < cursor_timestamp)
+		query = query.or(`engagement_score.lt.${score},and(engagement_score.eq.${score},created_at.lt.${timestamp})`);
 	}
 
 	// Order by engagement score (views + likes * 2) and recency
@@ -383,9 +395,13 @@ function transformProduct(product: any, userLikes: string[]): FeedProduct {
 	// Handle seller as array (Supabase returns single relation as array sometimes)
 	const seller = Array.isArray(product.seller) ? product.seller[0] : product.seller;
 	
+	// Handle category as array (Supabase returns single relation as array sometimes)
+	const category = Array.isArray(product.category) ? product.category[0] : product.category;
+	
 	return {
 		id: product.id,
 		seller_id: product.seller_id,
+		category_id: product.category_id,
 		title: product.title,
 		description: product.description,
 		price: product.price,
@@ -409,7 +425,9 @@ function transformProduct(product: any, userLikes: string[]): FeedProduct {
 			avatar_url: seller?.avatar_url,
 			verified: seller?.verified || false
 		},
+		category: category?.name || 'Other',
 		isLiked: userLikes.includes(product.id),
+		isSaved: false, // TODO: Get from user's saved/favorites
 		engagement_score: product.engagement_score
 	} as FeedProduct;
 }

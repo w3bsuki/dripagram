@@ -11,6 +11,11 @@
 	let activeTab = $state<'listings' | 'saved'>('listings');
 	let isFollowing = $state(data.isFollowing);
 	let followLoading = $state(false);
+	let stats = $state({
+		listings: data.stats.listings,
+		followers: data.stats.followers,
+		following: data.stats.following
+	});
 	
 	// Check if this is the current user's own profile
 	let isOwnProfile = $derived(auth.user?.id === data.profile.id);
@@ -31,12 +36,35 @@
 		return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 	}
 	
-	function handleMessage() {
+	async function handleMessage() {
 		if (!auth.user) {
 			goto('/auth/login');
 			return;
 		}
-		goto(`/messages/${profile.id}`);
+		
+		try {
+			// First, check if a conversation already exists or create one
+			const response = await fetch('/api/messages/conversation', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					otherUserId: profile.id
+				}),
+			});
+			
+			if (!response.ok) {
+				throw new Error('Failed to create conversation');
+			}
+			
+			const { conversationId } = await response.json();
+			goto(`/messages/${conversationId}`);
+		} catch (error) {
+			console.error('Error creating conversation:', error);
+			// Fallback to messages list
+			goto('/messages');
+		}
 	}
 	
 	async function handleFollow() {
@@ -67,7 +95,7 @@
 			isFollowing = result.isFollowing;
 			
 			// Update stats
-			data.stats.followers = result.followerCount;
+			stats.followers = result.followerCount;
 			
 		} catch (error) {
 		} finally {
@@ -127,15 +155,15 @@
 		<!-- Stats Section -->
 		<div class="stats-section">
 			<button class="stat-item" onclick={() => activeTab = 'listings'}>
-				<span class="stat-count">{data.stats.listings}</span>
+				<span class="stat-count">{stats.listings}</span>
 				<span class="stat-label">listings</span>
 			</button>
 			<button class="stat-item">
-				<span class="stat-count">{data.stats.followers}</span>
+				<span class="stat-count">{stats.followers}</span>
 				<span class="stat-label">followers</span>
 			</button>
 			<button class="stat-item">
-				<span class="stat-count">{data.stats.following}</span>
+				<span class="stat-count">{stats.following}</span>
 				<span class="stat-label">following</span>
 			</button>
 		</div>
@@ -254,7 +282,7 @@
 	.profile-header {
 		position: sticky;
 		top: 0;
-		z-index: 100;
+		z-index: var(--z-higher);
 		background: var(--color-background);
 		border-bottom: 1px solid var(--color-border);
 		padding: 12px 16px;
@@ -278,7 +306,7 @@
 	}
 	
 	.username {
-		font-size: 20px;
+		font-size: var(--font-size-xl);
 		font-weight: 600;
 		margin: 0;
 		flex: 1;
@@ -317,7 +345,7 @@
 	}
 	
 	.initials {
-		font-size: 28px;
+		font-size: var(--font-size-3xl);
 		font-weight: 600;
 		text-transform: uppercase;
 	}
@@ -328,7 +356,7 @@
 		right: -4px;
 		background: #3b82f6;
 		color: white;
-		font-size: 10px;
+		font-size: var(--font-size-2xs);
 		font-weight: 600;
 		padding: 2px 6px;
 		border-radius: 12px;
@@ -342,7 +370,7 @@
 		right: -4px;
 		background: #10b981;
 		color: white;
-		font-size: 12px;
+		font-size: var(--font-size-xs);
 		font-weight: bold;
 		width: 20px;
 		height: 20px;
@@ -371,13 +399,13 @@
 	}
 	
 	.stat-count {
-		font-size: 18px;
+		font-size: var(--font-size-lg);
 		font-weight: 600;
 		color: var(--color-foreground);
 	}
 	
 	.stat-label {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		color: var(--color-muted-foreground);
 		margin-top: 2px;
 	}
@@ -390,19 +418,19 @@
 	}
 	
 	.full-name {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		font-weight: 600;
 		margin: 0 0 4px 0;
 	}
 	
 	.brand-name {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		color: #3b82f6;
 		margin: 0 0 8px 0;
 	}
 	
 	.bio {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		line-height: 1.4;
 		color: var(--color-foreground);
 		margin: 0;
@@ -420,7 +448,7 @@
 	.btn {
 		flex: 1;
 		padding: 8px 16px;
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		font-weight: 600;
 		border-radius: 8px;
 		border: none;
@@ -468,7 +496,7 @@
 	}
 	
 	.tab-label {
-		font-size: 12px;
+		font-size: var(--font-size-xs);
 		font-weight: 600;
 		letter-spacing: 0.5px;
 	}
@@ -520,7 +548,7 @@
 	}
 	
 	.item-price {
-		font-size: 12px;
+		font-size: var(--font-size-xs);
 		font-weight: 600;
 	}
 	
@@ -533,7 +561,7 @@
 		justify-content: center;
 		color: white;
 		font-weight: 600;
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		letter-spacing: 0.5px;
 	}
 	
@@ -552,13 +580,13 @@
 	}
 	
 	.empty-state h3 {
-		font-size: 20px;
+		font-size: var(--font-size-xl);
 		font-weight: 600;
 		margin: 16px 0 8px 0;
 	}
 	
 	.empty-state p {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		color: var(--color-muted-foreground);
 		margin: 0;
 	}

@@ -300,7 +300,7 @@
 		background: var(--color-background);
 		padding: 2px 8px;
 		border-radius: 999px;
-		font-size: 10px;
+		font-size: var(--font-size-2xs);
 		font-weight: 600;
 		border: 2px solid var(--color-background);
 		white-space: nowrap;
@@ -333,7 +333,7 @@
 		position: fixed;
 		inset: 0;
 		background: rgba(0, 0, 0, 0.9);
-		z-index: 1000;
+		z-index: var(--z-dropdown);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -358,7 +358,7 @@
 		right: 0;
 		height: 3px;
 		background: rgba(255, 255, 255, 0.3);
-		z-index: 10;
+		z-index: var(--z-low);
 	}
 
 	.progress-fill {
@@ -377,7 +377,7 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		z-index: 10;
+		z-index: var(--z-low);
 	}
 
 	.story-user {

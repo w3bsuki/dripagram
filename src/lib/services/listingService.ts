@@ -55,7 +55,7 @@ export async function createListing(
 	};
 
 	const { data, error } = await supabase
-		.from('listings')
+		.from('products')
 		.insert({
 			title: listingData.title,
 			description: listingData.description,
@@ -100,7 +100,7 @@ export async function updateListing(
 	if (!user) throw new Error('Must be logged in to update listing');
 
 	const { error } = await supabase
-		.from('listings')
+		.from('products')
 		.update({
 			...listingData,
 			updated_at: new Date().toISOString(),
@@ -120,7 +120,7 @@ export async function deleteListing(id: string, supabase: SupabaseClient<Databas
 	if (!user) throw new Error('Must be logged in to delete listing');
 
 	const { error } = await supabase
-		.from('listings')
+		.from('products')
 		.update({ status: 'deleted' })
 		.eq('id', id)
 		.eq('seller_id', user.id); // Ensure user owns the listing
@@ -136,7 +136,7 @@ export async function getUserListings(
 	status?: string
 ): Promise<any[]> {
 	let query = supabase
-		.from('listings')
+		.from('products')
 		.select('*')
 		.eq('seller_id', userId)
 		.order('created_at', { ascending: false });
@@ -156,7 +156,7 @@ export async function getUserListings(
 
 export async function getListingById(id: string, supabase: SupabaseClient<Database>): Promise<any> {
 	const { data, error } = await supabase
-		.from('listings')
+		.from('products')
 		.select(
 			`
       *,

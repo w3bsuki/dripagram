@@ -495,7 +495,7 @@
 		color: var(--color-text-muted);
 		font-size: 0.875rem;
 		position: relative;
-		z-index: 1;
+		z-index: var(--z-behind);
 	}
 
 	.divider::before {

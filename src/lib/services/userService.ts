@@ -1,5 +1,4 @@
-import { createBrowserClient } from '@supabase/ssr';
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+import { getSupabaseBrowserClient } from '$lib/supabase/client';
 import type { Database } from '$lib/types/database.types';
 
 // Types
@@ -21,8 +20,8 @@ export type UserProfile = {
 	following_count?: number;
 };
 
-// Initialize Supabase client
-const supabase = createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
+// Use centralized Supabase client
+const supabase = getSupabaseBrowserClient();
 
 /**
  * Get current user profile
@@ -137,7 +136,7 @@ export async function isFollowing(targetUserId: string): Promise<boolean> {
  */
 export async function getUserListings(userId: string) {
 	const { data, error } = await supabase
-		.from('listings')
+		.from('products')
 		.select('*')
 		.eq('seller_id', userId)
 		.eq('status', 'active')
@@ -178,7 +177,7 @@ export async function getUserStats(userId: string) {
 	const [profile, listings, sales] = await Promise.all([
 		getUserProfile(userId),
 		supabase
-			.from('listings')
+			.from('products')
 			.select('*', { count: 'exact' })
 			.eq('seller_id', userId)
 			.eq('status', 'active'),

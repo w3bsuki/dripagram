@@ -1,17 +1,21 @@
 {
-	"mcpServers": {
-		"supabase": {
-			"command": "cmd",
-			"args": [
-				"/c",
-				"npx",
-				"-y",
-				"@supabase/mcp-server-supabase@latest",
-				"--project-ref=bjjdgnfiwvkhrpbvvaoi"
-			],
-			"env": {
-				"SUPABASE_ACCESS_TOKEN": "sbp_21a886ad4bd96bde66bec4e9b167b9aa359f29c7"
-			}
-		}
-	}
+  "mcpServers": {
+    "svelte-llm": {
+      "type": "sse",
+      "url": "https://svelte-llm.stanislav.garden/mcp/sse"
+    },
+    "supabase": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--project-ref=luggxybkeidlpsyqetmb"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "sbp_3de3f1fe4f4ac6804f44b3129d3c4df7025d0462"
+      }
+    }
+  }
 }

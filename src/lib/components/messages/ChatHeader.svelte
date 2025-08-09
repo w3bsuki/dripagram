@@ -52,7 +52,7 @@
 		border-bottom: 1px solid var(--color-border);
 		position: sticky;
 		top: 0;
-		z-index: 10;
+		z-index: var(--z-low);
 	}
 
 	.header-left {
@@ -128,7 +128,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		font-size: 8px;
+		font-size: var(--font-size-3xs);
 		font-weight: 700;
 	}
 

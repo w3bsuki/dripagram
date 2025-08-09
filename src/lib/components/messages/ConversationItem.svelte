@@ -149,7 +149,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		font-size: 10px;
+		font-size: var(--font-size-2xs);
 		font-weight: 700;
 		border: 2px solid var(--color-background);
 	}

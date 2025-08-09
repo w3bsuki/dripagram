@@ -5,7 +5,7 @@ Can be used in PostCard, FeedCard, or standalone
 -->
 <script lang="ts">
 	import { Heart, MessageCircle, Share2, Bookmark, ShoppingBag, Send } from '@lucide/svelte';
-	import { Button } from '$lib/components/ui/button';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	interface Props {
 		// State
@@ -194,48 +194,64 @@ Can be used in PostCard, FeedCard, or standalone
 
 <style>
 	.action-bar {
-		@apply flex items-center gap-1 p-2;
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		padding: 0.5rem;
 	}
 
 	.action-bar.space-between {
-		@apply justify-between;
+		justify-content: space-between;
 	}
 
 	.action-bar.left {
-		@apply justify-start;
+		justify-content: flex-start;
 	}
 
 	.action-bar.center {
-		@apply justify-center;
+		justify-content: center;
 	}
 
 	.action-bar.compact {
-		@apply p-1;
+		padding: 0.25rem;
 	}
 
 	.action-bar.minimal {
-		@apply p-0;
+		padding: 0;
 	}
 
 	.action-group {
-		@apply flex items-center gap-1;
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
 	}
 
 	.action-item {
-		@apply flex items-center gap-1;
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
 	}
 
 	:global(.action-btn) {
-		@apply transition-all duration-200 hover:scale-110;
+		transition: all 200ms;
+	}
+	
+	:global(.action-btn:hover) {
+		transform: scale(1.1);
 	}
 
 	:global(.action-btn:disabled) {
-		@apply opacity-50 cursor-not-allowed hover:scale-100;
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+	
+	:global(.action-btn:disabled:hover) {
+		transform: scale(1);
 	}
 
 	/* Like button states */
 	:global(.like-btn.liked) {
-		@apply text-red-500;
+		color: var(--color-text-error);
 	}
 
 	:global(.like-btn.animating) {
@@ -259,7 +275,7 @@ Can be used in PostCard, FeedCard, or standalone
 
 	/* Save button states */
 	:global(.save-btn.saved) {
-		@apply text-primary;
+		color: var(--color-primary);
 	}
 
 	:global(.save-btn.animating) {
@@ -280,46 +296,49 @@ Can be used in PostCard, FeedCard, or standalone
 
 	/* Action counts */
 	.action-count {
-		@apply text-xs text-muted-foreground font-medium;
+		font-size: 0.75rem;
+		color: var(--color-text-secondary);
+		font-weight: 500;
 	}
 
 	.like-count {
-		@apply text-red-500;
+		color: var(--color-text-error);
 	}
 
 	/* Likes display */
 	.likes-display {
-		@apply px-2 pb-1 text-sm;
+		padding: 0 0.5rem 0.25rem;
+		font-size: 0.875rem;
 	}
 
 	/* Hover effects for specific actions */
 	:global(.comment-btn:hover) {
-		@apply text-blue-500;
+		color: var(--color-text-brand);
 	}
 
 	:global(.share-btn:hover) {
-		@apply text-green-500;
+		color: var(--color-text-success);
 	}
 
 	:global(.shop-btn:hover) {
-		@apply text-orange-500;
+		color: var(--color-text-warning);
 	}
 
 	:global(.send-btn:hover) {
-		@apply text-blue-500;
+		color: var(--color-text-brand);
 	}
 
 	/* Compact variant adjustments */
 	.compact .action-group {
-		@apply gap-0.5;
+		gap: 0.125rem;
 	}
 
 	.compact .action-item {
-		@apply gap-0.5;
+		gap: 0.125rem;
 	}
 
 	/* Minimal variant adjustments */
 	.minimal :global(.action-btn) {
-		@apply p-1;
+		padding: 0.25rem;
 	}
 </style>

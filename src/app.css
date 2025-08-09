@@ -5,19 +5,22 @@
      COLOR SYSTEM - OKLCH for perfect color consistency
      ───────────────────────────────────────────────────────────────────── */
 
-	/* Core Neutrals - OKLCH for better gradients */
+	/* Core Neutrals - Instagram-inspired Professional Palette */
 	--color-white: oklch(1 0 0);
-	--color-gray-50: oklch(0.984 0.002 247.839); /* Light background */
-	--color-gray-100: oklch(0.928 0.006 264.531); /* Subtle borders */
-	--color-gray-200: oklch(0.872 0.01 258.338); /* Borders */
-	--color-gray-500: oklch(0.446 0.03 256.802); /* Secondary text */
-	--color-gray-900: oklch(0.13 0.028 261.692); /* Primary text */
+	--color-gray-50: oklch(0.99 0 0); /* #FAFAFA - Background */
+	--color-gray-100: oklch(0.97 0 0); /* #F5F5F5 - Surface */
+	--color-gray-200: oklch(0.95 0 0); /* #EFEFEF - Borders */
+	--color-gray-300: oklch(0.88 0 0); /* #DBDBDB - Dividers */
+	--color-gray-500: oklch(0.6 0 0); /* #8E8E8E - Secondary text */
+	--color-gray-900: oklch(0.2 0 0); /* #262626 - Primary text */
 
-	/* Brand Colors - Professional Ecommerce Palette */
-	--color-brand: oklch(0.55 0.25 260); /* Deeper blue */
-	--color-brand-dark: oklch(0.45 0.23 260); /* Hover state */
+	/* Brand Colors - Instagram-inspired Social Commerce */
+	--color-brand: oklch(0.62 0.24 230); /* #0095F6 - Instagram blue */
+	--color-brand-dark: oklch(0.52 0.22 230); /* Hover state */
 	--color-accent: oklch(0.723 0.219 149.579); /* Success green */
-	--color-danger: oklch(0.637 0.237 25.331); /* Error red */
+	--color-danger: oklch(0.64 0.25 20); /* #ED4956 - Heart red */
+	--color-success: oklch(0.75 0.2 145); /* #00D87E - Online green */
+	--color-warning: oklch(0.9 0.15 90); /* #FFDC80 - Promoted */
 	
 	/* Condition Badge Colors - Professional System */
 	--color-condition-new: oklch(0.62 0.18 145); /* Emerald green */
@@ -32,8 +35,9 @@
 	--color-verified: oklch(0.58 0.22 220); /* Trust blue */
 
 	/* Semantic color mappings for Tailwind utilities */
-	--color-background: oklch(1 0 0);
-	--color-foreground: oklch(0.13 0.028 261.692);
+	--color-background: oklch(0.99 0 0); /* Light gray background */
+	--color-surface: oklch(1 0 0); /* White cards */
+	--color-foreground: oklch(0.2 0 0); /* Dark text */
 	--color-card: oklch(1 0 0);
 	--color-card-foreground: oklch(0.13 0.028 261.692);
 	--color-popover: oklch(1 0 0);

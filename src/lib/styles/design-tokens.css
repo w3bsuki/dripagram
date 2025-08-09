@@ -16,23 +16,42 @@
 	--color-surface-primary: #ffffff;
 	--color-surface-secondary: #fafafa;
 	--color-surface-tertiary: #f4f4f5;
+	--color-surface-quaternary: #f9fafb;
+	--color-surface-overlay: #111827;
 	--color-surface-inverse: #09090b;
 
 	/* Text colors */
 	--color-text-primary: #09090b;
 	--color-text-secondary: #52525b;
 	--color-text-tertiary: #71717a;
+	--color-text-quaternary: #374151;
+	--color-text-muted: #6b7280;
+	--color-text-disabled: #8e8e8e;
+	--color-text-dark: #111827;
+	--color-text-dark-secondary: #262626;
+	--color-text-light: #c7c7c7;
 	--color-text-inverse: #ffffff;
 
 	/* Border colors */
 	--color-border-primary: #e4e4e7;
 	--color-border-secondary: #f4f4f5;
 	--color-border-tertiary: #fafafa;
+	--color-border-light: #e5e7eb;
+	--color-border-lighter: #f3f4f6;
+	--color-border-dark: #d1d5db;
+	--color-border-darker: #111827;
 
 	/* Brand colors */
 	--color-text-brand: #2563eb;
 	--color-surface-brand: #2563eb;
 	--color-surface-brand-subtle: #eff6ff;
+	--color-brand-blue: #3b82f6;
+	--color-brand-blue-dark: #1a73e8;
+	--color-brand-blue-light: #0095f6;
+	--color-brand-blue-lighter: #0081d6;
+	--color-brand-instagram: #e1306c;
+	--color-brand-gradient-start: #667eea;
+	--color-brand-gradient-end: #764ba2;
 
 	/* Interactive colors */
 	--color-interactive-primary: #2563eb;
@@ -48,6 +67,27 @@
 	--color-surface-success: #10b981;
 	--color-surface-warning: #f59e0b;
 	--color-surface-error: #ef4444;
+	--color-surface-success-light: #e8f5e8;
+	--color-surface-error-light: #ffebee;
+	--color-border-success: #81c784;
+	--color-border-error: #ef5350;
+	--color-text-success-dark: #2d7d32;
+	--color-text-error-dark: #c62828;
+
+	/* Social & Accent colors */
+	--color-like: #ff3040;
+	--color-accent-pink: #e91e63;
+	--color-accent-yellow: #ffd93d;
+	--color-accent-yellow-gold: #fbbf24;
+	--color-instagram-gradient-1: #f09433;
+	--color-instagram-gradient-2: #e6683c;
+	--color-instagram-gradient-3: #dc2743;
+	--color-instagram-gradient-4: #cc2366;
+	--color-instagram-gradient-5: #bc1888;
+	--color-story-highlight-1: #405de6;
+	--color-story-highlight-2: #5b51d8;
+	--color-story-highlight-3: #833ab4;
+	--color-story-highlight-4: #c13584;
 
 	/* Focus */
 	--color-focus-ring: #3b82f6;
@@ -82,15 +122,24 @@
 	--font-family-mono: 'JetBrains Mono Variable', 'SF Mono', 'Consolas', monospace;
 	--font-family-display: 'Cal Sans', var(--font-family-sans);
 
-	--font-size-xs: 0.75rem;
-	--font-size-sm: 0.875rem;
-	--font-size-base: 1rem;
-	--font-size-lg: 1.125rem;
-	--font-size-xl: 1.25rem;
-	--font-size-2xl: 1.5rem;
-	--font-size-3xl: 2rem;
-	--font-size-4xl: 2.5rem;
-	--font-size-5xl: 3rem;
+	--font-size-3xs: 0.5rem;    /* 8px */
+	--font-size-2xs: 0.625rem;  /* 10px */
+	--font-size-xs: 0.75rem;    /* 12px */
+	--font-size-sm: 0.875rem;   /* 14px */
+	--font-size-base: 1rem;     /* 16px */
+	--font-size-lg: 1.125rem;   /* 18px */
+	--font-size-xl: 1.25rem;    /* 20px */
+	--font-size-2xl: 1.5rem;    /* 24px */
+	--font-size-3xl: 1.75rem;   /* 28px */
+	--font-size-4xl: 2rem;      /* 32px */
+	--font-size-5xl: 2.5rem;    /* 40px */
+	--font-size-6xl: 3rem;      /* 48px */
+	
+	/* Custom sizes for specific use cases */
+	--font-size-11: 0.6875rem;  /* 11px */
+	--font-size-13: 0.8125rem;  /* 13px */
+	--font-size-15: 0.9375rem;  /* 15px */
+	--font-size-22: 1.375rem;   /* 22px */
 
 	/* Borders */
 	--border-width-0: 0;
@@ -132,6 +181,14 @@
 
 	/* Z-index */
 	--z-base: 0;
+	--z-behind: 1;
+	--z-low: 10;
+	--z-medium: 20;
+	--z-medium-high: 25;
+	--z-high: 50;
+	--z-higher: 100;
+	--z-highest: 200;
+	--z-overlay: 201;
 	--z-dropdown: 1000;
 	--z-sticky: 1020;
 	--z-fixed: 1030;

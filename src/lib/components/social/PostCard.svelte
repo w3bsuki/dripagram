@@ -204,7 +204,7 @@ Modular post card following Instagram design patterns with:
 						<svg width="80" height="80" viewBox="0 0 24 24" fill="none">
 							<path 
 								d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" 
-								fill="#ff3040"
+								fill="var(--color-like)"
 								stroke="#fff"
 								stroke-width="1"
 							/>
@@ -351,7 +351,7 @@ Modular post card following Instagram design patterns with:
 <style>
 	.post-card {
 		background: white;
-		border: 1px solid #e2e8f0;
+		border: 1px solid var(--color-border-primary);
 		border-radius: 12px;
 		overflow: hidden;
 		/* Performance optimizations */
@@ -392,7 +392,7 @@ Modular post card following Instagram design patterns with:
 	.username-link {
 		font-size: 0.875rem;
 		font-weight: 600;
-		color: #0f172a;
+		color: var(--color-text-primary);
 		text-decoration: none;
 	}
 
@@ -414,7 +414,7 @@ Modular post card following Instagram design patterns with:
 	/* Media */
 	.post-media {
 		position: relative;
-		background: #f1f5f9;
+		background: var(--color-surface-tertiary);
 		aspect-ratio: 1 / 1;
 	}
 
@@ -455,7 +455,7 @@ Modular post card following Instagram design patterns with:
 		left: 50%;
 		transform: translate(-50%, -50%);
 		pointer-events: none;
-		z-index: 10;
+		z-index: var(--z-low);
 		animation: heartBurstAnimation 1s ease-out;
 	}
 
@@ -500,7 +500,7 @@ Modular post card following Instagram design patterns with:
 		align-items: center;
 		justify-content: center;
 		height: 100%;
-		color: #64748b;
+		color: var(--color-text-tertiary);
 	}
 
 	.no-media-placeholder {
@@ -590,12 +590,12 @@ Modular post card following Instagram design patterns with:
 	}
 
 	:global(.like-btn.liked) {
-		color: #ef4444;
+		color: var(--color-text-error);
 		animation: heartBeat 0.6s ease-in-out;
 	}
 
 	:global(.save-btn.saved) {
-		color: #3b82f6;
+		color: var(--color-brand-blue);
 	}
 
 	@keyframes heartBeat {
@@ -638,7 +638,7 @@ Modular post card following Instagram design patterns with:
 	}
 
 	.show-more-btn {
-		color: #64748b;
+		color: var(--color-text-tertiary);
 		margin-left: 0.25rem;
 		border: none;
 		background: transparent;
@@ -659,7 +659,7 @@ Modular post card following Instagram design patterns with:
 
 	.hashtag {
 		font-size: 0.875rem;
-		color: #3b82f6;
+		color: var(--color-brand-blue);
 		text-decoration: none;
 	}
 
@@ -676,7 +676,7 @@ Modular post card following Instagram design patterns with:
 		border: none;
 		background: transparent;
 		cursor: pointer;
-		color: #64748b;
+		color: var(--color-text-tertiary);
 		font-size: 0.875rem;
 	}
 

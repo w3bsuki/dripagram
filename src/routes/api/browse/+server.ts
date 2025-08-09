@@ -10,7 +10,7 @@ type Seller = {
 	username: string | null;
 	full_name: string | null;
 	avatar_url: string | null;
-	seller_verified?: boolean | null;
+	verified?: boolean | null;
 };
 
 interface ListingRow {
@@ -27,7 +27,7 @@ interface ListingRow {
 	thumbnail_url: string | null;
 	status: string;
 	like_count: number | null;
-	view_count: number | null;
+	views: number | null;
 	tags: string[] | null;
 	created_at: string;
 	updated_at: string | null;
@@ -52,7 +52,7 @@ function mapListingToProduct(row: ListingRow) {
 		thumbnail_url: row.thumbnail_url || row.images?.[0] || '/placeholder.jpg',
 		status: row.status,
 		like_count: row.like_count || 0,
-		view_count: row.view_count || 0,
+		view_count: row.views || 0,
 		tags: row.tags || [],
 		created_at: row.created_at,
 		updated_at: row.updated_at || row.created_at,
@@ -61,7 +61,7 @@ function mapListingToProduct(row: ListingRow) {
 			username: seller.username,
 			full_name: seller.full_name,
 			avatar_url: seller.avatar_url,
-			verified: !!seller.seller_verified
+			verified: !!seller.verified
 		} : null
 	};
 }
@@ -111,18 +111,21 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			thumbnail_url,
 			status,
 			like_count,
-			view_count,
+			views,
 			tags,
 			created_at,
 			updated_at,
 			seller:profiles!seller_id(
-				id,username,full_name,avatar_url,seller_verified
+				id,username,full_name,avatar_url,verified
 			)
 		`)
 		.eq('status', 'active')
 		.limit(pageSize + 1);
 
-	if (q) query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%,brand.ilike.%${q}%`);
+	if (q) {
+		const escapedQuery = q.replace(/[%_]/g, '\\$&');
+		query = query.or(`title.ilike.%${escapedQuery}%,description.ilike.%${escapedQuery}%,brand.ilike.%${escapedQuery}%`);
+	}
 	if (categoryId) query = query.eq('category_id', categoryId);
 	if (condition) query = query.eq('condition', condition);
 	if (collection) query = query.contains('tags', [collection]);
@@ -138,7 +141,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		case 'price-low': query = query.order('price', { ascending: true }); break;
 		case 'price-high': query = query.order('price', { ascending: false }); break;
 		case 'most-liked': query = query.order('like_count', { ascending: false }); break;
-		case 'trending': query = query.order('view_count', { ascending: false }).order('like_count', { ascending: false }); break;
+		case 'trending': query = query.order('views', { ascending: false }).order('like_count', { ascending: false }); break;
 		default: query = query.order('created_at', { ascending: false }).order('id', { ascending: false });
 	}
 

@@ -5,9 +5,9 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const { username } = params;
 	const { session, user } = await locals.safeGetSession();
 	
-	// Fetch user profile
+	// Fetch user profile (using public view for safety)
 	const { data: profile, error: profileError } = await locals.supabase
-		.from('profiles')
+		.from('public_profiles')
 		.select('*')
 		.eq('username', username)
 		.single();

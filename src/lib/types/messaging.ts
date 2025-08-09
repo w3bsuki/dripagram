@@ -47,6 +47,10 @@ export interface ConversationListProps {
 	onConversationClick: (conversationId: string) => void;
 	onSearchChange: (query: string) => void;
 	searchQuery: string;
+	currentUserId?: string;
+	username?: string;
+	onBack?: () => void;
+	onCompose?: () => void;
 }
 
 export interface ConversationItemProps {
@@ -57,21 +61,29 @@ export interface ConversationItemProps {
 
 export interface MessageBubbleProps {
 	message: Message;
-	isFromCurrentUser: boolean;
+	isOwn?: boolean;
+	isFromCurrentUser?: boolean;
+	senderName?: string;
+	senderAvatar?: string;
 	showTime?: boolean;
 }
 
 export interface ChatHeaderProps {
-	otherUser: UserProfile;
+	user?: UserProfile;
+	otherUser?: UserProfile;
+	isOnline?: boolean;
+	product?: ProductPreview | null;
 	onBack: () => void;
-	onProfileClick: () => void;
+	onProfileClick?: () => void;
 }
 
 export interface MessageInputProps {
 	value: string;
 	onSend: () => void;
+	onTyping?: (isTyping: boolean) => void;
 	disabled?: boolean;
 	placeholder?: string;
+	typingUsers?: string[];
 }
 
 export interface ProductContextProps {

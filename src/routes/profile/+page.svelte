@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto, invalidateAll } from '$app/navigation';
 	import { getAuthContext } from '$lib/stores/auth.svelte';
-	import { Settings, Grid3x3, Plus, Package, Heart } from '@lucide/svelte';
+	import { Settings, Grid3x3, Plus, Package, Heart, LogOut } from '@lucide/svelte';
 	import type { PageData } from './$types';
 	
 	let { data }: { data: PageData } = $props();
@@ -11,12 +11,12 @@
 	
 	// User profile data - prioritize profiles table data over user metadata
 	let profile = $derived({
-		username: data.profile?.username || data.user?.user_metadata?.username || data.user?.email?.split('@')[0] || 'user',
-		full_name: data.profile?.full_name || data.user?.user_metadata?.full_name || '',
-		bio: data.profile?.bio || data.user?.user_metadata?.bio || '',
-		avatar_url: data.profile?.avatar_url || data.user?.user_metadata?.avatar_url || '',
-		is_brand: data.profile?.account_type === 'brand' || data.user?.user_metadata?.account_type === 'brand',
-		brand_name: data.profile?.brand_name || data.user?.user_metadata?.brand_name || ''
+		username: data.profile?.username || 'user',
+		full_name: data.profile?.full_name || data.profile?.username || '',
+		bio: data.profile?.bio || '',
+		avatar_url: data.profile?.avatar_url || '',
+		is_brand: data.profile?.account_type === 'business' || data.profile?.account_type === 'brand',
+		brand_name: data.profile?.brand_name || ''
 	});
 	
 	function getInitials(name: string): string {
@@ -41,6 +41,11 @@
 				<img 
 					src={profile.avatar_url} 
 					alt={profile.username}
+					loading="eager"
+					decoding="sync"
+					fetchpriority="high"
+					width="150"
+					height="150"
 					class="avatar"
 				/>
 			{:else}
@@ -60,13 +65,24 @@
 			<!-- Username and Settings Row -->
 			<div class="username-row">
 				<h1 class="username">{profile.username}</h1>
-				<button 
-					onclick={() => goto('/profile/settings')}
-					class="settings-btn"
-					aria-label="Settings"
-				>
-					<Settings size={20} />
-				</button>
+				<div class="action-buttons">
+					<button 
+						onclick={() => goto('/profile/settings')}
+						class="action-btn"
+						aria-label="Settings"
+						title="Settings"
+					>
+						<Settings size={20} />
+					</button>
+					<button 
+						onclick={handleSignOut}
+						class="action-btn logout-btn"
+						aria-label="Sign Out"
+						title="Sign Out"
+					>
+						<LogOut size={20} />
+					</button>
+				</div>
 			</div>
 			
 			<!-- Stats Section -->
@@ -163,6 +179,10 @@
 							<img 
 								src={listing.thumbnail_url || '/placeholder.jpg'} 
 								alt={listing.title}
+								loading="lazy"
+								decoding="async"
+								width="200"
+								height="200"
 							/>
 							<div class="item-overlay">
 								<span class="item-price">{listing.price} лв</span>
@@ -220,7 +240,7 @@
 	}
 	
 	.username {
-		font-size: 28px;
+		font-size: var(--font-size-3xl);
 		font-weight: 300;
 		margin: 0;
 		line-height: 32px;
@@ -228,7 +248,7 @@
 	
 	.edit-profile-btn {
 		padding: 7px 16px;
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		font-weight: 600;
 		background: var(--color-secondary);
 		color: var(--color-foreground);
@@ -242,12 +262,34 @@
 		background: var(--color-muted);
 	}
 	
-	.settings-btn {
+	.action-buttons {
+		display: flex;
+		gap: 8px;
+	}
+	
+	.action-btn {
 		background: none;
 		border: none;
 		color: var(--color-foreground);
 		cursor: pointer;
 		padding: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 8px;
+		transition: all 200ms;
+	}
+	
+	.action-btn:hover {
+		background: var(--color-secondary);
+	}
+	
+	.logout-btn {
+		color: var(--color-text-error);
+	}
+	
+	.logout-btn:hover {
+		background: rgba(239, 68, 68, 0.1);
 	}
 	
 	.avatar-section {
@@ -272,7 +314,7 @@
 	}
 	
 	.initials {
-		font-size: 28px;
+		font-size: var(--font-size-3xl);
 		font-weight: 600;
 		text-transform: uppercase;
 	}
@@ -283,7 +325,7 @@
 		right: -4px;
 		background: #3b82f6;
 		color: white;
-		font-size: 10px;
+		font-size: var(--font-size-2xs);
 		font-weight: 600;
 		padding: 2px 6px;
 		border-radius: 12px;
@@ -306,7 +348,7 @@
 		border: none;
 		cursor: pointer;
 		padding: 0;
-		font-size: 16px;
+		font-size: var(--font-size-base);
 	}
 	
 	.stat-count {
@@ -321,7 +363,7 @@
 	
 	/* Bio Content */
 	.bio-content {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		line-height: 18px;
 	}
 	
@@ -377,7 +419,7 @@
 	}
 	
 	.tab-label {
-		font-size: 12px;
+		font-size: var(--font-size-xs);
 		font-weight: 600;
 		letter-spacing: 0.5px;
 	}
@@ -429,7 +471,7 @@
 	}
 	
 	.item-price {
-		font-size: 12px;
+		font-size: var(--font-size-xs);
 		font-weight: 600;
 	}
 	
@@ -463,13 +505,13 @@
 	}
 	
 	.empty-state h3 {
-		font-size: 20px;
+		font-size: var(--font-size-xl);
 		font-weight: 600;
 		margin: 16px 0 8px 0;
 	}
 	
 	.empty-state p {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		color: var(--color-muted-foreground);
 		margin: 0 0 24px 0;
 	}
@@ -492,7 +534,7 @@
 		}
 		
 		.username {
-			font-size: 20px;
+			font-size: var(--font-size-xl);
 		}
 		
 		.username-row {
@@ -511,7 +553,7 @@
 		
 		.stats-section {
 			gap: 12px;
-			font-size: 14px;
+			font-size: var(--font-size-sm);
 		}
 	}
 	

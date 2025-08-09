@@ -273,6 +273,134 @@ export interface Database {
 					expires_at?: string;
 				};
 			};
+			products: {
+				Row: {
+					id: string;
+					seller_id: string;
+					category_id: string | null;
+					title: string;
+					description: string | null;
+					price: number;
+					original_price: number | null;
+					currency: string;
+					brand: string | null;
+					size: string | null;
+					color: string | null;
+					material: string | null;
+					condition:
+						| 'new_with_tags'
+						| 'new_without_tags'
+						| 'like_new'
+						| 'very_good'
+						| 'good'
+						| 'fair'
+						| null;
+					images: string[] | null;
+					thumbnail_url: string | null;
+					location: string | null;
+					city: string | null;
+					postal_code: string | null;
+					shipping_available: boolean;
+					shipping_price: number;
+					shipping_methods: string[] | null;
+					status: 'draft' | 'active' | 'sold' | 'reserved' | 'expired' | 'deleted';
+					is_featured: boolean;
+					is_promoted: boolean;
+					view_count: number;
+					like_count: number;
+					share_count: number;
+					tags: string[] | null;
+					created_at: string;
+					updated_at: string;
+					published_at: string | null;
+					sold_at: string | null;
+					expires_at: string;
+				};
+				Insert: {
+					id?: string;
+					seller_id: string;
+					category_id?: string | null;
+					title: string;
+					description?: string | null;
+					price: number;
+					original_price?: number | null;
+					currency?: string;
+					brand?: string | null;
+					size?: string | null;
+					color?: string | null;
+					material?: string | null;
+					condition?:
+						| 'new_with_tags'
+						| 'new_without_tags'
+						| 'like_new'
+						| 'very_good'
+						| 'good'
+						| 'fair'
+						| null;
+					images?: string[] | null;
+					thumbnail_url?: string | null;
+					location?: string | null;
+					city?: string | null;
+					postal_code?: string | null;
+					shipping_available?: boolean;
+					shipping_price?: number;
+					shipping_methods?: string[] | null;
+					status?: 'draft' | 'active' | 'sold' | 'reserved' | 'expired' | 'deleted';
+					is_featured?: boolean;
+					is_promoted?: boolean;
+					view_count?: number;
+					like_count?: number;
+					share_count?: number;
+					tags?: string[] | null;
+					created_at?: string;
+					updated_at?: string;
+					published_at?: string | null;
+					sold_at?: string | null;
+					expires_at?: string;
+				};
+				Update: {
+					id?: string;
+					seller_id?: string;
+					category_id?: string | null;
+					title?: string;
+					description?: string | null;
+					price?: number;
+					original_price?: number | null;
+					currency?: string;
+					brand?: string | null;
+					size?: string | null;
+					color?: string | null;
+					material?: string | null;
+					condition?:
+						| 'new_with_tags'
+						| 'new_without_tags'
+						| 'like_new'
+						| 'very_good'
+						| 'good'
+						| 'fair'
+						| null;
+					images?: string[] | null;
+					thumbnail_url?: string | null;
+					location?: string | null;
+					city?: string | null;
+					postal_code?: string | null;
+					shipping_available?: boolean;
+					shipping_price?: number;
+					shipping_methods?: string[] | null;
+					status?: 'draft' | 'active' | 'sold' | 'reserved' | 'expired' | 'deleted';
+					is_featured?: boolean;
+					is_promoted?: boolean;
+					view_count?: number;
+					like_count?: number;
+					share_count?: number;
+					tags?: string[] | null;
+					created_at?: string;
+					updated_at?: string;
+					published_at?: string | null;
+					sold_at?: string | null;
+					expires_at?: string;
+				};
+			};
 			favorites: {
 				Row: {
 					id: string;

@@ -1,10 +1,9 @@
-import { createBrowserClient } from '@supabase/ssr';
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+import { getSupabaseBrowserClient } from '$lib/supabase/client';
 import type { Database } from '$lib/types/database.types';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
-// Initialize Supabase client
-const supabase = createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
+// Use centralized Supabase client
+const supabase = getSupabaseBrowserClient();
 
 // Real-time subscriptions cache
 const subscriptions = new Map<string, RealtimeChannel>();

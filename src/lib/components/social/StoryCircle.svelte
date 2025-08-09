@@ -60,12 +60,12 @@ Can be used for user stories, brand highlights, category collections, etc.
 		xl: 'xl'
 	} as const;
 
-	// Default gradient colors based on variant
+	// Default gradient colors based on variant using design tokens
 	const defaultGradients = {
-		story: ['#f09433', '#e6683c', '#dc2743', '#cc2366', '#bc1888'],
-		highlight: ['#405de6', '#5b51d8', '#833ab4', '#c13584', '#e1306c'],
-		category: ['#667eea', '#764ba2'],
-		collection: ['#f093fb', '#f5576c']
+		story: ['var(--color-instagram-gradient-1)', 'var(--color-instagram-gradient-2)', 'var(--color-instagram-gradient-3)', 'var(--color-instagram-gradient-4)', 'var(--color-instagram-gradient-5)'],
+		highlight: ['var(--color-story-highlight-1)', 'var(--color-story-highlight-2)', 'var(--color-story-highlight-3)', 'var(--color-story-highlight-4)', 'var(--color-brand-instagram)'],
+		category: ['var(--color-brand-gradient-start)', 'var(--color-brand-gradient-end)'],
+		collection: ['var(--color-accent-pink)', 'var(--color-like)']
 	};
 
 	let gradient = $derived(() => {
@@ -110,7 +110,7 @@ Can be used for user stories, brand highlights, category collections, etc.
 		<!-- Gradient Ring -->
 		<div class="gradient-ring" style="background: {gradient}">
 			<div class="inner-ring">
-				<Avatar size={avatarSizes[size]} class="story-avatar">
+				<Avatar class="story-avatar" style="width: {avatarSizes[size]}px; height: {avatarSizes[size]}px;">
 					<AvatarImage 
 						src={thumbnailUrl || imageUrl} 
 						alt={title}
@@ -212,7 +212,7 @@ Can be used for user stories, brand highlights, category collections, etc.
 	}
 
 	.story-circle:not(.has-unviewed) .gradient-ring {
-		background: #e5e7eb;
+		background: var(--color-border-primary);
 		padding: 0.125rem;
 	}
 
@@ -239,7 +239,7 @@ Can be used for user stories, brand highlights, category collections, etc.
 
 	/* Active state */
 	.story-circle.is-active .gradient-ring {
-		box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px white;
+		box-shadow: 0 0 0 2px var(--color-brand-blue), 0 0 0 4px white;
 	}
 
 	/* Live indicator */
@@ -266,7 +266,7 @@ Can be used for user stories, brand highlights, category collections, etc.
 	.plus-circle {
 		width: 1.25rem;
 		height: 1.25rem;
-		background: #3b82f6;
+		background: var(--color-interactive-primary);
 		color: white;
 		border-radius: 9999px;
 		display: flex;
@@ -291,7 +291,7 @@ Can be used for user stories, brand highlights, category collections, etc.
 	.story-title {
 		font-size: 0.75rem;
 		font-weight: 500;
-		color: #0f172a;
+		color: var(--color-text-primary);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -299,7 +299,7 @@ Can be used for user stories, brand highlights, category collections, etc.
 
 	.story-subtitle {
 		font-size: 0.75rem;
-		color: #6b7280;
+		color: var(--color-text-secondary);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -312,7 +312,7 @@ Can be used for user stories, brand highlights, category collections, etc.
 	}
 
 	.story-circle.category :global(.story-avatar) {
-		border: 1px solid #e5e7eb;
+		border: 1px solid var(--color-border-primary);
 	}
 
 	.story-circle.collection:hover {
@@ -349,7 +349,7 @@ Can be used for user stories, brand highlights, category collections, etc.
 
 	/* Focus styles */
 	.story-circle:focus-visible {
-		outline: 2px solid #3b82f6;
+		outline: 2px solid var(--color-interactive-primary);
 		outline-offset: 2px;
 	}
 </style>

@@ -395,7 +395,7 @@
 		border-bottom: 1px solid #efefef;
 		position: sticky;
 		top: 0;
-		z-index: 100;
+		z-index: var(--z-higher);
 	}
 	
 	/* Breadcrumb */
@@ -404,7 +404,7 @@
 		display: flex;
 		align-items: center;
 		gap: 6px;
-		font-size: 13px;
+		font-size: var(--font-size-13);
 		overflow-x: auto;
 		white-space: nowrap;
 		scrollbar-width: none;
@@ -573,20 +573,20 @@
 	}
 	
 	.likes {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		font-weight: 600;
 		color: #262626;
 		margin: 0 0 2px 0;
 	}
 	
 	.views {
-		font-size: 13px;
+		font-size: var(--font-size-13);
 		color: #8e8e8e;
 		margin: 0;
 	}
 	
 	.price-tag {
-		font-size: 22px;
+		font-size: var(--font-size-22);
 		font-weight: 700;
 		color: #262626;
 		margin: 0;
@@ -641,7 +641,7 @@
 		justify-content: center;
 		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 		color: white;
-		font-size: 18px;
+		font-size: var(--font-size-lg);
 		font-weight: 600;
 	}
 	
@@ -650,7 +650,7 @@
 	}
 	
 	.seller-name {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		font-weight: 600;
 		color: #262626;
 		margin: 0;
@@ -661,17 +661,17 @@
 	
 	.verified {
 		color: #3897f0;
-		font-size: 12px;
+		font-size: var(--font-size-xs);
 	}
 	
 	.seller-label {
-		font-size: 12px;
+		font-size: var(--font-size-xs);
 		color: #8e8e8e;
 		margin: 2px 0 0 0;
 	}
 	
 	.seller-rating {
-		font-size: 12px;
+		font-size: var(--font-size-xs);
 		color: #262626;
 		margin: 2px 0 0 0;
 		display: flex;
@@ -689,7 +689,7 @@
 		color: white;
 		border: none;
 		border-radius: 8px;
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		font-weight: 600;
 		cursor: pointer;
 		transition: all 0.2s;
@@ -705,7 +705,7 @@
 	}
 	
 	.product-title {
-		font-size: 16px;
+		font-size: var(--font-size-base);
 		font-weight: 400;
 		color: #262626;
 		margin: 0 0 12px 0;
@@ -719,7 +719,7 @@
 	}
 	
 	.product-description p {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		line-height: 1.6;
 		color: #262626;
 		margin: 0;
@@ -743,12 +743,12 @@
 	}
 	
 	.spec-label {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		color: #8e8e8e;
 	}
 	
 	.spec-value {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		font-weight: 500;
 		color: #262626;
 	}
@@ -764,12 +764,12 @@
 		padding: 12px 16px;
 		background: white;
 		border-top: 1px solid #efefef;
-		z-index: 100;
+		z-index: var(--z-higher);
 	}
 	
 	.bottom-actions :global(.action-button) {
 		height: 44px;
-		font-size: 15px;
+		font-size: var(--font-size-15);
 		font-weight: 600;
 		border-radius: 8px;
 		display: flex;
@@ -796,7 +796,7 @@
 		}
 		
 		.breadcrumb {
-			font-size: 14px;
+			font-size: var(--font-size-sm);
 		}
 		
 		.image-carousel {

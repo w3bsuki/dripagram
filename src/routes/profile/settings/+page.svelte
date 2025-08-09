@@ -8,8 +8,14 @@
 	import { getAuthContext } from '$lib/stores/auth.svelte';
 	import type { PageData } from './$types';
 	
+	import { getContext } from 'svelte';
+	import type { SupabaseClient } from '@supabase/supabase-js';
+	import type { Database } from '$lib/types/database.types';
+	import { invalidateAll } from '$app/navigation';
+
 	let { data }: { data: PageData } = $props();
 	const auth = getAuthContext();
+	const supabase = getContext<SupabaseClient<Database>>('supabase');
 	
 	let profile = $derived({
 		username: data.user?.user_metadata?.username || data.user?.email?.split('@')[0] || 'user',
@@ -19,8 +25,9 @@
 	});
 	
 	async function handleSignOut() {
-		const { error } = await data.supabase.auth.signOut();
+		const { error } = await supabase.auth.signOut();
 		if (!error) {
+			await invalidateAll();
 			await goto('/');
 		}
 	}
@@ -159,7 +166,7 @@
 	.settings-header {
 		position: sticky;
 		top: 0;
-		z-index: 100;
+		z-index: var(--z-higher);
 		background: var(--color-background);
 		border-bottom: 1px solid var(--color-border);
 		padding: 12px 16px;
@@ -185,7 +192,7 @@
 	}
 	
 	.header-title {
-		font-size: 20px;
+		font-size: var(--font-size-xl);
 		font-weight: 600;
 		margin: 0;
 	}
@@ -222,7 +229,7 @@
 	}
 	
 	.initials {
-		font-size: 20px;
+		font-size: var(--font-size-xl);
 		font-weight: 600;
 		text-transform: uppercase;
 	}
@@ -232,14 +239,14 @@
 	}
 	
 	.profile-name {
-		font-size: 16px;
+		font-size: var(--font-size-base);
 		font-weight: 600;
 		margin: 0 0 2px 0;
 		color: var(--color-foreground);
 	}
 	
 	.profile-username {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		color: var(--color-muted-foreground);
 		margin: 0;
 	}
@@ -255,7 +262,7 @@
 	}
 	
 	.section-title {
-		font-size: 16px;
+		font-size: var(--font-size-base);
 		font-weight: 600;
 		padding: 0 16px 8px;
 		margin: 0;
@@ -304,13 +311,13 @@
 	}
 	
 	.item-label {
-		font-size: 16px;
+		font-size: var(--font-size-base);
 		font-weight: 500;
 		color: var(--color-foreground);
 	}
 	
 	.item-description {
-		font-size: 14px;
+		font-size: var(--font-size-sm);
 		color: var(--color-muted-foreground);
 	}
 	
@@ -342,7 +349,7 @@
 	}
 	
 	.info-text {
-		font-size: 12px;
+		font-size: var(--font-size-xs);
 		color: var(--color-muted-foreground);
 		margin: 4px 0;
 	}
@@ -360,7 +367,7 @@
 		}
 		
 		.initials {
-			font-size: 24px;
+			font-size: var(--font-size-2xl);
 		}
 	}
 </style>

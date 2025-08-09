@@ -1,0 +1,256 @@
+name: 🔒 Security Scanning
+
+on:
+  schedule:
+    # Run security scans weekly on Mondays at 9 AM UTC
+    - cron: '0 9 * * 1'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: 'latest'
+
+jobs:
+  # Dependency vulnerability scanning
+  dependency-scan:
+    name: 📦 Dependency Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📋 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔍 Run pnpm audit
+        run: pnpm audit --audit-level high
+        continue-on-error: true
+
+      - name: 📊 Generate audit report
+        run: |
+          pnpm audit --json > audit-report.json || true
+          echo "## Security Audit Results" >> $GITHUB_STEP_SUMMARY
+          echo "```json" >> $GITHUB_STEP_SUMMARY
+          cat audit-report.json >> $GITHUB_STEP_SUMMARY
+          echo "```" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🚨 Check for critical vulnerabilities
+        run: |
+          CRITICAL_COUNT=$(pnpm audit --json 2>/dev/null | jq '.metadata.vulnerabilities.critical // 0')
+          HIGH_COUNT=$(pnpm audit --json 2>/dev/null | jq '.metadata.vulnerabilities.high // 0')
+          
+          echo "Critical vulnerabilities: $CRITICAL_COUNT"
+          echo "High vulnerabilities: $HIGH_COUNT"
+          
+          if [ "$CRITICAL_COUNT" -gt 0 ]; then
+            echo "❌ Critical vulnerabilities found!"
+            exit 1
+          fi
+          
+          if [ "$HIGH_COUNT" -gt 5 ]; then
+            echo "⚠️ Too many high-severity vulnerabilities found!"
+            exit 1
+          fi
+
+  # Code security scanning
+  codeql:
+    name: 🔎 CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📋 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build for analysis
+        run: pnpm run build
+        env:
+          PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-analysis
+
+      - name: 🔍 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+  # Secret scanning
+  secret-scan:
+    name: 🔐 Secret Scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  # Environment variable security check
+  env-security:
+    name: 🌍 Environment Security Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Check for exposed secrets in public env vars
+        run: |
+          echo "Checking for potential secrets in environment variable names..."
+          
+          # Check for suspicious patterns in env var names
+          if grep -r "SECRET\|KEY\|TOKEN\|PASSWORD" --include="*.ts" --include="*.js" --include="*.svelte" . | grep -v "PUBLIC_" | grep -v "node_modules" | grep -v ".git"; then
+            echo "❌ Found potential secrets in non-PUBLIC environment variables"
+            echo "Please ensure all secrets use proper secret management"
+          else
+            echo "✅ No obvious secret exposure found"
+          fi
+
+      - name: 🔍 Check for hardcoded secrets
+        run: |
+          echo "Checking for hardcoded secrets..."
+          
+          # Simple pattern matching for common secret formats
+          PATTERNS=(
+            "sk_live_"
+            "sk_test_"
+            "rk_live_"
+            "pk_live_"
+            "-----BEGIN RSA PRIVATE KEY-----"
+            "-----BEGIN PRIVATE KEY-----"
+            "AKIA[0-9A-Z]{16}"
+            "ghp_[a-zA-Z0-9]{36}"
+            "gho_[a-zA-Z0-9]{36}"
+          )
+          
+          FOUND=false
+          for pattern in "${PATTERNS[@]}"; do
+            if grep -r "$pattern" --include="*.ts" --include="*.js" --include="*.svelte" --include="*.json" . --exclude-dir=node_modules --exclude-dir=.git; then
+              echo "❌ Found potential hardcoded secret: $pattern"
+              FOUND=true
+            fi
+          done
+          
+          if [ "$FOUND" = true ]; then
+            echo "❌ Hardcoded secrets detected! Please remove them and use environment variables."
+            exit 1
+          else
+            echo "✅ No hardcoded secrets found"
+          fi
+
+  # License compliance check
+  license-check:
+    name: 📄 License Compliance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📋 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔍 Check licenses
+        run: |
+          echo "Checking dependency licenses..."
+          npx license-checker --summary --excludePrivatePackages
+          
+          echo "Checking for problematic licenses..."
+          PROBLEMATIC=$(npx license-checker --json --excludePrivatePackages | jq -r 'to_entries[] | select(.value.licenses | test("GPL|LGPL|AGPL"; "i")) | .key')
+          
+          if [ -n "$PROBLEMATIC" ]; then
+            echo "❌ Found packages with potentially problematic licenses:"
+            echo "$PROBLEMATIC"
+            echo "Please review these licenses and ensure they're compatible with your project"
+            exit 1
+          else
+            echo "✅ No problematic licenses found"
+          fi
+
+  # Security summary
+  security-summary:
+    name: 📋 Security Summary
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, codeql, secret-scan, env-security, license-check]
+    if: always()
+
+    steps:
+      - name: 📊 Generate security summary
+        run: |
+          echo "## 🔒 Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Scan | ${{ needs.dependency-scan.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| CodeQL Analysis | ${{ needs.codeql.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secret Scanning | ${{ needs.secret-scan.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment Security | ${{ needs.env-security.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| License Check | ${{ needs.license-check.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+          
+          # Check if any critical security checks failed
+          if [[ "${{ needs.dependency-scan.result }}" != "success" || "${{ needs.secret-scan.result }}" != "success" || "${{ needs.env-security.result }}" != "success" ]]; then
+            echo "❌ Critical security issues detected!"
+            echo "Please review the failed checks and address any security vulnerabilities before proceeding."
+            exit 1
+          else
+            echo "✅ All security checks passed!"
+          fi

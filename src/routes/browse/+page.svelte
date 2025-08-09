@@ -1,30 +1,38 @@
 <script lang="ts">
 	const { data } = $props() as { data: any };
-	import { Filter, X, Camera, Grid3x3 } from '@lucide/svelte';
-	// Removed local SearchHeader to avoid duplication; layout provides it
+	import { ChevronDown, Filter, Grid3x3, Search, SlidersHorizontal, X } from '@lucide/svelte';
 	import { ProductGrid } from '$lib/components/marketplace';
+	import BrowseSearchBar from '$lib/components/browse/BrowseSearchBar.svelte';
+	import CategorySelector from '$lib/components/browse/CategorySelector.svelte';
+	import FilterSheet from '$lib/components/browse/FilterSheet.svelte';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
-	// Dedicated search state
+	// Search state
 	let searchQuery = $state('');
+	let showSearchDropdown = $state(false);
+	
+	// Category state
+	let selectedDemographic = $state<string | null>(null);
+	let selectedCategory = $state<string | null>(null);
 	let showCategoryMenu = $state(false);
+	
+	// Filter state
 	let isMobile = $state(false);
 	let showFilters = $state(false);
-
-	// Filters & sorting
-	let selectedCategory = $state<string | null>(null);
 	let selectedSubcategory = $state<string | null>(null);
-	let selectedCondition = $state<string | null>(null);
-	let selectedCollection = $state<string | null>(null);
-	let selectedBrand = $state<string | null>(null);
-	let selectedSize = $state<string | null>(null);
-	let priceRange = $state({ min: 0, max: 500 });
+	let filters = $state({
+		selectedCondition: null as string | null,
+		selectedBrand: null as string | null,
+		selectedSize: null as string | null,
+		priceRange: { min: 0, max: 500 },
+		selectedCollection: null as string | null
+	});
+	
+	// Sort and pagination
 	let sortBy = $state('newest');
-
-	// Data
 	let products = $state<any[]>(data?.products || []);
 	let nextCursor = $state<string | null>(data?.nextCursor || null);
 	let total = $state<number>(data?.total || 0);
@@ -54,7 +62,53 @@
 		{ id: 'eco', name: 'Eco Friendly', emoji: '🌿', color: 'bg-green-100' }
 	];
 
+	// Enhanced category system for search dropdown
+	const demographics = [
+		{ id: 'men', name: 'Men', emoji: '👨' },
+		{ id: 'women', name: 'Women', emoji: '👩' },
+		{ id: 'kids', name: 'Kids', emoji: '👶' },
+		{ id: 'pets', name: 'Pets', emoji: '🐾' }
+	];
+
 	const subcategories = {
+		men: [
+			{ id: 'mens-shoes', name: 'Shoes', emoji: '👟' },
+			{ id: 'mens-tshirts', name: 'T-shirts', emoji: '👕' },
+			{ id: 'mens-jackets', name: 'Jackets', emoji: '🧥' },
+			{ id: 'mens-jeans', name: 'Jeans', emoji: '👖' },
+			{ id: 'mens-bags', name: 'Bags', emoji: '🎒' },
+			{ id: 'mens-accessories', name: 'Accessories', emoji: '🕶️' },
+			{ id: 'mens-suits', name: 'Suits', emoji: '🤵' },
+			{ id: 'mens-shirts', name: 'Shirts', emoji: '👔' }
+		],
+		women: [
+			{ id: 'womens-shoes', name: 'Shoes', emoji: '👠' },
+			{ id: 'womens-dresses', name: 'Dresses', emoji: '👗' },
+			{ id: 'womens-tops', name: 'Tops', emoji: '👚' },
+			{ id: 'womens-jeans', name: 'Jeans', emoji: '👖' },
+			{ id: 'womens-bags', name: 'Bags', emoji: '👜' },
+			{ id: 'womens-accessories', name: 'Accessories', emoji: '💍' },
+			{ id: 'womens-jackets', name: 'Jackets', emoji: '🧥' },
+			{ id: 'womens-skirts', name: 'Skirts', emoji: '👗' }
+		],
+		kids: [
+			{ id: 'kids-shoes', name: 'Shoes', emoji: '👟' },
+			{ id: 'kids-clothes', name: 'Clothes', emoji: '👕' },
+			{ id: 'kids-toys', name: 'Toys', emoji: '🧸' },
+			{ id: 'kids-accessories', name: 'Accessories', emoji: '🎒' },
+			{ id: 'baby-clothes', name: 'Baby Clothes', emoji: '👶' },
+			{ id: 'toddler-clothes', name: 'Toddler Clothes', emoji: '🧒' }
+		],
+		pets: [
+			{ id: 'pet-clothes', name: 'Clothes', emoji: '🦺' },
+			{ id: 'pet-accessories', name: 'Accessories', emoji: '🦴' },
+			{ id: 'pet-toys', name: 'Toys', emoji: '🎾' },
+			{ id: 'pet-beds', name: 'Beds', emoji: '🛏️' },
+			{ id: 'pet-food', name: 'Food & Treats', emoji: '🥘' }
+		]
+	} as const;
+
+	const oldSubcategories = {
 		women: ['Dresses', 'T-Shirts', 'Jeans', 'Jackets', 'Skirts', 'Blouses'],
 		men: ['T-Shirts', 'Shirts', 'Jeans', 'Jackets', 'Sweaters', 'Shorts'],
 		shoes: ['Sneakers', 'Boots', 'Heels', 'Sandals', 'Flats', 'Athletic'],
@@ -73,18 +127,21 @@
 
 	// Derived values
 	const currentSubcategories = $derived(
-		selectedCategory ? subcategories[selectedCategory as keyof typeof subcategories] || [] : []
+		selectedCategory ? oldSubcategories[selectedCategory as keyof typeof oldSubcategories] || [] : []
+	);
+	const currentDemographicSubcategories = $derived(
+		selectedDemographic ? subcategories[selectedDemographic as keyof typeof subcategories] || [] : []
 	);
 	const activeFiltersCount = $derived(
 		[
 			selectedCategory,
 			selectedSubcategory,
-			selectedCondition,
-			selectedCollection,
-			selectedBrand,
-			selectedSize,
-			priceRange.min !== 0 ? 'min' : null,
-			priceRange.max !== 500 ? 'max' : null
+			filters.selectedCondition,
+			filters.selectedCollection,
+			filters.selectedBrand,
+			filters.selectedSize,
+			filters.priceRange.min !== 0 ? 'min' : null,
+			filters.priceRange.max !== 500 ? 'max' : null
 		].filter(Boolean).length
 	);
 
@@ -95,14 +152,14 @@
 			const sp = url.searchParams;
 			selectedCategory = sp.get('category');
 			selectedSubcategory = sp.get('subcategory');
-			selectedCondition = sp.get('condition');
-			selectedCollection = sp.get('collection');
-			selectedBrand = sp.get('brand');
-			selectedSize = sp.get('size');
+			filters.selectedCondition = sp.get('condition');
+			filters.selectedCollection = sp.get('collection');
+			filters.selectedBrand = sp.get('brand');
+			filters.selectedSize = sp.get('size');
 			sortBy = sp.get('sort') || 'newest';
 			const min = sp.get('price_min');
 			const max = sp.get('price_max');
-			priceRange = {
+			filters.priceRange = {
 				min: min ? Math.max(0, Number(min)) : 0,
 				max: max ? Math.max(0, Number(max)) : 500
 			};
@@ -120,13 +177,13 @@
 		}
 		setOrDelete('category', selectedCategory);
 		setOrDelete('subcategory', selectedSubcategory);
-		setOrDelete('condition', selectedCondition);
-		setOrDelete('collection', selectedCollection);
-		setOrDelete('brand', selectedBrand);
-		setOrDelete('size', selectedSize);
+		setOrDelete('condition', filters.selectedCondition);
+		setOrDelete('collection', filters.selectedCollection);
+		setOrDelete('brand', filters.selectedBrand);
+		setOrDelete('size', filters.selectedSize);
 		setOrDelete('sort', sortBy);
-		setOrDelete('price_min', priceRange.min !== 0 ? String(priceRange.min) : null);
-		setOrDelete('price_max', priceRange.max !== 500 ? String(priceRange.max) : null);
+		setOrDelete('price_min', filters.priceRange.min !== 0 ? String(filters.priceRange.min) : null);
+		setOrDelete('price_max', filters.priceRange.max !== 500 ? String(filters.priceRange.max) : null);
 		setOrDelete('q', searchQuery?.trim() ? searchQuery.trim() : null);
 		goto(url.toString(), { replaceState: true, keepFocus: true, noScroll: true });
 	}
@@ -134,6 +191,26 @@
 	function handleSearch(e: Event) {
 		e.preventDefault();
 		updateURL();
+		showSearchDropdown = false;
+	}
+
+	function handleSearchFocus() {
+		showSearchDropdown = true;
+	}
+
+	function handleDemographicClick(demographicId: string) {
+		if (selectedDemographic === demographicId) {
+			selectedDemographic = null;
+		} else {
+			selectedDemographic = demographicId;
+		}
+	}
+
+	function handleCategorySelect(categoryId: string) {
+		selectedCategory = categoryId;
+		selectedSubcategory = null;
+		updateURL();
+		showSearchDropdown = false;
 	}
 
 	onMount(() => {
@@ -141,14 +218,30 @@
 			isMobile = window.innerWidth < 768;
 			const handleResize = () => (isMobile = window.innerWidth < 768);
 			const handleDocClick = (e: Event) => {
-				if (!showCategoryMenu) return;
 				const t = e.target as Node;
-				if (popoverEl && popoverEl.contains(t)) return;
-				if (categoryBtnEl && categoryBtnEl.contains(t)) return;
-				showCategoryMenu = false;
+				
+				// Handle category menu
+				if (showCategoryMenu) {
+					if (popoverEl && popoverEl.contains(t)) return;
+					if (categoryBtnEl && categoryBtnEl.contains(t)) return;
+					showCategoryMenu = false;
+				}
+				
+				// Handle search dropdown
+				if (showSearchDropdown) {
+					if (searchInputEl && searchInputEl.contains(t)) return;
+					if (searchDropdownEl && searchDropdownEl.contains(t)) return;
+					showSearchDropdown = false;
+					selectedDemographic = null;
+				}
 			};
 			const handleEsc = (e: KeyboardEvent) => {
-				if (e.key === 'Escape') { showCategoryMenu = false; showFilters = false; }
+				if (e.key === 'Escape') { 
+					showCategoryMenu = false; 
+					showFilters = false; 
+					showSearchDropdown = false;
+					selectedDemographic = null;
+				}
 			};
 			const handleKeyDown = (e: KeyboardEvent) => {
 				// Keyboard navigation for chip scrollers
@@ -181,11 +274,11 @@
 	function clearFilters() {
 		selectedCategory = null;
 		selectedSubcategory = null;
-		selectedCondition = null;
-		selectedCollection = null;
-		selectedBrand = null;
-		selectedSize = null;
-		priceRange = { min: 0, max: 500 };
+		filters.selectedCondition = null;
+		filters.selectedCollection = null;
+		filters.selectedBrand = null;
+		filters.selectedSize = null;
+		filters.priceRange = { min: 0, max: 500 };
 		sortBy = 'newest';
 		updateURL();
 	}
@@ -250,8 +343,10 @@
 	let categoryBtnEl: HTMLButtonElement | null = null;
 	let popoverEl: HTMLDivElement | null = null;
 	let collectionsScrollEl: HTMLDivElement | null = null;
+	let searchInputEl = $state<HTMLDivElement | null>(null);
+	let searchDropdownEl = $state<HTMLDivElement | null>(null);
 	let loadingMore = $state(false);
-	let filterSheetEl: HTMLDivElement | null = null;
+	let filterSheetEl = $state<HTMLDivElement | null>(null);
 	let lastFocusedElement: HTMLElement | null = null;
 
 	async function loadMore() {
@@ -270,6 +365,47 @@
 			loadingMore = false;
 		}
 	}
+
+	// Product interaction handlers
+	async function handleProductLike(productId: string) {
+		try {
+			const response = await fetch(`/api/products/${productId}/like`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' }
+			});
+			if (!response.ok) throw new Error('Failed to like product');
+		} catch (error) {
+			console.error('Error liking product:', error);
+		}
+	}
+
+	async function handleProductSave(productId: string) {
+		try {
+			const response = await fetch(`/api/products/${productId}/save`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' }
+			});
+			if (!response.ok) throw new Error('Failed to save product');
+		} catch (error) {
+			console.error('Error saving product:', error);
+		}
+	}
+
+	function handleProductShare(productId: string) {
+		if (navigator.share) {
+			navigator.share({
+				title: 'Check out this product',
+				url: `${window.location.origin}/products/${productId}`
+			});
+		} else {
+			// Fallback to clipboard
+			navigator.clipboard.writeText(`${window.location.origin}/products/${productId}`);
+		}
+	}
+
+	function handleProductComment(productId: string) {
+		goto(`/products/${productId}#comments`);
+	}
 </script>
 
 <svelte:head>
@@ -279,166 +415,169 @@
 
 <!-- Removed local <SearchHeader />; layout already renders mobile/desktop headers -->
 
-<div class="browse-page">
-	<div class="content-wrap">
-		<!-- Dedicated Browse Controls: Category (left) + Search + Camera (right) -->
-		<div class="browse-controls">
-			<form class="browse-search" onsubmit={handleSearch} role="search" aria-label="Browse search">
-				<button
-					type="button"
-					class="icon-btn leading category-btn-inline"
-					bind:this={categoryBtnEl}
-					onclick={() => (showCategoryMenu = !showCategoryMenu)}
-					aria-expanded={showCategoryMenu}
-					aria-haspopup="true"
-					aria-controls="browse-category-popover"
-					aria-label="Browse categories"
-				>
-					<Grid3x3 size={18} />
-				</button>
-				<input
-					type="search"
-					placeholder="Search items, brands, or styles…"
-					bind:value={searchQuery}
-					class="browse-input"
-					aria-label="Search items"
-				/>
-				<button type="button" class="icon-btn trailing visual-btn" aria-label="Visual search">
-					<Camera size={18} />
-				</button>
-
-				{#if showCategoryMenu}
-					<div id="browse-category-popover" class="category-popover left" role="menu" bind:this={popoverEl}>
-						<button class="scroll-btn left" aria-label="Scroll left" onclick={() => popScrollEl?.scrollBy({ left: -240, behavior: 'smooth' })}>‹</button>
-						<div class="category-scroll-pop">
-							<div class="chip-scroll" bind:this={popScrollEl}>
-								{#each categories as c}
-									<button
-										class="chip {selectedCategory === c.id ? 'active' : ''}"
-										aria-pressed={selectedCategory === c.id}
-										onclick={() => {
-											// select category but keep dropdown open to show subcategories
-											selectedCategory = c.id;
-											selectedSubcategory = null;
-										}}
-									>
-										<span class="emoji">{c.emoji}</span>
-										<span>{c.name}</span>
-									</button>
-								{/each}
-							</div>
-							{#if selectedCategory && currentSubcategories.length > 0}
-								<div class="chip-scroll sub-scroll">
-									{#each currentSubcategories as sub}
-										<button
-											class="chip subtle {selectedSubcategory === sub ? 'active' : ''}"
-											aria-pressed={selectedSubcategory === sub}
-											onclick={() => {
-												selectedSubcategory = sub === selectedSubcategory ? null : sub;
-												updateURL();
-												showCategoryMenu = false;
-											}}
-										>
-											{sub}
-										</button>
-									{/each}
-								</div>
-							{/if}
-						</div>
-						<button class="scroll-btn right" aria-label="Scroll right" onclick={() => popScrollEl?.scrollBy({ left: 240, behavior: 'smooth' })}>›</button>
+<main class="main-content">
+		<!-- Clean Search Section -->
+		<section class="bg-white border-b border-gray-200 px-4 py-3 relative">
+			<div class="max-w-7xl mx-auto">
+				<div class="relative" bind:this={searchInputEl}>
+					<div class="relative flex items-center">
+						<Search size={18} class="absolute left-3 text-gray-400 pointer-events-none z-10" />
+						<input
+							type="search"
+							placeholder="Search items or @sellers"
+							bind:value={searchQuery}
+							onkeydown={(e) => e.key === 'Enter' && handleSearch(e)}
+							onfocus={handleSearchFocus}
+							class="w-full h-12 pl-10 pr-4 bg-gray-50 border border-gray-200 rounded-xl text-sm transition-all duration-200 focus:outline-none focus:border-gray-900 focus:bg-white focus:shadow-sm"
+						/>
 					</div>
-				{/if}
-			</form>
-		</div>
 
-		<!-- Category/Subcategory Tabs (dynamic) -->
-		<div class="category-bar">
-			<button class="top-scroll-btn left" aria-label="Scroll left" onclick={() => topScrollEl?.scrollBy({ left: -280, behavior: 'smooth' })}>‹</button>
-			<div class="chip-scroll" bind:this={topScrollEl} role="tablist" aria-label="Browse navigation">
-				{#if selectedCategory && currentSubcategories.length > 0}
-					<button class="chip subtle" aria-pressed="false" onclick={() => { selectedCategory = null; selectedSubcategory = null; updateURL(); }}>
-						← Всички категории
-					</button>
-					{#each currentSubcategories as sub}
-						<button
-							class="chip {selectedSubcategory === sub ? 'active' : ''}"
-							aria-pressed={selectedSubcategory === sub}
-							onclick={() => { selectedSubcategory = selectedSubcategory === sub ? null : sub; updateURL(); }}
-						>
-							{sub}
-						</button>
-					{/each}
-				{:else}
-					{#each categories as c}
-						<button
-							class="chip {selectedCategory === c.id ? 'active' : ''}"
-							aria-pressed={selectedCategory === c.id}
-							onclick={() => { selectedCategory = selectedCategory === c.id ? null : c.id; selectedSubcategory = null; updateURL(); }}
-						>
-							<span class="emoji">{c.emoji}</span>
-							<span>{c.name}</span>
-						</button>
-					{/each}
-				{/if}
+					<!-- Category Dropdown -->
+					{#if showSearchDropdown}
+						<div class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
+							<div class="p-4" bind:this={searchDropdownEl}>
+								<!-- Demographics -->
+								<div class="mb-5">
+									<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Browse by Category</h3>
+									<div class="flex gap-2 overflow-x-auto pb-2">
+										{#each demographics as demographic}
+											<button 
+												class="flex items-center gap-2 px-4 py-2 rounded-full border whitespace-nowrap transition-all duration-150 {selectedDemographic === demographic.id ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'}"
+												onclick={() => handleDemographicClick(demographic.id)}
+											>
+												<span class="text-sm">{demographic.emoji}</span>
+												<span class="text-sm font-medium">{demographic.name}</span>
+												<ChevronDown size={14} class="transition-transform {selectedDemographic === demographic.id ? 'rotate-180' : ''}" />
+											</button>
+										{/each}
+									</div>
+								</div>
+								
+								<!-- Subcategories -->
+								{#if selectedDemographic && currentDemographicSubcategories.length > 0}
+									<div class="mb-5 pt-4 border-t border-gray-100">
+										<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+											{demographics.find(d => d.id === selectedDemographic)?.name} Categories
+										</h3>
+										<div class="flex gap-2 overflow-x-auto pb-2">
+											{#each currentDemographicSubcategories as subcategory}
+												<button 
+													class="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-gray-900 hover:text-white hover:border-gray-900 hover:-translate-y-0.5 hover:shadow-md min-w-fit"
+													onclick={() => handleCategorySelect(subcategory.id)}
+												>
+													<span>{subcategory.emoji}</span>
+													<span>{subcategory.name}</span>
+												</button>
+											{/each}
+										</div>
+									</div>
+								{/if}
+
+								<!-- Quick Actions -->
+								<div class="pt-4 border-t border-gray-100">
+									<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Popular Searches</h3>
+									<div class="flex gap-2 overflow-x-auto pb-2">
+										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('new-tags')}>
+											<span>🏷️</span>
+											<span>New with tags</span>
+										</button>
+										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-green-500 hover:text-white hover:border-green-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('under-50')}>
+											<span>💰</span>
+											<span>Under 50лв</span>
+										</button>
+										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-red-500 hover:text-white hover:border-red-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('trending')}>
+											<span>🔥</span>
+											<span>Trending</span>
+										</button>
+										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-blue-600 hover:text-white hover:border-blue-600 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('verified')}>
+											<span>✅</span>
+											<span>Verified sellers</span>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					{/if}
+				</div>
 			</div>
-			<button class="top-scroll-btn right" aria-label="Scroll right" onclick={() => topScrollEl?.scrollBy({ left: 280, behavior: 'smooth' })}>›</button>
-		</div>
+		</section>
 
-		<!-- Active Filters -->
-		{#if total}
-			<div class="toolbar">
-				<div class="left"><span class="results">{new Intl.NumberFormat('bg-BG').format(total)} items</span></div>
-				<div class="right">
-					<label class="sr-only" for="sort-select">Sort by</label>
-					<select id="sort-select" class="sort-select" bind:value={sortBy} onchange={updateURL}>
-						<option value="newest">Newest</option>
-						<option value="price-low">Price: Low to High</option>
-						<option value="price-high">Price: High to Low</option>
-						<option value="most-liked">Most Liked</option>
-						<option value="trending">Trending</option>
-					</select>
-					<button class="filter-btn strong" onclick={openFilters} aria-controls="mobile-filters" aria-expanded={showFilters}>
-						<Filter size={18} />
-						<span>Filters{activeFiltersCount ? ` (${activeFiltersCount})` : ''}</span>
+
+		<!-- Filter Pills Section -->
+		<div class="bg-white border-b border-gray-200 py-3">
+			<div class="max-w-7xl mx-auto px-4">
+				<div class="flex items-center gap-2 overflow-x-auto scrollbar-none">
+					<!-- Sort Pill -->
+					<button 
+						class="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-full border transition-all duration-150 whitespace-nowrap {sortBy !== 'newest' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'}"
+						onclick={() => {
+							if (sortBy === 'newest') sortBy = 'price-low';
+							else if (sortBy === 'price-low') sortBy = 'price-high';
+							else if (sortBy === 'price-high') sortBy = 'most-liked';
+							else if (sortBy === 'most-liked') sortBy = 'trending';
+							else sortBy = 'newest';
+							updateURL();
+						}}
+					>
+						{#if sortBy === 'newest'}Newest{/if}
+						{#if sortBy === 'price-low'}Low Price{/if}
+						{#if sortBy === 'price-high'}High Price{/if}
+						{#if sortBy === 'most-liked'}Popular{/if}
+						{#if sortBy === 'trending'}Trending{/if}
+					</button>
+
+					<!-- Active Filter Pills -->
+					{#if filters.selectedCondition}
+						<button 
+							class="flex items-center gap-1 px-3 py-2 bg-gray-900 text-white border border-gray-900 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
+							onclick={() => { filters.selectedCondition = null; updateURL(); }}
+						>
+							{conditions.find(c => c.id === filters.selectedCondition)?.name || 'Condition'}
+							<X size={12} class="ml-1" />
+						</button>
+					{/if}
+
+					{#if filters.selectedBrand}
+						<button 
+							class="flex items-center gap-1 px-3 py-2 bg-gray-900 text-white border border-gray-900 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
+							onclick={() => { filters.selectedBrand = ''; updateURL(); }}
+						>
+							{filters.selectedBrand.charAt(0).toUpperCase() + filters.selectedBrand.slice(1)}
+							<X size={12} class="ml-1" />
+						</button>
+					{/if}
+
+					{#if filters.selectedSize}
+						<button 
+							class="flex items-center gap-1 px-3 py-2 bg-gray-900 text-white border border-gray-900 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
+							onclick={() => { filters.selectedSize = ''; updateURL(); }}
+						>
+							Size {filters.selectedSize}
+							<X size={12} class="ml-1" />
+						</button>
+					{/if}
+
+					<!-- More Filters Button -->
+					<button 
+						class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border transition-all duration-150 whitespace-nowrap relative {activeFiltersCount > 0 ? 'bg-blue-500 text-white border-blue-500' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}"
+						onclick={() => showFilters = true}
+						aria-label="More filters"
+					>
+						<Filter size={12} />
+						<span>Filters</span>
+						{#if activeFiltersCount > 0}
+							<span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center border-2 border-white">
+								{activeFiltersCount}
+							</span>
+						{/if}
 					</button>
 				</div>
 			</div>
-		{/if}
+		</div>
 
-		<!-- Active Filters Chips Row -->
-		{#if activeFiltersCount}
-			<div class="active-filters">
-				{#if selectedCategory}
-					<button class="filter-chip" onclick={() => { selectedCategory = null; selectedSubcategory = null; updateURL(); }}>
-						Category: {getCategoryName(selectedCategory)} <X size={14} />
-					</button>
-				{/if}
-				{#if selectedSubcategory}
-					<button class="filter-chip" onclick={() => { selectedSubcategory = null; updateURL(); }}>
-						Sub: {selectedSubcategory} <X size={14} />
-					</button>
-				{/if}
-				{#if selectedBrand}
-					<button class="filter-chip" onclick={() => { selectedBrand = null; updateURL(); }}>
-						Brand: {selectedBrand} <X size={14} />
-					</button>
-				{/if}
-				{#if selectedSize}
-					<button class="filter-chip" onclick={() => { selectedSize = null; updateURL(); }}>
-						Size: {selectedSize} <X size={14} />
-					</button>
-				{/if}
-				{#if priceRange.min !== 0 || priceRange.max !== 500}
-					<button class="filter-chip" onclick={() => { priceRange = { min: 0, max: 500 }; updateURL(); }}>
-						Price: {priceRange.min}–{priceRange.max} <X size={14} />
-					</button>
-				{/if}
-				<button class="clear-all" onclick={clearFilters}>Clear all</button>
-			</div>
-		{/if}
 
-		<!-- Main Content Area with optional sidebar -->
-		<div class="main-content">
+		<!-- Main Content Area -->
+		<div class="content-wrapper">
 			<!-- Desktop Filter Rail -->
 			<aside class="filter-rail desktop-only" id="desktop-filters" aria-label="Filters">
 				<div class="filter-rail-content">
@@ -485,10 +624,10 @@
 						<div class="filter-options vertical">
 							{#each conditions as condition}
 								<button
-									class="filter-option {selectedCondition === condition.id ? 'active' : ''}"
-									aria-pressed={selectedCondition === condition.id}
+									class="filter-option {filters.selectedCondition === condition.id ? 'active' : ''}"
+									aria-pressed={filters.selectedCondition === condition.id}
 									onclick={() => {
-										selectedCondition = selectedCondition === condition.id ? null : condition.id;
+										filters.selectedCondition = filters.selectedCondition === condition.id ? null : condition.id;
 										updateURL();
 									}}
 								>
@@ -506,7 +645,7 @@
 							<div class="price-inputs">
 								<input 
 									type="number" 
-									bind:value={priceRange.min} 
+									bind:value={filters.priceRange.min} 
 									placeholder="Min" 
 									class="price-input"
 									onchange={updateURL}
@@ -514,7 +653,7 @@
 								<span>-</span>
 								<input 
 									type="number" 
-									bind:value={priceRange.max} 
+									bind:value={filters.priceRange.max} 
 									placeholder="Max" 
 									class="price-input"
 									onchange={updateURL}
@@ -528,16 +667,52 @@
 					<div class="filter-group">
 						<h3>Size</h3>
 						<div class="filter-options horizontal">
-							{#each ['XS','S','M','L','XL'] as s}
+							{#each ['XS','S','M','L','XL','XXL'] as s}
 								<button 
-									class="filter-option size {selectedSize === s ? 'active' : ''}" 
-									aria-pressed={selectedSize === s} 
+									class="filter-option size {filters.selectedSize === s ? 'active' : ''}" 
+									aria-pressed={filters.selectedSize === s} 
 									onclick={() => {
-										selectedSize = selectedSize === s ? null : s;
+										filters.selectedSize = filters.selectedSize === s ? null : s;
 										updateURL();
 									}}
 								>
 									{s}
+								</button>
+							{/each}
+						</div>
+						<div class="filter-options horizontal">
+							{#each ['6','7','8','9','10','11','12'] as s}
+								<button 
+									class="filter-option size {filters.selectedSize === s ? 'active' : ''}" 
+									aria-pressed={filters.selectedSize === s} 
+									onclick={() => {
+										filters.selectedSize = filters.selectedSize === s ? null : s;
+										updateURL();
+									}}
+								>
+									{s}
+								</button>
+							{/each}
+						</div>
+					</div>
+
+					<!-- Brand -->
+					<div class="filter-group">
+						<h3>Brand</h3>
+						<input 
+							type="text" 
+							placeholder="e.g. Nike, Zara..." 
+							class="brand-input"
+							bind:value={filters.selectedBrand}
+							onchange={updateURL}
+						/>
+						<div class="popular-brands">
+							{#each ['Nike','Adidas','Zara','H&M'] as brand}
+								<button 
+									class="brand-pill {filters.selectedBrand && filters.selectedBrand.toLowerCase() === brand.toLowerCase() ? 'active' : ''}"
+									onclick={() => { filters.selectedBrand = filters.selectedBrand && filters.selectedBrand.toLowerCase() === brand.toLowerCase() ? '' : brand; updateURL(); }}
+								>
+									{brand}
 								</button>
 							{/each}
 						</div>
@@ -554,18 +729,42 @@
 
 			<!-- Product Grid -->
 			<div class="products-area">
-				<ProductGrid {products} />
-				{#if !products?.length}
-					<div class="empty">No listings found. Try different filters.</div>
-				{/if}
-				{#if nextCursor}
-					<div class="load-more-wrap">
-						<button class="load-more" onclick={loadMore} disabled={loadingMore}>{loadingMore ? 'Loading…' : 'Load more'}</button>
+				{#if products?.length > 0}
+					<ProductGrid 
+						{products} 
+						variant="grid"
+						onLike={handleProductLike}
+						onSave={handleProductSave}
+						onShare={handleProductShare}
+						onComment={handleProductComment}
+					/>
+					
+					{#if nextCursor}
+						<div class="flex justify-center py-8 px-4">
+							<button 
+								class="flex items-center gap-2 px-8 py-3 bg-gray-900 text-white rounded-full font-semibold transition-all duration-150 min-h-12 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-gray-800 hover:-translate-y-0.5 hover:shadow-lg" 
+								onclick={loadMore} 
+								disabled={loadingMore}
+							>
+								{#if loadingMore}
+									<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+									Loading...
+								{:else}
+									Load More
+								{/if}
+							</button>
+						</div>
+					{/if}
+				{:else}
+					<div class="flex flex-col items-center justify-center py-16 px-8 text-center text-gray-500">
+						<div class="text-5xl mb-4 opacity-70">🔍</div>
+						<h3 class="text-xl font-semibold text-gray-900 mb-2">No listings found</h3>
+						<p class="text-sm leading-6 max-w-xs text-gray-600">Try adjusting your filters or search terms to find more items.</p>
 					</div>
 				{/if}
 			</div>
 		</div>
-	</div>
+</main>
 
 	<!-- Mobile/Overlay Filters Sheet -->
 	{#if showFilters}
@@ -584,6 +783,7 @@
 			role="dialog" 
 			aria-modal="true" 
 			aria-labelledby="filter-sheet-title"
+			tabindex="-1"
 			onkeydown={handleFilterSheetKeyDown}
 		>
 			<div class="filter-header">
@@ -632,9 +832,9 @@
 					<div class="row-wrap">
 						{#each collections as col}
 							<button
-								class="chip tone {col.color} {selectedCollection === col.id ? 'active' : ''}"
-								aria-pressed={selectedCollection === col.id}
-								onclick={() => (selectedCollection = selectedCollection === col.id ? null : col.id)}
+								class="chip tone {col.color} {filters.selectedCollection === col.id ? 'active' : ''}"
+								aria-pressed={filters.selectedCollection === col.id}
+								onclick={() => (filters.selectedCollection = filters.selectedCollection === col.id ? null : col.id)}
 							>
 								<span class="emoji">{col.emoji}</span>{col.name}
 							</button>
@@ -642,15 +842,33 @@
 					</div>
 				</div>
 
+				<!-- Subcategory -->
+				{#if selectedCategory && currentSubcategories.length > 0}
+					<div class="filter-group">
+						<h3>Subcategory</h3>
+						<div class="row-wrap">
+							{#each currentSubcategories as sub}
+								<button
+									class="chip subtle {selectedSubcategory === sub ? 'active' : ''}"
+									aria-pressed={selectedSubcategory === sub}
+									onclick={() => (selectedSubcategory = selectedSubcategory === sub ? null : sub)}
+								>
+									{sub}
+								</button>
+							{/each}
+						</div>
+					</div>
+				{/if}
+
 				<!-- Condition -->
 				<div class="filter-group">
 					<h3>Condition</h3>
 					<div class="row-wrap">
 						{#each conditions as condition}
 							<button
-								class="chip subtle {selectedCondition === condition.id ? 'active' : ''}"
-								aria-pressed={selectedCondition === condition.id}
-								onclick={() => (selectedCondition = selectedCondition === condition.id ? null : condition.id)}
+								class="chip subtle {filters.selectedCondition === condition.id ? 'active' : ''}"
+								aria-pressed={filters.selectedCondition === condition.id}
+								onclick={() => (filters.selectedCondition = filters.selectedCondition === condition.id ? null : condition.id)}
 							>
 								<span class="emoji">{condition.emoji}</span>{condition.name}
 							</button>
@@ -662,9 +880,9 @@
 				<div class="filter-group">
 					<h3>Price Range</h3>
 					<div class="price-inputs">
-						<input type="number" bind:value={priceRange.min} placeholder="Min" class="price-input" />
+						<input type="number" bind:value={filters.priceRange.min} placeholder="Min" class="price-input" />
 						<span>-</span>
-						<input type="number" bind:value={priceRange.max} placeholder="Max" class="price-input" />
+						<input type="number" bind:value={filters.priceRange.max} placeholder="Max" class="price-input" />
 						<span>лв</span>
 					</div>
 				</div>
@@ -672,15 +890,30 @@
 				<!-- Brand -->
 				<div class="filter-group">
 					<h3>Brand</h3>
-					<input type="text" placeholder="e.g. Nike" class="price-input" bind:value={selectedBrand} />
+					<input type="text" placeholder="e.g. Nike" class="price-input" bind:value={filters.selectedBrand} />
 				</div>
 
 				<!-- Size -->
 				<div class="filter-group">
 					<h3>Size</h3>
 					<div class="row-wrap">
-						{#each ['XS','S','M','L','XL'] as s}
-							<button class="chip subtle {selectedSize === s ? 'active' : ''}" aria-pressed={selectedSize === s} onclick={() => (selectedSize = selectedSize === s ? null : s)}>{s}</button>
+						{#each ['XS','S','M','L','XL','XXL','6','7','8','9','10','11','12','34','36','38','40','42','44','46'] as s}
+							<button class="chip subtle {filters.selectedSize === s ? 'active' : ''}" aria-pressed={filters.selectedSize === s} onclick={() => (filters.selectedSize = filters.selectedSize === s ? null : s)}>{s}</button>
+						{/each}
+					</div>
+				</div>
+
+				<!-- Popular Brands -->
+				<div class="filter-group">
+					<h3>Popular Brands</h3>
+					<div class="row-wrap">
+						{#each ['Nike','Adidas','Zara','H&M','Gucci','Louis Vuitton','Chanel','Prada','Versace','Balenciaga','Off-White','Supreme'] as brand}
+							<button 
+								class="chip subtle {filters.selectedBrand && filters.selectedBrand.toLowerCase() === brand.toLowerCase() ? 'active' : ''}" 
+								onclick={() => (filters.selectedBrand = filters.selectedBrand && filters.selectedBrand.toLowerCase() === brand.toLowerCase() ? '' : brand)}
+							>
+								{brand}
+							</button>
 						{/each}
 					</div>
 				</div>
@@ -692,318 +925,132 @@
 			</div>
 		</div>
 	{/if}
-</div>
 
 <style>
 	:global(body) { overscroll-behavior-y: contain; }
 
-	.browse-page {
+	.main-content {
 		min-height: 100vh;
-		background: var(--color-surface);
-		/* Remove extra top padding; main layout already offsets content */
-		padding-top: 0;
-		padding-bottom: 80px; /* space for mobile nav if present */
+		background: var(--color-surface-secondary);
+		padding-bottom: 80px;
 	}
 
-	.content-wrap {
-		max-width: 1200px;
-		margin: 0 auto;
+	/* Remove all padding/constraints - match main page */
+	.content-wrapper {
+		display: block;
+	}
+	
+	.products-area {
+		width: 100%;
+	}
+	
+	/* Hide filter rail on mobile by default */
+	.filter-rail {
+		display: none;
+	}
+	
+	@media (min-width: 1024px) {
+		.content-wrapper {
+			display: flex;
+			gap: 1.5rem;
+			max-width: 1400px;
+			margin: 0 auto;
+		}
+		
+		.filter-rail.desktop-only {
+			display: block;
+			width: 280px;
+			flex-shrink: 0;
+			background: white;
+			border-right: 1px solid var(--color-border);
+			height: fit-content;
+			position: sticky;
+			top: 120px;
+			border-radius: 12px;
+			margin-left: 1rem;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		}
+		
+		.products-area {
+			flex: 1;
+			min-width: 0;
+		}
 	}
 
-	/* Dedicated browse controls: search + category button */
-	.browse-controls {
-		position: relative;
-		display: grid;
-		grid-template-columns: 1fr;
-		align-items: center;
-		gap: 0.75rem;
-		padding: 0.75rem 1rem;
-		background: white;
-		border-bottom: 1px solid var(--color-border);
-	}
-	@media (max-width: 480px) {
-		.browse-controls { grid-template-columns: 1fr auto; }
-	}
-	.browse-search { position: relative; display: flex; align-items: center; }
-	.browse-input {
-		width: 100%; height: 50px; border-radius: 999px; border: 1px solid var(--color-border);
-		background: var(--color-surface); padding: 0 3rem; font-size: 1rem; line-height: 1;
-	}
-	.icon-btn { width: 40px; height: 40px; background: transparent; border: none; color: var(--color-text-secondary); padding: 0; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; }
-	.icon-btn.leading, .icon-btn.trailing { position: absolute; top: 50%; transform: translateY(-50%); }
-	.icon-btn.leading { left: 0.5rem; }
-	.icon-btn.trailing { right: 0.5rem; }
-	.browse-input:focus { outline: none; border-color: var(--color-primary); background: white; box-shadow: 0 0 0 3px rgba(24,119,242,0.08); }
-
-	/* Popover scroller & chevrons refinements */
-	.category-popover { position: absolute; top: calc(100% + 8px); background: white; border: 1px solid var(--color-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); padding: 0.75rem 2.25rem; z-index: 60; width: min(420px, 92vw); }
-	.category-popover .sub-scroll { margin-top: 0.5rem; padding-top: 0.25rem; border-top: 1px dashed var(--color-border); }
-	.category-popover .scroll-btn {
-		position: absolute;
-		top: 50%;
-		transform: translateY(-50%);
-		background: white;
-		border: 1px solid var(--color-border);
-		width: 32px;
-		height: 32px;
-		border-radius: 999px;
-		display: grid;
-		place-items: center;
-		color: var(--color-text-secondary);
-		box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-		cursor: pointer;
-		transition: all 0.2s ease;
-		font-size: 16px;
-		font-weight: bold;
-		z-index: 10;
-	}
-	.category-popover .scroll-btn:hover {
-		background: var(--color-gray-50);
-		border-color: var(--color-primary);
-		color: var(--color-primary);
-		transform: translateY(-50%) scale(1.05);
-	}
-	.category-popover .scroll-btn.left { left: 0.5rem; }
-	.category-popover .scroll-btn.right { right: 0.5rem; }
-
-	/* Hide Quick Pills entirely for now to reduce clutter */
-	.collections-bar { display: none !important; }
-
-	/* Keep category bar only on desktop; mobile uses dropdown */
-	@media (max-width: 767px) { .category-bar { display: none; } }
-	@media (min-width: 768px) { .category-bar { display: block; } }
-
-	/* Horizontal chip scrollers */
-	.category-bar,
-	.collections-bar,
-	.subcategory-bar {
-		background: white;
-		border-bottom: 1px solid var(--color-border);
-	}
-
-	.category-bar { position: relative; padding: 0.75rem 0; }
-	.category-bar .chip-scroll { padding-left: 2.25rem; padding-right: 2.25rem; }
-	.top-scroll-btn { 
-		position: absolute; 
-		top: 50%; 
-		transform: translateY(-50%); 
-		background: white; 
-		border: 1px solid var(--color-border); 
-		width: 32px; 
-		height: 32px; 
-		border-radius: 999px; 
-		display: none; 
-		place-items: center; 
-		color: var(--color-text-secondary); 
-		box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-		z-index: 100; 
-		cursor: pointer;
-		transition: all 0.2s ease;
-		font-size: 16px;
-		font-weight: bold;
-	}
-	.top-scroll-btn:hover {
-		background: var(--color-gray-50);
-		border-color: var(--color-primary);
-		color: var(--color-primary);
-		transform: translateY(-50%) scale(1.05);
-	}
-	.category-bar:hover .top-scroll-btn, .category-bar:focus-within .top-scroll-btn { display: grid; }
-	@media (hover: none) { .top-scroll-btn { display: grid; opacity: 0.8; } }
-	.top-scroll-btn.left { left: 6px; }
-	.top-scroll-btn.right { right: 6px; }
-
-	.collections-bar { position: relative; padding: 0.5rem 0; background: white; border-bottom: 1px solid var(--color-border); }
-	.collections-bar .chip-scroll { padding-left: 2.25rem; padding-right: 2.25rem; }
-	.collections-scroll-btn { position: absolute; top: 50%; transform: translateY(-50%); background: white; border: 1px solid var(--color-border); width: 28px; height: 28px; border-radius: 999px; display: none; place-items: center; color: var(--color-text-secondary); box-shadow: 0 2px 10px rgba(0,0,0,0.06); z-index: 100; }
-	.collections-bar:hover .collections-scroll-btn, .collections-bar:focus-within .collections-scroll-btn { display: grid; }
-	@media (hover: none) { .collections-scroll-btn { display: grid; } }
-	.collections-scroll-btn.left { left: 6px; }
-	.collections-scroll-btn.right { right: 6px; }
-
-	.chip-scroll {
-		display: flex;
-		gap: 0.5rem;
-		padding: 0 1rem;
-		overflow-x: auto;
-		scroll-behavior: smooth;
-		-webkit-overflow-scrolling: touch;
+	/* Custom scrollbar hide for webkit browsers */
+	.scrollbar-none {
 		scrollbar-width: none;
-		scroll-snap-type: x mandatory;
-		/* Ensure no wrap - chips must stay on single line */
-		flex-wrap: nowrap;
+		-ms-overflow-style: none;
 	}
-	.chip-scroll::-webkit-scrollbar { display: none; }
-
+	.scrollbar-none::-webkit-scrollbar {
+		display: none;
+	}
+	
+	/* Mobile Filter Sheet Chips */
 	.chip {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5rem;
 		padding: 0.5rem 1rem;
-		border: 1px solid var(--color-border);
-		border-radius: 999px;
+		border: 1px solid var(--color-border-light);
+		border-radius: 9999px;
 		font-size: 0.875rem;
-		font-weight: 600;
-		color: var(--color-text-primary);
+		font-weight: 500;
+		color: var(--color-text-dark);
 		background: white;
 		cursor: pointer;
 		white-space: nowrap;
-		flex-shrink: 0;
-		transition: all 0.2s;
-		scroll-snap-align: start;
+		transition: all 0.15s;
+		height: 2.25rem;
 	}
-	.chip:hover { background: var(--color-gray-50); }
-	.chip.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
-	.chip.outline { background: transparent; }
-	.chip.subtle { background: var(--color-gray-50); border-color: transparent; }
-	.chip.tone.bg-yellow-100 { background: #fef3c7; }
-	.chip.tone.bg-orange-100 { background: #fed7aa; }
-	.chip.tone.bg-blue-100 { background: #dbeafe; }
-	.chip.tone.bg-red-100 { background: #fee2e2; }
-	.chip.tone.bg-green-100 { background: #d1fae5; }
-	.chip .emoji { font-size: 1rem; }
-
-	/* Active filters */
-	.active-filters {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		padding: 0.75rem 1rem;
-		background: white;
-		border-bottom: 1px solid var(--color-border);
+	
+	.chip:hover {
+		background: var(--color-surface-quaternary);
+		border-color: var(--color-border-dark);
 	}
-	.filter-chip {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.375rem;
-		padding: 0.375rem 0.75rem;
-		background: var(--color-gray-50);
-		border: 1px solid var(--color-border);
-		border-radius: 999px;
-		font-size: 0.8125rem;
-		cursor: pointer;
+	
+	.chip.active {
+		background: var(--color-surface-overlay);
+		color: white;
+		border-color: var(--color-border-darker);
 	}
-	.clear-all { margin-left: auto; background: none; border: none; color: var(--color-primary); font-weight: 600; cursor: pointer; }
-
-	/* Toolbar */
-	.toolbar {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 0.75rem 1rem;
-		background: white;
-		border-bottom: 1px solid var(--color-border);
-		min-height: 56px;
+	
+	.chip.outline {
+		background: transparent;
+		border-color: var(--color-border-dark);
 	}
-	.toolbar .results { 
-		font-size: 0.875rem; 
-		color: var(--color-text-primary); 
-		font-weight: 600;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
+	
+	.chip.subtle {
+		background: var(--color-border-lighter);
+		border-color: transparent;
 	}
-	.toolbar .results::before {
-		content: "📊";
-		font-size: 1rem;
-	}
-	.toolbar .right { 
-		display: flex; 
-		align-items: center; 
-		gap: 0.75rem; 
-	}
-	.sort-select {
-		padding: 0.5rem 0.75rem;
-		border: 1px solid var(--color-border);
-		border-radius: 8px;
-		background: white;
+	
+	.chip.tone.bg-yellow-100 { background: var(--color-surface-warning); border-color: var(--color-surface-warning); opacity: 0.2; }
+	.chip.tone.bg-orange-100 { background: var(--color-surface-warning); border-color: var(--color-surface-warning); opacity: 0.3; }
+	.chip.tone.bg-blue-100 { background: var(--color-brand-blue); border-color: var(--color-brand-blue); opacity: 0.2; }
+	.chip.tone.bg-red-100 { background: var(--color-surface-error); border-color: var(--color-surface-error); opacity: 0.2; }
+	.chip.tone.bg-green-100 { background: var(--color-surface-success); border-color: var(--color-surface-success); opacity: 0.2; }
+	
+	.chip .emoji {
 		font-size: 0.875rem;
-		font-weight: 500;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		min-width: 140px;
-	}
-	.sort-select:hover {
-		border-color: var(--color-primary);
-		background: var(--color-gray-50);
-	}
-	.sort-select:focus {
-		outline: none;
-		border-color: var(--color-primary);
-		box-shadow: 0 0 0 3px rgba(24,119,242,0.08);
-	}
-	.filter-btn {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
-		padding: 0.5rem 1rem;
-		border: 1px solid var(--color-border);
-		border-radius: 999px;
-		background: white;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		font-size: 0.875rem;
-		min-height: 40px;
-	}
-	.filter-btn:hover {
-		border-color: var(--color-primary);
-		background: var(--color-gray-50);
-	}
-	.filter-btn.strong { 
-		border-color: var(--color-primary); 
-		color: var(--color-primary);
-		background: rgba(24,119,242,0.05);
-	}
-	.filter-btn.strong:hover { 
-		background: var(--color-primary); 
-		color: white; 
-		transform: translateY(-1px);
-		box-shadow: 0 2px 8px rgba(24,119,242,0.2);
 	}
 
-	/* Main content layout */
-	.main-content {
-		display: flex;
-		gap: 2rem;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	/* Desktop Filter Rail */
-	.filter-rail {
-		width: 280px;
-		flex-shrink: 0;
-		background: white;
-		border-right: 1px solid var(--color-border);
-		height: fit-content;
-		position: sticky;
-		top: 56px;
-	}
-
-	.desktop-only {
-		display: none;
-	}
-
-	@media (min-width: 1024px) {
-		.desktop-only {
-			display: block;
-		}
-	}
-
+	/* Filter Rail Styles */
 	.filter-rail-content {
 		padding: 1.5rem;
 	}
 
 	.filter-rail .filter-group {
-		margin-bottom: 2rem;
+		margin-bottom: 1.5rem;
 	}
 
 	.filter-rail .filter-group h3 {
-		font-size: 1rem;
-		font-weight: 700;
-		margin-bottom: 1rem;
-		color: var(--color-text-primary);
+		font-size: 0.875rem;
+		font-weight: 600;
+		margin-bottom: 0.75rem;
+		color: var(--color-text-dark);
+		text-transform: uppercase;
+		letter-spacing: 0.025em;
 	}
 
 	.filter-options.vertical {
@@ -1021,45 +1068,45 @@
 	.filter-options.subcategories {
 		margin-top: 1rem;
 		padding-left: 1rem;
-		border-left: 2px solid var(--color-border);
+		border-left: 2px solid var(--color-border-light);
 	}
 
 	.filter-option {
 		display: flex;
 		align-items: center;
-		gap: 0.75rem;
-		padding: 0.75rem;
-		border: 1px solid var(--color-border);
-		border-radius: 8px;
-		background: white;
+		gap: 0.5rem;
+		padding: 0.5rem 0.75rem;
+		border: 1px solid transparent;
+		border-radius: 0.375rem;
+		background: transparent;
 		cursor: pointer;
-		transition: all 0.2s ease;
+		transition: all 0.15s;
 		font-size: 0.875rem;
 		font-weight: 500;
 		text-align: left;
 		width: 100%;
+		color: var(--color-text-quaternary);
 	}
 
 	.filter-option:hover {
-		background: var(--color-gray-50);
-		border-color: var(--color-primary);
+		background: var(--color-border-lighter);
+		color: var(--color-text-dark);
 	}
 
 	.filter-option.active {
-		background: rgba(24,119,242,0.08);
-		border-color: var(--color-primary);
-		color: var(--color-primary);
+		background: var(--color-surface-overlay);
+		color: white;
 		font-weight: 600;
 	}
 
 	.filter-option.sub {
 		padding: 0.5rem 0.75rem;
-		font-size: 0.8125rem;
+		font-size: 0.875rem;
 	}
 
 	.filter-option.size {
 		width: auto;
-		min-width: 40px;
+		min-width: 2.5rem;
 		justify-content: center;
 		padding: 0.5rem 0.75rem;
 	}
@@ -1070,97 +1117,264 @@
 
 	.clear-all-rail {
 		width: 100%;
-		padding: 0.75rem;
-		background: var(--color-gray-50);
-		border: 1px solid var(--color-border);
-		border-radius: 8px;
-		color: var(--color-text-secondary);
-		font-weight: 600;
+		padding: 0.625rem;
+		background: transparent;
+		border: 1px solid var(--color-border-light);
+		border-radius: 0.375rem;
+		color: var(--color-text-quaternary);
+		font-weight: 500;
 		cursor: pointer;
-		transition: all 0.2s ease;
+		transition: all 0.15s;
+		font-size: 0.875rem;
 	}
 
 	.clear-all-rail:hover {
-		background: var(--color-primary);
+		background: var(--color-surface-overlay);
 		color: white;
-		border-color: var(--color-primary);
+		border-color: var(--color-border-darker);
 	}
 
-	/* Products area */
-	.products-area {
+	.brand-input {
+		width: 100%;
+		padding: 0.625rem;
+		background: var(--color-surface-quaternary);
+		border: 1px solid var(--color-border-light);
+		border-radius: 0.375rem;
+		font-size: 0.875rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.brand-input:focus {
+		outline: none;
+		border-color: var(--color-border-darker);
+		background: white;
+	}
+
+	.popular-brands {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.brand-pill {
+		padding: 0.375rem 0.625rem;
+		background: var(--color-border-lighter);
+		border: 1px solid transparent;
+		border-radius: 0.75rem;
+		font-size: 0.75rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.15s;
+		color: var(--color-text-quaternary);
+	}
+
+	.brand-pill:hover {
+		background: var(--color-border-light);
+		color: var(--color-text-dark);
+	}
+
+	.brand-pill.active {
+		background: var(--color-surface-overlay);
+		color: white;
+		font-weight: 600;
+	}
+
+
+	/* Essential animations only */
+	@keyframes spin {
+		0% { transform: rotate(0deg); }
+		100% { transform: rotate(360deg); }
+	}
+
+	/* Mobile Filter Sheet */
+	.filter-overlay {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.6);
+		z-index: var(--z-highest);
+		backdrop-filter: blur(4px);
+	}
+	
+	.filter-sheet {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: white;
+		z-index: var(--z-overlay);
+		border-radius: 1.5rem 1.5rem 0 0;
+		max-height: 90vh;
+		display: flex;
+		flex-direction: column;
+		box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+		animation: slideUp 0.3s ease;
+	}
+	
+	@keyframes slideUp {
+		from {
+			transform: translateY(100%);
+			opacity: 0;
+		}
+		to {
+			transform: translateY(0);
+			opacity: 1;
+		}
+	}
+	
+	.filter-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 1.25rem 1.5rem 1.25rem;
+		border-bottom: 1px solid var(--color-border-light);
+		position: relative;
+	}
+	
+	.filter-header::after {
+		content: '';
+		position: absolute;
+		top: 0.5rem;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 2.25rem;
+		height: 0.25rem;
+		background: var(--color-border-light);
+		border-radius: 9999px;
+	}
+	
+	.filter-header h2 {
+		font-size: 1.125rem;
+		font-weight: 700;
+		color: var(--color-text-dark);
+		margin: 0;
+	}
+	
+	.close-filters {
+		width: 2rem;
+		height: 2rem;
+		background: var(--color-border-lighter);
+		border: none;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all 0.15s;
+		color: var(--color-text-muted);
+	}
+	
+	.close-filters:hover {
+		background: var(--color-border-light);
+		color: var(--color-text-dark);
+	}
+	
+	.filter-content {
+		flex: 1;
+		overflow-y: auto;
+		padding: 1rem 1.5rem;
+	}
+	
+	.filter-group {
+		margin-bottom: 1.5rem;
+	}
+	
+	.filter-group h3 {
+		font-size: 0.875rem;
+		font-weight: 600;
+		margin-bottom: 0.75rem;
+		color: var(--color-text-dark);
+		text-transform: uppercase;
+		letter-spacing: 0.025em;
+	}
+	
+	.row-wrap {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+	
+	.row-wrap.small-gap {
+		gap: 0.375rem;
+	}
+	
+	.price-inputs {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+	
+	.price-input {
+		flex: 1;
+		padding: 0.75rem;
+		background: var(--color-surface-quaternary);
+		border: 1px solid var(--color-border-light);
+		border-radius: 0.5rem;
+		text-align: center;
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
+	
+	.price-input:focus {
+		outline: none;
+		border-color: var(--color-border-darker);
+		background: white;
+	}
+	
+	.filter-footer {
+		display: flex;
+		gap: 1rem;
+		padding: 1.5rem;
+		border-top: 1px solid var(--color-border-light);
+		background: var(--color-surface-quaternary);
+	}
+	
+	.reset-btn {
 		flex: 1;
 		padding: 1rem;
-	}
-
-	/* Responsive - hide rail on smaller screens */
-	@media (max-width: 1023px) {
-		.main-content {
-			display: block;
-		}
-		
-		.products-area {
-			padding: 0;
-		}
-	}
-
-	/* Products (mobile fallback) */
-	.products { padding: 1rem; }
-	.empty { text-align: center; color: var(--color-text-secondary); padding: 2rem 1rem; }
-	
-	/* Load more button */
-	.load-more-wrap {
-		display: flex;
-		justify-content: center;
-		padding: 2rem 1rem;
+		background: white;
+		border: 1px solid var(--color-border-light);
+		border-radius: 0.75rem;
+		font-weight: 600;
+		font-size: 0.875rem;
+		color: var(--color-text-quaternary);
+		cursor: pointer;
+		transition: all 0.15s;
 	}
 	
-	.load-more {
-		padding: 0.75rem 2rem;
-		background: var(--color-primary);
+	.reset-btn:hover {
+		background: var(--color-border-lighter);
+		border-color: var(--color-border-dark);
+	}
+	
+	.apply-btn {
+		flex: 2;
+		padding: 1rem;
+		background: var(--color-surface-overlay);
 		color: white;
 		border: none;
-		border-radius: 999px;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s ease;
+		border-radius: 0.75rem;
+		font-weight: 700;
 		font-size: 0.875rem;
+		cursor: pointer;
+		transition: all 0.15s;
 	}
 	
-	.load-more:hover:not(:disabled) {
-		background: var(--color-primary-dark, #1a73e8);
+	.apply-btn:hover {
+		background: var(--color-text-primary);
 		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(24,119,242,0.3);
+	}
+
+	/* Page Layout */
+	.browse-page {
+		min-height: 100vh;
+		background: var(--color-surface-quaternary);
+		padding-bottom: 5rem;
 	}
 	
-	.load-more:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-		transform: none;
-	}
-
-	/* Filter sheet */
-	.filter-overlay {
-		position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200;
-	}
-	.filter-sheet {
-		position: fixed; left: 0; right: 0; bottom: 0; background: white; z-index: 201;
-		border-radius: 16px 16px 0 0; max-height: 85vh; display: flex; flex-direction: column; animation: slideUp 0.25s ease;
-	}
-	@keyframes slideUp { from { transform: translateY(100%);} to { transform: translateY(0);} }
-	.filter-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: 1px solid var(--color-border); }
-	.filter-content { flex: 1; overflow-y: auto; padding: 1rem; }
-	.filter-group { margin-bottom: 1.25rem; }
-	.filter-group h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; }
-	.row-wrap { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-	.row-wrap.small-gap { gap: 0.375rem; }
-	.price-inputs { display: flex; align-items: center; gap: 0.5rem; }
-	.price-input { width: 100%; max-width: 120px; padding: 0.5rem; background: var(--color-gray-50); border: 1px solid var(--color-border); border-radius: 8px; text-align: center; }
-	.filter-footer { display: flex; gap: 0.75rem; padding: 1rem; border-top: 1px solid var(--color-border); }
-	.reset-btn { flex: 1; padding: 0.75rem; background: white; border: 1px solid var(--color-border); border-radius: 10px; font-weight: 600; }
-	.apply-btn { flex: 2; padding: 0.75rem; background: var(--color-primary); color: white; border: none; border-radius: 10px; font-weight: 700; }
-
-	/* Responsive */
 	@media (min-width: 768px) {
-		.browse-page { padding-top: 56px; padding-bottom: 0; }
+		.browse-page {
+			padding-top: 4rem;
+			padding-bottom: 0;
+		}
 	}
 </style>

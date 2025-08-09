@@ -1,14 +1,22 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { createSupabaseServerClient } from '$lib/supabase/server';
+import { analyticsTrackRequestSchema, validateRequest } from '$lib/schemas/api';
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
 	try {
-		const { events, client_timestamp } = await request.json();
-
-		if (!Array.isArray(events)) {
-			return json({ error: 'Invalid events format' }, { status: 400 });
+		const requestBody = await request.json();
+		
+		// Validate request body with zod schema
+		const validation = validateRequest(analyticsTrackRequestSchema, requestBody);
+		if (!validation.success) {
+			return json({ 
+				error: 'Invalid request format',
+				details: validation.error 
+			}, { status: 400 });
 		}
+
+		const { events, client_timestamp } = validation.data;
 
 		// Get user info from session if available
 		const supabase = createSupabaseServerClient(cookies);

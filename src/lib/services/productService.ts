@@ -1,10 +1,8 @@
-import { createBrowserClient } from '@supabase/ssr';
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+import { getSupabaseBrowserClient } from '$lib/supabase/client';
 import type { Database } from '$lib/types/database.types';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 // Types
-export type Product = Database['public']['Tables']['listings']['Row'] & {
+export type Product = Database['public']['Tables']['products']['Row'] & {
 	seller?: {
 		name: string;
 		avatar?: string;
@@ -29,17 +27,14 @@ export type ProductFilters = {
 	offset?: number;
 };
 
-// Get or create Supabase client
-function getSupabaseClient(): SupabaseClient<Database> {
-	return createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
-}
+// Use centralized Supabase client
+const supabase = getSupabaseBrowserClient();
 
 /**
  * Get products with filters
  */
 export async function getProducts(filters: ProductFilters = {}) {
-	const supabase = getSupabaseClient();
-	let query = supabase.from('listings').select('*').eq('status', 'active');
+	let query = supabase.from('products').select('*').eq('status', 'active');
 
 	// Apply filters
 	if (filters.category) {
@@ -63,11 +58,13 @@ export async function getProducts(filters: ProductFilters = {}) {
 	}
 
 	if (filters.brand) {
-		query = query.ilike('brand', `%${filters.brand}%`);
+		const escapedBrand = filters.brand.replace(/[%_]/g, '\\$&');
+		query = query.ilike('brand', `%${escapedBrand}%`);
 	}
 
 	if (filters.search) {
-		query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
+		const escapedSearch = filters.search.replace(/[%_]/g, '\\$&');
+		query = query.or(`title.ilike.%${escapedSearch}%,description.ilike.%${escapedSearch}%`);
 	}
 
 	// Apply sorting
@@ -128,7 +125,7 @@ export async function getFeaturedProducts() {
  */
 export async function getProductById(id: string) {
 	const supabase = getSupabaseClient();
-	const { data, error } = await supabase.from('listings').select('*').eq('id', id).single();
+	const { data, error } = await supabase.from('products').select('*').eq('id', id).single();
 
 	if (error) {
 		return null;
@@ -172,7 +169,7 @@ export async function createListing(listing: {
 	}
 
 	const { data, error } = await supabase
-		.from('listings')
+		.from('products')
 		.insert({
 			...listing,
 			seller_id: user.id,
@@ -208,7 +205,7 @@ export async function updateListing(
 ) {
 	const supabase = getSupabaseClient();
 	const { data, error } = await supabase
-		.from('listings')
+		.from('products')
 		.update(updates)
 		.eq('id', id)
 		.select()
@@ -242,7 +239,7 @@ export async function incrementViewCount(id: string) {
 	const supabase = getSupabaseClient();
 	// Get current count and increment
 	const { data: listing } = await supabase
-		.from('listings')
+		.from('products')
 		.select('view_count')
 		.eq('id', id)
 		.single();
@@ -250,7 +247,7 @@ export async function incrementViewCount(id: string) {
 	if (!listing) return;
 
 	const { error } = await supabase
-		.from('listings')
+		.from('products')
 		.update({ view_count: (listing.view_count || 0) + 1 })
 		.eq('id', id);
 

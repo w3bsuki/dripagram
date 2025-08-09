@@ -241,6 +241,7 @@ export interface FeedProduct extends Listing {
 		avatar_url?: string;
 		verified: boolean;
 	};
+	category: string; // Category name for analytics and display
 	isLiked: boolean;
 	isSaved?: boolean;
 	engagement_score?: number;
