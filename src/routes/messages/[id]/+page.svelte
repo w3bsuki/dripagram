@@ -15,10 +15,15 @@
 	let { data }: { data: PageData } = $props();
 	const supabase = getContext<SupabaseClient<Database>>('supabase');
 
-	// Early return if no data
-	if (!data.user || !data.conversation || !data.conversationId) {
-		goto('/messages');
-	}
+	// Check if we have required data
+	let hasRequiredData = $state(!!data.user && !!data.conversation && !!data.conversationId);
+	
+	// Redirect if missing data
+	$effect(() => {
+		if (!hasRequiredData) {
+			goto('/messages');
+		}
+	});
 
 	let messages = $state(data.messages || []);
 	let newMessage = $state('');
@@ -198,59 +203,65 @@
 	<title>{conversation?.other_user?.username || 'Messages'} - Driplo</title>
 </svelte:head>
 
-<div class="conversation-view">
-	{#if conversation && conversation.other_user}
-		<ChatHeader
-			user={conversation.other_user}
-			{isOnline}
-			product={conversation.product}
-			onBack={handleBack}
-		/>
-	{/if}
+{#if hasRequiredData && conversation}
+	<div class="conversation-view">
+		{#if conversation.other_user}
+			<ChatHeader
+				user={conversation.other_user}
+				{isOnline}
+				product={conversation.product}
+				onBack={handleBack}
+			/>
+		{/if}
 
-	<div class="messages-container" bind:this={messagesContainer}>
-		{#if messages.length === 0}
-			<EmptyMessages />
-		{:else}
-			{#each messagesByDate as [date, dateMessages]}
-				<DateSeparator date={formatDate(date)} />
-				{#each dateMessages as message (message.id)}
-					<MessageBubble
-						{message}
-						isOwn={message.sender_id === data.user?.id}
-						senderName={message.sender_id === data.user?.id 
-							? data.user?.user_metadata?.username || 'You'
-							: conversation?.other_user?.username || 'User'}
-						senderAvatar={message.sender_id === data.user?.id 
-							? data.user?.user_metadata?.avatar_url
-							: conversation?.other_user?.avatar_url}
-					/>
+		<div class="messages-container" bind:this={messagesContainer}>
+			{#if messages.length === 0}
+				<EmptyMessages />
+			{:else}
+				{#each messagesByDate as [date, dateMessages]}
+					<DateSeparator date={formatDate(date)} />
+					{#each dateMessages as message (message.id)}
+						<MessageBubble
+							{message}
+							isOwn={message.sender_id === data.user?.id}
+							senderName={message.sender_id === data.user?.id 
+								? data.user?.user_metadata?.username || 'You'
+								: conversation?.other_user?.username || 'User'}
+							senderAvatar={message.sender_id === data.user?.id 
+								? data.user?.user_metadata?.avatar_url
+								: conversation?.other_user?.avatar_url}
+						/>
+					{/each}
 				{/each}
-			{/each}
-		{/if}
-		
-		{#if typingUsers.length > 0}
-			<div class="typing-bubble">
-				<span class="typing-dots">
-					<span></span>
-					<span></span>
-					<span></span>
-				</span>
-			</div>
-		{/if}
-	</div>
+			{/if}
+			
+			{#if typingUsers.length > 0}
+				<div class="typing-bubble">
+					<span class="typing-dots">
+						<span></span>
+						<span></span>
+						<span></span>
+					</span>
+				</div>
+			{/if}
+		</div>
 
-	<MessageInput
-		bind:value={newMessage}
-		onSend={handleSend}
-		onTyping={handleTyping}
-		disabled={sending}
-		{typingUsers}
-		placeholder={conversation?.product 
-			? `Ask about ${conversation.product.title}...` 
-			: 'Type a message...'}
-	/>
-</div>
+		<MessageInput
+			bind:value={newMessage}
+			onSend={handleSend}
+			onTyping={handleTyping}
+			disabled={sending}
+			{typingUsers}
+			placeholder={conversation?.product 
+				? `Ask about ${conversation.product.title}...` 
+				: 'Type a message...'}
+		/>
+	</div>
+{:else}
+	<div class="loading-container">
+		<p>Loading conversation...</p>
+	</div>
+{/if}
 
 <style>
 	.conversation-view {
@@ -340,5 +351,13 @@
 			opacity: 1;
 			transform: translateY(0);
 		}
+	}
+
+	.loading-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100vh;
+		color: var(--color-text-secondary);
 	}
 </style>
