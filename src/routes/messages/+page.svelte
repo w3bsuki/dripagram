@@ -8,6 +8,7 @@
 	import type { Conversation } from '$lib/types/messaging';
 	import { getAuthContext } from '$lib/stores/auth.svelte';
 	import type { PageData } from './$types';
+	import * as m from '$lib/paraglide/messages';
 
 	let { data }: { data: PageData } = $props();
 	const supabase = getContext<SupabaseClient<Database>>('supabase');
@@ -79,8 +80,8 @@
 </script>
 
 <svelte:head>
-	<title>Messages - Driplo</title>
-	<meta name="description" content="Your conversations and messages on Driplo" />
+	<title>{m['messages.title']()}</title>
+	<meta name="description" content={m['messages.description']()} />
 </svelte:head>
 
 <InboxUI
@@ -88,7 +89,7 @@
 	{loading}
 	{searchQuery}
 	currentUserId={data.user?.id}
-	username={data.user?.user_metadata?.username || data.user?.email?.split('@')[0] || 'Messages'}
+	username={data.user?.user_metadata?.username || data.user?.email?.split('@')[0] || m['messages.title']().split(' - ')[0]}
 	onConversationClick={handleConversationClick}
 	onBack={handleBack}
 	onCompose={handleCompose}

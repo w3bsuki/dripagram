@@ -308,8 +308,10 @@
 <style>
 	.main-content {
 		min-height: 100vh;
-		background: #fafafa;
-		padding-bottom: 80px; /* Space for mobile bottom nav */
+		background: var(--color-surface-secondary);
+		padding-top: 0; /* No padding */
+		padding-bottom: calc(var(--bottom-nav-height) + 24px); /* Space for mobile bottom nav + safe area */
+		margin-top: var(--header-height); /* Push content below fixed header */
 		/* Performance optimizations */
 		will-change: scroll-position;
 		contain: layout;
@@ -317,7 +319,7 @@
 	
 	@media (min-width: 768px) {
 		.main-content {
-			padding-top: 0; /* No header on desktop for now */
+			margin-top: var(--header-height-md); /* Use design token for desktop header */
 			padding-bottom: 0;
 		}
 	}

@@ -95,11 +95,13 @@
 		position: relative;
 		aspect-ratio: 1; /* Square for Instagram-style grid */
 		overflow: hidden;
-		background: var(--color-gray-50);
+		background: #fafbfc; /* Light gray background */
 		cursor: pointer;
 		flex: 0 0 auto;
 		outline: none;
 		-webkit-tap-highlight-color: transparent;
+		padding: 8px; /* Add padding around the image */
+		border-radius: 8px; /* Round the container slightly */
 	}
 	
 	.image-container:focus {
@@ -109,9 +111,10 @@
 	.product-image {
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
+		object-fit: contain; /* Changed from cover to contain for better product visibility */
 		transition: transform 200ms ease;
 		pointer-events: none;
+		border-radius: 4px;
 	}
 	
 	.image-container:hover .product-image {
@@ -153,19 +156,21 @@
 	/* Like Button */
 	.like-btn {
 		position: absolute;
-		top: 8px;
-		right: 8px;
+		top: 14px; /* Adjusted for padding */
+		right: 14px; /* Adjusted for padding */
 		width: 32px;
 		height: 32px;
 		border-radius: 50%;
-		background: var(--color-background);
+		background: rgba(255, 255, 255, 0.95);
 		border: 1px solid var(--color-border);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
 		transition: all 200ms ease;
-		z-index: var(--z-behind);
+		z-index: 2;
+		backdrop-filter: blur(10px);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	}
 	
 	.like-btn:hover {
@@ -180,8 +185,8 @@
 	/* Condition Badge */
 	.condition-badge {
 		position: absolute;
-		top: 8px;
-		left: 8px;
+		top: 14px; /* Adjusted for padding */
+		left: 14px; /* Adjusted for padding */
 		padding: 3px 7px;
 		background: var(--color-background);
 		border: 1px solid var(--color-border);
@@ -192,7 +197,8 @@
 		letter-spacing: 0.4px;
 		pointer-events: none;
 		backdrop-filter: blur(10px);
-		background: rgba(255, 255, 255, 0.9);
+		background: rgba(255, 255, 255, 0.95);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	}
 	
 	.condition-badge.new_with_tags {

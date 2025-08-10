@@ -235,6 +235,12 @@
 					showSearchDropdown = false;
 					selectedDemographic = null;
 				}
+
+				// Handle filter dropdown
+				if (showFilters) {
+					if (filterContainerEl && filterContainerEl.contains(t)) return;
+					showFilters = false;
+				}
 			};
 			const handleEsc = (e: KeyboardEvent) => {
 				if (e.key === 'Escape') { 
@@ -284,54 +290,6 @@
 		updateURL();
 	}
 
-	function openFilters() {
-		lastFocusedElement = document.activeElement as HTMLElement;
-		showFilters = true;
-		// Focus the first interactive element after a short delay
-		setTimeout(() => {
-			const firstButton = filterSheetEl?.querySelector('button');
-			firstButton?.focus();
-		}, 100);
-	}
-
-	function closeFilters() {
-		showFilters = false;
-		// Return focus to the trigger element
-		if (lastFocusedElement) {
-			lastFocusedElement.focus();
-			lastFocusedElement = null;
-		}
-	}
-
-	// Focus trap for filter sheet
-	function handleFilterSheetKeyDown(e: KeyboardEvent) {
-		if (e.key === 'Escape') {
-			closeFilters();
-			return;
-		}
-		
-		if (e.key === 'Tab' && filterSheetEl) {
-			const focusableElements = filterSheetEl.querySelectorAll(
-				'button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
-			);
-			const firstElement = focusableElements[0] as HTMLElement;
-			const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-
-			if (e.shiftKey) {
-				// Shift + Tab
-				if (document.activeElement === firstElement) {
-					e.preventDefault();
-					lastElement.focus();
-				}
-			} else {
-				// Tab
-				if (document.activeElement === lastElement) {
-					e.preventDefault();
-					firstElement.focus();
-				}
-			}
-		}
-	}
 
 	$effect(() => {
 		products = data?.products || [];
@@ -348,7 +306,7 @@
 	let searchDropdownEl = $state<HTMLDivElement | null>(null);
 	let loadingMore = $state(false);
 	let filterSheetEl = $state<HTMLDivElement | null>(null);
-	let lastFocusedElement: HTMLElement | null = null;
+	let filterContainerEl = $state<HTMLDivElement | null>(null);
 
 	async function loadMore() {
 		if (!nextCursor || loadingMore) return;
@@ -416,38 +374,38 @@
 
 <!-- Removed local <SearchHeader />; layout already renders mobile/desktop headers -->
 
-<main class="main-content">
-		<!-- Clean Search Section -->
-		<section class="bg-white border-b border-gray-200 px-4 py-3 relative">
-			<div class="max-w-7xl mx-auto">
-				<div class="relative" bind:this={searchInputEl}>
-					<div class="relative flex items-center">
-						<Search size={18} class="absolute left-3 text-gray-400 pointer-events-none z-10" />
+<main class="main-content" style="margin-top: var(--header-height);">
+		<!-- Search Section -->
+		<section class="search-section">
+			<div class="search-container">
+				<div class="search-wrapper" bind:this={searchInputEl}>
+					<div class="search-input-group">
+						<Search size={18} class="search-icon" />
 						<input
 							type="search"
 							placeholder={m['browse.search_placeholder']()}
 							bind:value={searchQuery}
 							onkeydown={(e) => e.key === 'Enter' && handleSearch(e)}
 							onfocus={handleSearchFocus}
-							class="w-full h-12 pl-10 pr-4 bg-gray-50 border border-gray-200 rounded-xl text-sm transition-all duration-200 focus:outline-none focus:border-gray-900 focus:bg-white focus:shadow-sm"
+							class="search-input"
 						/>
 					</div>
 
 					<!-- Category Dropdown -->
 					{#if showSearchDropdown}
-						<div class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
-							<div class="p-4" bind:this={searchDropdownEl}>
+						<div class="search-dropdown" bind:this={searchDropdownEl}>
+							<div class="dropdown-content">
 								<!-- Demographics -->
-								<div class="mb-5">
-									<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">{m['browse.browse_by_category']()}</h3>
-									<div class="flex gap-2 overflow-x-auto pb-2">
+								<div class="dropdown-section">
+									<h3>{m['browse.browse_by_category']()}</h3>
+									<div class="button-group">
 										{#each demographics as demographic}
 											<button 
-												class="flex items-center gap-2 px-4 py-2 rounded-full border whitespace-nowrap transition-all duration-150 {selectedDemographic === demographic.id ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'}"
+												class="category-button {selectedDemographic === demographic.id ? 'active' : ''}"
 												onclick={() => handleDemographicClick(demographic.id)}
 											>
-												<span class="text-sm">{demographic.emoji}</span>
-												<span class="text-sm font-medium">{demographic.name}</span>
+												<span>{demographic.emoji}</span>
+												<span>{demographic.name}</span>
 												<ChevronDown size={14} class="transition-transform {selectedDemographic === demographic.id ? 'rotate-180' : ''}" />
 											</button>
 										{/each}
@@ -456,14 +414,14 @@
 								
 								<!-- Subcategories -->
 								{#if selectedDemographic && currentDemographicSubcategories.length > 0}
-									<div class="mb-5 pt-4 border-t border-gray-100">
-										<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+									<div class="dropdown-section">
+										<h3>
 											{m[`browse.${selectedDemographic}_categories`]?.() || `${demographics.find(d => d.id === selectedDemographic)?.name} Categories`}
 										</h3>
-										<div class="flex gap-2 overflow-x-auto pb-2">
+										<div class="button-group">
 											{#each currentDemographicSubcategories as subcategory}
 												<button 
-													class="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-gray-900 hover:text-white hover:border-gray-900 hover:-translate-y-0.5 hover:shadow-md min-w-fit"
+													class="subcategory-button"
 													onclick={() => handleCategorySelect(subcategory.id)}
 												>
 													<span>{subcategory.emoji}</span>
@@ -475,22 +433,22 @@
 								{/if}
 
 								<!-- Quick Actions -->
-								<div class="pt-4 border-t border-gray-100">
-									<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">{m['browse.popular_searches']()}</h3>
-									<div class="flex gap-2 overflow-x-auto pb-2">
-										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('new-tags')}>
+								<div class="dropdown-section">
+									<h3>{m['browse.popular_searches']()}</h3>
+									<div class="button-group">
+										<button class="subcategory-button" onclick={() => handleCategorySelect('new-tags')}>
 											<span>🏷️</span>
 											<span>{m['browse.new_with_tags']()}</span>
 										</button>
-										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-green-500 hover:text-white hover:border-green-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('under-50')}>
+										<button class="subcategory-button" onclick={() => handleCategorySelect('under-50')}>
 											<span>💰</span>
 											<span>{m['browse.under_50']()}</span>
 										</button>
-										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-red-500 hover:text-white hover:border-red-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('trending')}>
+										<button class="subcategory-button" onclick={() => handleCategorySelect('trending')}>
 											<span>🔥</span>
 											<span>{m['browse.trending']()}</span>
 										</button>
-										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-blue-600 hover:text-white hover:border-blue-600 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('verified')}>
+										<button class="subcategory-button" onclick={() => handleCategorySelect('verified')}>
 											<span>✅</span>
 											<span>{m['browse.verified_sellers']()}</span>
 										</button>
@@ -502,79 +460,6 @@
 				</div>
 			</div>
 		</section>
-
-
-		<!-- Filter Pills Section -->
-		<div class="bg-white border-b border-gray-200 py-3">
-			<div class="max-w-7xl mx-auto px-4">
-				<div class="flex items-center gap-2 overflow-x-auto scrollbar-none">
-					<!-- Sort Pill -->
-					<button 
-						class="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-full border transition-all duration-150 whitespace-nowrap {sortBy !== 'newest' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'}"
-						onclick={() => {
-							if (sortBy === 'newest') sortBy = 'price-low';
-							else if (sortBy === 'price-low') sortBy = 'price-high';
-							else if (sortBy === 'price-high') sortBy = 'most-liked';
-							else if (sortBy === 'most-liked') sortBy = 'trending';
-							else sortBy = 'newest';
-							updateURL();
-						}}
-					>
-						{#if sortBy === 'newest'}{m['browse.newest']()}{/if}
-						{#if sortBy === 'price-low'}{m['browse.price_low_high']()}{/if}
-						{#if sortBy === 'price-high'}{m['browse.price_high_low']()}{/if}
-						{#if sortBy === 'most-liked'}{m['browse.most_liked']()}{/if}
-						{#if sortBy === 'trending'}{m['browse.trending']()}{/if}
-					</button>
-
-					<!-- Active Filter Pills -->
-					{#if filters.selectedCondition}
-						<button 
-							class="flex items-center gap-1 px-3 py-2 bg-gray-900 text-white border border-gray-900 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
-							onclick={() => { filters.selectedCondition = null; updateURL(); }}
-						>
-							{conditions.find(c => c.id === filters.selectedCondition)?.name || 'Condition'}
-							<X size={12} class="ml-1" />
-						</button>
-					{/if}
-
-					{#if filters.selectedBrand}
-						<button 
-							class="flex items-center gap-1 px-3 py-2 bg-gray-900 text-white border border-gray-900 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
-							onclick={() => { filters.selectedBrand = ''; updateURL(); }}
-						>
-							{filters.selectedBrand.charAt(0).toUpperCase() + filters.selectedBrand.slice(1)}
-							<X size={12} class="ml-1" />
-						</button>
-					{/if}
-
-					{#if filters.selectedSize}
-						<button 
-							class="flex items-center gap-1 px-3 py-2 bg-gray-900 text-white border border-gray-900 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
-							onclick={() => { filters.selectedSize = ''; updateURL(); }}
-						>
-							{m['product.size']()} {filters.selectedSize}
-							<X size={12} class="ml-1" />
-						</button>
-					{/if}
-
-					<!-- More Filters Button -->
-					<button 
-						class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border transition-all duration-150 whitespace-nowrap relative {activeFiltersCount > 0 ? 'bg-blue-500 text-white border-blue-500' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}"
-						onclick={() => showFilters = true}
-						aria-label="More filters"
-					>
-						<Filter size={12} />
-						<span>{m['browse.filter']()}</span>
-						{#if activeFiltersCount > 0}
-							<span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center border-2 border-white">
-								{activeFiltersCount}
-							</span>
-						{/if}
-					</button>
-				</div>
-			</div>
-		</div>
 
 
 		<!-- Main Content Area -->
@@ -730,6 +615,156 @@
 
 			<!-- Product Grid -->
 			<div class="products-area">
+				<!-- Compact Filter Pills Above Products -->
+				<div class="compact-filters">
+					<div class="compact-filters-scroll">
+						<!-- Sort Pill -->
+						<button 
+							class="compact-pill {sortBy !== 'newest' ? 'active' : ''}"
+							onclick={() => {
+								if (sortBy === 'newest') sortBy = 'price-low';
+								else if (sortBy === 'price-low') sortBy = 'price-high';
+								else if (sortBy === 'price-high') sortBy = 'most-liked';
+								else if (sortBy === 'most-liked') sortBy = 'trending';
+								else sortBy = 'newest';
+								updateURL();
+							}}
+						>
+							{#if sortBy === 'newest'}{m['browse.newest']()}{/if}
+							{#if sortBy === 'price-low'}{m['browse.price_low_high']()}{/if}
+							{#if sortBy === 'price-high'}{m['browse.price_high_low']()}{/if}
+							{#if sortBy === 'most-liked'}{m['browse.most_liked']()}{/if}
+							{#if sortBy === 'trending'}{m['browse.trending']()}{/if}
+						</button>
+
+						<!-- Active Filter Pills -->
+						{#if filters.selectedCondition}
+							<button 
+								class="compact-pill active"
+								onclick={() => { filters.selectedCondition = null; updateURL(); }}
+							>
+								{conditions.find(c => c.id === filters.selectedCondition)?.name || 'Condition'}
+								<X size={10} />
+							</button>
+						{/if}
+
+						{#if filters.selectedBrand}
+							<button 
+								class="compact-pill active"
+								onclick={() => { filters.selectedBrand = ''; updateURL(); }}
+							>
+								{filters.selectedBrand.charAt(0).toUpperCase() + filters.selectedBrand.slice(1)}
+								<X size={10} />
+							</button>
+						{/if}
+
+						{#if filters.selectedSize}
+							<button 
+								class="compact-pill active"
+								onclick={() => { filters.selectedSize = ''; updateURL(); }}
+							>
+								{m['product.size']()} {filters.selectedSize}
+								<X size={10} />
+							</button>
+						{/if}
+
+						<!-- More Filters Button -->
+						<div style="position: relative;" bind:this={filterContainerEl}>
+							<button 
+								class="compact-pill {activeFiltersCount > 0 ? 'active' : ''}"
+								onclick={(e) => {
+									e.stopPropagation();
+									e.preventDefault();
+									showFilters = !showFilters;
+									console.log('Filter button clicked, showFilters:', showFilters);
+								}}
+								aria-label="More filters"
+							>
+								<Filter size={10} />
+								<span>{m['browse.filter']()}</span>
+								{#if activeFiltersCount > 0}
+									<span class="compact-badge">
+										{activeFiltersCount}
+									</span>
+								{/if}
+							</button>
+							
+							<!-- Filter Dropdown -->
+							{#if showFilters}
+								<div class="filter-dropdown" bind:this={filterSheetEl} onclick={(e) => e.stopPropagation()}>
+									<div class="dropdown-content">
+										<!-- Category Filter -->
+										<div class="dropdown-section">
+											<h3>{m['search.categories']()}</h3>
+											<div class="button-group">
+												{#each categories as c}
+													<button
+														class="category-button {selectedCategory === c.id ? 'active' : ''}"
+														onclick={() => {
+															selectedCategory = selectedCategory === c.id ? null : c.id;
+															selectedSubcategory = null;
+															updateURL();
+														}}
+													>
+														<span>{c.emoji}</span>
+														<span>{c.name}</span>
+													</button>
+												{/each}
+											</div>
+										</div>
+
+										<!-- Condition Filter -->
+										<div class="dropdown-section">
+											<h3>Condition</h3>
+											<div class="button-group">
+												{#each conditions as condition}
+													<button
+														class="subcategory-button {filters.selectedCondition === condition.id ? 'active' : ''}"
+														onclick={() => {
+															filters.selectedCondition = filters.selectedCondition === condition.id ? null : condition.id;
+															updateURL();
+														}}
+													>
+														<span>{condition.emoji}</span>
+														<span>{condition.name}</span>
+													</button>
+												{/each}
+											</div>
+										</div>
+
+										<!-- Size Filter -->
+										<div class="dropdown-section">
+											<h3>Size</h3>
+											<div class="button-group">
+												{#each ['XS','S','M','L','XL','XXL','6','7','8','9','10','11','12'] as s}
+													<button 
+														class="subcategory-button {filters.selectedSize === s ? 'active' : ''}" 
+														onclick={() => {
+															filters.selectedSize = filters.selectedSize === s ? null : s;
+															updateURL();
+														}}
+													>
+														{s}
+													</button>
+												{/each}
+											</div>
+										</div>
+
+										<!-- Clear All -->
+										{#if activeFiltersCount > 0}
+											<div class="dropdown-section">
+												<button class="clear-all-button" onclick={clearFilters}>
+													Clear all filters
+												</button>
+											</div>
+										{/if}
+									</div>
+								</div>
+							{/if}
+						</div>
+					</div>
+				</div>
+
 				{#if products?.length > 0}
 					<ProductGrid 
 						{products} 
@@ -767,165 +802,6 @@
 		</div>
 </main>
 
-	<!-- Mobile/Overlay Filters Sheet -->
-	{#if showFilters}
-		<div
-			class="filter-overlay"
-			role="button"
-			tabindex="0"
-			onclick={closeFilters}
-			onkeydown={(e) => e.key === 'Escape' && closeFilters()}
-			aria-label="Close filters"
-		></div>
-		<div 
-			bind:this={filterSheetEl}
-			class="filter-sheet" 
-			id="mobile-filters" 
-			role="dialog" 
-			aria-modal="true" 
-			aria-labelledby="filter-sheet-title"
-			tabindex="-1"
-			onkeydown={handleFilterSheetKeyDown}
-		>
-			<div class="filter-header">
-				<h2 id="filter-sheet-title">Filters</h2>
-				<button class="close-filters" onclick={closeFilters} aria-label="Close filters">
-					<X size={22} />
-				</button>
-			</div>
-
-			<div class="filter-content">
-				<!-- Category -->
-				<div class="filter-group">
-					<h3>{m['search.categories']()}</h3>
-					<div class="row-wrap">
-						{#each categories as c}
-							<button
-								class="chip outline {selectedCategory === c.id ? 'active' : ''}"
-								aria-pressed={selectedCategory === c.id}
-								onclick={() => {
-									selectedCategory = selectedCategory === c.id ? null : c.id;
-									selectedSubcategory = null;
-								}}
-							>
-								<span class="emoji">{c.emoji}</span>{c.name}
-							</button>
-						{/each}
-					</div>
-					{#if selectedCategory && currentSubcategories.length > 0}
-						<div class="row-wrap small-gap">
-							{#each currentSubcategories as sub}
-								<button
-									class="chip subtle {selectedSubcategory === sub ? 'active' : ''}"
-									aria-pressed={selectedSubcategory === sub}
-									onclick={() => (selectedSubcategory = selectedSubcategory === sub ? null : sub)}
-								>
-									{sub}
-								</button>
-							{/each}
-						</div>
-					{/if}
-				</div>
-
-				<!-- Collections -->
-				<div class="filter-group">
-					<h3>Collections</h3>
-					<div class="row-wrap">
-						{#each collections as col}
-							<button
-								class="chip tone {col.color} {filters.selectedCollection === col.id ? 'active' : ''}"
-								aria-pressed={filters.selectedCollection === col.id}
-								onclick={() => (filters.selectedCollection = filters.selectedCollection === col.id ? null : col.id)}
-							>
-								<span class="emoji">{col.emoji}</span>{col.name}
-							</button>
-						{/each}
-					</div>
-				</div>
-
-				<!-- Subcategory -->
-				{#if selectedCategory && currentSubcategories.length > 0}
-					<div class="filter-group">
-						<h3>Subcategory</h3>
-						<div class="row-wrap">
-							{#each currentSubcategories as sub}
-								<button
-									class="chip subtle {selectedSubcategory === sub ? 'active' : ''}"
-									aria-pressed={selectedSubcategory === sub}
-									onclick={() => (selectedSubcategory = selectedSubcategory === sub ? null : sub)}
-								>
-									{sub}
-								</button>
-							{/each}
-						</div>
-					</div>
-				{/if}
-
-				<!-- Condition -->
-				<div class="filter-group">
-					<h3>Condition</h3>
-					<div class="row-wrap">
-						{#each conditions as condition}
-							<button
-								class="chip subtle {filters.selectedCondition === condition.id ? 'active' : ''}"
-								aria-pressed={filters.selectedCondition === condition.id}
-								onclick={() => (filters.selectedCondition = filters.selectedCondition === condition.id ? null : condition.id)}
-							>
-								<span class="emoji">{condition.emoji}</span>{condition.name}
-							</button>
-						{/each}
-					</div>
-				</div>
-
-				<!-- Price -->
-				<div class="filter-group">
-					<h3>Price Range</h3>
-					<div class="price-inputs">
-						<input type="number" bind:value={filters.priceRange.min} placeholder="Min" class="price-input" />
-						<span>-</span>
-						<input type="number" bind:value={filters.priceRange.max} placeholder="Max" class="price-input" />
-						<span>лв</span>
-					</div>
-				</div>
-
-				<!-- Brand -->
-				<div class="filter-group">
-					<h3>Brand</h3>
-					<input type="text" placeholder="e.g. Nike" class="price-input" bind:value={filters.selectedBrand} />
-				</div>
-
-				<!-- Size -->
-				<div class="filter-group">
-					<h3>Size</h3>
-					<div class="row-wrap">
-						{#each ['XS','S','M','L','XL','XXL','6','7','8','9','10','11','12','34','36','38','40','42','44','46'] as s}
-							<button class="chip subtle {filters.selectedSize === s ? 'active' : ''}" aria-pressed={filters.selectedSize === s} onclick={() => (filters.selectedSize = filters.selectedSize === s ? null : s)}>{s}</button>
-						{/each}
-					</div>
-				</div>
-
-				<!-- Popular Brands -->
-				<div class="filter-group">
-					<h3>Popular Brands</h3>
-					<div class="row-wrap">
-						{#each ['Nike','Adidas','Zara','H&M','Gucci','Louis Vuitton','Chanel','Prada','Versace','Balenciaga','Off-White','Supreme'] as brand}
-							<button 
-								class="chip subtle {filters.selectedBrand && filters.selectedBrand.toLowerCase() === brand.toLowerCase() ? 'active' : ''}" 
-								onclick={() => (filters.selectedBrand = filters.selectedBrand && filters.selectedBrand.toLowerCase() === brand.toLowerCase() ? '' : brand)}
-							>
-								{brand}
-							</button>
-						{/each}
-					</div>
-				</div>
-			</div>
-
-			<div class="filter-footer">
-				<button class="reset-btn" onclick={clearFilters}>Reset</button>
-				<button class="apply-btn" onclick={() => { updateURL(); closeFilters(); }}>Apply</button>
-			</div>
-		</div>
-	{/if}
 
 <style>
 	:global(body) { overscroll-behavior-y: contain; }
@@ -934,6 +810,285 @@
 		min-height: 100vh;
 		background: var(--color-surface-secondary);
 		padding-bottom: 80px;
+	}
+
+	/* Search Section - Clean and Modern */
+	.search-section {
+		background: white;
+		border-bottom: 1px solid #e5e7eb;
+		padding: 16px;
+		position: sticky;
+		top: var(--header-height); /* Stick below header */
+		z-index: 100; /* Above content but below header */
+	}
+
+	.search-container {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 0 16px;
+	}
+
+	/* Mobile: Full width search bar */
+	@media (max-width: 768px) {
+		.search-section {
+			padding: 12px;
+			top: var(--header-height); /* Mobile header height */
+		}
+		
+		.search-container {
+			padding: 0;
+			max-width: none;
+		}
+	}
+
+	.search-wrapper {
+		position: relative;
+		max-width: 100%;
+	}
+
+	.search-input-group {
+		display: flex;
+		align-items: center;
+		background: #f8fafc;
+		border: 1px solid #e2e8f0;
+		border-radius: 24px;
+		padding: 0 16px;
+		transition: all 0.2s ease;
+		height: 48px;
+	}
+
+	.search-input-group:focus-within {
+		border-color: #3b82f6;
+		background: white;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+
+	.search-icon {
+		color: #9ca3af;
+		flex-shrink: 0;
+		margin-right: 12px;
+	}
+
+	.search-input {
+		flex: 1;
+		background: none;
+		border: none;
+		padding: 0;
+		font-size: 15px;
+		color: #1e293b;
+		outline: none;
+		min-width: 0;
+	}
+
+	.search-input::placeholder {
+		color: #94a3b8;
+	}
+
+	/* Search Dropdown - Clean */
+	.search-dropdown {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		margin-top: 8px;
+		background: white;
+		border: 1px solid #e5e7eb;
+		border-radius: 12px;
+		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+		z-index: 50;
+		max-height: 384px;
+		overflow-y: auto;
+	}
+
+	.dropdown-content {
+		padding: 16px;
+	}
+
+	.dropdown-section {
+		margin-bottom: 20px;
+	}
+
+	.dropdown-section:last-child {
+		margin-bottom: 0;
+	}
+
+	.dropdown-section h3 {
+		font-size: 12px;
+		font-weight: 600;
+		color: #6b7280;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+		margin-bottom: 12px;
+	}
+
+	.button-group {
+		display: flex;
+		gap: 8px;
+		overflow-x: auto;
+		padding-bottom: 8px;
+	}
+
+	.category-button {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px 16px;
+		border: 1px solid #e5e7eb;
+		border-radius: 24px;
+		background: white;
+		color: #374151;
+		font-size: 14px;
+		font-weight: 500;
+		white-space: nowrap;
+		transition: all 0.15s ease;
+		cursor: pointer;
+	}
+
+	.category-button:hover {
+		border-color: #9ca3af;
+		background: #f9fafb;
+	}
+
+	.category-button.active {
+		background: #111827;
+		color: white;
+		border-color: #111827;
+	}
+
+	.subcategory-button {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px 12px;
+		background: #f9fafb;
+		border: 1px solid #e5e7eb;
+		border-radius: 8px;
+		color: #374151;
+		font-size: 14px;
+		font-weight: 500;
+		white-space: nowrap;
+		transition: all 0.15s ease;
+		cursor: pointer;
+	}
+
+	.subcategory-button:hover {
+		background: #111827;
+		color: white;
+		border-color: #111827;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	/* Compact Filter Pills Above Products */
+	.compact-filters {
+		padding: 12px 16px 16px 16px;
+		background: #fafbfc;
+		border-bottom: 1px solid #f1f3f4;
+		position: relative;
+		overflow: visible;
+		z-index: 999;
+	}
+
+	.compact-filters-scroll {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		overflow-x: auto;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+		padding-bottom: 2px;
+	}
+
+	.compact-filters-scroll::-webkit-scrollbar {
+		display: none;
+	}
+
+	.compact-pill {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		padding: 6px 10px;
+		border: 1px solid #e1e5e9;
+		border-radius: 20px;
+		background: white;
+		color: #4a5568;
+		font-size: 12px;
+		font-weight: 500;
+		white-space: nowrap;
+		transition: all 0.15s ease;
+		cursor: pointer;
+		min-height: 28px;
+	}
+
+	.compact-pill:hover {
+		background: #f7f8fa;
+		border-color: #cbd5e0;
+	}
+
+	.compact-pill.active {
+		background: #2d3748;
+		color: white;
+		border-color: #2d3748;
+	}
+
+	.compact-badge {
+		position: absolute;
+		top: -6px;
+		right: -6px;
+		width: 14px;
+		height: 14px;
+		background: #e53e3e;
+		color: white;
+		font-size: 9px;
+		font-weight: 600;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 2px solid white;
+	}
+
+	/* Filter Dropdown - Same styling as search dropdown */
+	.filter-dropdown {
+		position: absolute;
+		top: 100%;
+		right: 0;
+		margin-top: 8px;
+		background: white;
+		border: 1px solid #e5e7eb;
+		border-radius: 12px;
+		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+		z-index: 1000;
+		max-height: 400px;
+		overflow-y: auto;
+		min-width: 320px;
+	}
+
+
+	.clear-all-button {
+		width: 100%;
+		padding: 12px;
+		background: #f1f5f9;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		color: #64748b;
+		font-size: 14px;
+		font-weight: 500;
+		transition: all 0.15s ease;
+		cursor: pointer;
+	}
+
+	.clear-all-button:hover {
+		background: #ef4444;
+		color: white;
+		border-color: #ef4444;
+	}
+
+	/* Make subcategory buttons active state more visible */
+	.subcategory-button.active {
+		background: #3b82f6;
+		color: white;
+		border-color: #3b82f6;
 	}
 
 	/* Remove all padding/constraints - match main page */
@@ -978,63 +1133,6 @@
 		}
 	}
 
-	/* Custom scrollbar hide for webkit browsers */
-	.scrollbar-none {
-		scrollbar-width: none;
-		-ms-overflow-style: none;
-	}
-	.scrollbar-none::-webkit-scrollbar {
-		display: none;
-	}
-	
-	/* Mobile Filter Sheet Chips */
-	.chip {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
-		padding: 0.5rem 1rem;
-		border: 1px solid var(--color-border-light);
-		border-radius: 9999px;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--color-text-dark);
-		background: white;
-		cursor: pointer;
-		white-space: nowrap;
-		transition: all 0.15s;
-		height: 2.25rem;
-	}
-	
-	.chip:hover {
-		background: var(--color-surface-quaternary);
-		border-color: var(--color-border-dark);
-	}
-	
-	.chip.active {
-		background: var(--color-surface-overlay);
-		color: white;
-		border-color: var(--color-border-darker);
-	}
-	
-	.chip.outline {
-		background: transparent;
-		border-color: var(--color-border-dark);
-	}
-	
-	.chip.subtle {
-		background: var(--color-border-lighter);
-		border-color: transparent;
-	}
-	
-	.chip.tone.bg-yellow-100 { background: var(--color-surface-warning); border-color: var(--color-surface-warning); opacity: 0.2; }
-	.chip.tone.bg-orange-100 { background: var(--color-surface-warning); border-color: var(--color-surface-warning); opacity: 0.3; }
-	.chip.tone.bg-blue-100 { background: var(--color-brand-blue); border-color: var(--color-brand-blue); opacity: 0.2; }
-	.chip.tone.bg-red-100 { background: var(--color-surface-error); border-color: var(--color-surface-error); opacity: 0.2; }
-	.chip.tone.bg-green-100 { background: var(--color-surface-success); border-color: var(--color-surface-success); opacity: 0.2; }
-	
-	.chip .emoji {
-		font-size: 0.875rem;
-	}
 
 	/* Filter Rail Styles */
 	.filter-rail-content {
@@ -1185,184 +1283,6 @@
 	@keyframes spin {
 		0% { transform: rotate(0deg); }
 		100% { transform: rotate(360deg); }
-	}
-
-	/* Mobile Filter Sheet */
-	.filter-overlay {
-		position: fixed;
-		inset: 0;
-		background: rgba(0, 0, 0, 0.6);
-		z-index: var(--z-highest);
-		backdrop-filter: blur(4px);
-	}
-	
-	.filter-sheet {
-		position: fixed;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background: white;
-		z-index: var(--z-overlay);
-		border-radius: 1.5rem 1.5rem 0 0;
-		max-height: 90vh;
-		display: flex;
-		flex-direction: column;
-		box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
-		animation: slideUp 0.3s ease;
-	}
-	
-	@keyframes slideUp {
-		from {
-			transform: translateY(100%);
-			opacity: 0;
-		}
-		to {
-			transform: translateY(0);
-			opacity: 1;
-		}
-	}
-	
-	.filter-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 1.25rem 1.5rem 1.25rem;
-		border-bottom: 1px solid var(--color-border-light);
-		position: relative;
-	}
-	
-	.filter-header::after {
-		content: '';
-		position: absolute;
-		top: 0.5rem;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 2.25rem;
-		height: 0.25rem;
-		background: var(--color-border-light);
-		border-radius: 9999px;
-	}
-	
-	.filter-header h2 {
-		font-size: 1.125rem;
-		font-weight: 700;
-		color: var(--color-text-dark);
-		margin: 0;
-	}
-	
-	.close-filters {
-		width: 2rem;
-		height: 2rem;
-		background: var(--color-border-lighter);
-		border: none;
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		transition: all 0.15s;
-		color: var(--color-text-muted);
-	}
-	
-	.close-filters:hover {
-		background: var(--color-border-light);
-		color: var(--color-text-dark);
-	}
-	
-	.filter-content {
-		flex: 1;
-		overflow-y: auto;
-		padding: 1rem 1.5rem;
-	}
-	
-	.filter-group {
-		margin-bottom: 1.5rem;
-	}
-	
-	.filter-group h3 {
-		font-size: 0.875rem;
-		font-weight: 600;
-		margin-bottom: 0.75rem;
-		color: var(--color-text-dark);
-		text-transform: uppercase;
-		letter-spacing: 0.025em;
-	}
-	
-	.row-wrap {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-	}
-	
-	.row-wrap.small-gap {
-		gap: 0.375rem;
-	}
-	
-	.price-inputs {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-	}
-	
-	.price-input {
-		flex: 1;
-		padding: 0.75rem;
-		background: var(--color-surface-quaternary);
-		border: 1px solid var(--color-border-light);
-		border-radius: 0.5rem;
-		text-align: center;
-		font-size: 0.875rem;
-		font-weight: 500;
-	}
-	
-	.price-input:focus {
-		outline: none;
-		border-color: var(--color-border-darker);
-		background: white;
-	}
-	
-	.filter-footer {
-		display: flex;
-		gap: 1rem;
-		padding: 1.5rem;
-		border-top: 1px solid var(--color-border-light);
-		background: var(--color-surface-quaternary);
-	}
-	
-	.reset-btn {
-		flex: 1;
-		padding: 1rem;
-		background: white;
-		border: 1px solid var(--color-border-light);
-		border-radius: 0.75rem;
-		font-weight: 600;
-		font-size: 0.875rem;
-		color: var(--color-text-quaternary);
-		cursor: pointer;
-		transition: all 0.15s;
-	}
-	
-	.reset-btn:hover {
-		background: var(--color-border-lighter);
-		border-color: var(--color-border-dark);
-	}
-	
-	.apply-btn {
-		flex: 2;
-		padding: 1rem;
-		background: var(--color-surface-overlay);
-		color: white;
-		border: none;
-		border-radius: 0.75rem;
-		font-weight: 700;
-		font-size: 0.875rem;
-		cursor: pointer;
-		transition: all 0.15s;
-	}
-	
-	.apply-btn:hover {
-		background: var(--color-text-primary);
-		transform: translateY(-1px);
 	}
 
 	/* Page Layout */

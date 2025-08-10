@@ -191,19 +191,21 @@
 <style>
 	.stories-bar {
 		background: white;
-		border-bottom: 1px solid var(--color-gray-300);
-		height: 130px; /* Increased for premium visibility */
+		border-bottom: 1px solid var(--color-border-primary);
+		height: 120px; /* Consistent height for stories */
 		display: flex;
 		align-items: center;
 		overflow: hidden;
+		position: relative; /* NOT sticky - just normal flow */
+		z-index: 1;
 	}
 
 	.stories-container {
 		display: flex;
-		gap: 0.75rem;
-		padding: 0 1rem;
+		gap: 12px;
+		padding: 0 16px;
 		overflow-x: auto;
-		overflow-y: visible;
+		overflow-y: hidden;
 		scroll-behavior: smooth;
 		-webkit-overflow-scrolling: touch;
 		scrollbar-width: none;
@@ -221,14 +223,14 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 0.375rem;
+		gap: 6px;
 		background: none;
 		border: none;
 		cursor: pointer;
 		flex-shrink: 0;
 		transition: transform 0.2s;
-		width: 80px; /* Increased for premium visibility */
-		height: 110px; /* Increased height */
+		width: 76px;
+		height: 100px;
 		outline: none;
 		-webkit-tap-highlight-color: transparent;
 	}
@@ -243,8 +245,8 @@
 
 	/* Add Story Button - Black border */
 	.add-story .story-circle {
-		width: 76px;
-		height: 76px;
+		width: 68px;
+		height: 68px;
 		border-radius: 50%;
 		background: transparent;
 		border: 1.5px solid #000000; /* Black border */
@@ -273,8 +275,8 @@
 
 	/* Product Story Circle - Clean Instagram style */
 	.story-circle {
-		width: 72px;
-		height: 72px;
+		width: 68px;
+		height: 68px;
 		border-radius: 50%;
 		position: relative;
 		padding: 0; /* No padding */
@@ -382,28 +384,29 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 1px;
-		width: 66px;
-		height: 28px; /* Fixed height for label area */
+		width: 68px;
+		height: 24px; /* Reduced height for cleaner look */
 		text-align: center;
 		overflow: hidden;
+		justify-content: center;
 	}
 
 	.seller-name {
 		font-size: 11px;
 		font-weight: 500;
-		color: #1f2937;
+		color: var(--color-text-primary);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		width: 100%;
-		line-height: 1.2;
+		line-height: 1.15;
 	}
 
 	.time-ago {
 		font-size: 9px;
-		color: #6b7280;
+		color: var(--color-text-secondary);
 		font-weight: 400;
-		line-height: 1.2;
+		line-height: 1.15;
 	}
 
 	.add-story .story-label {

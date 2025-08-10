@@ -4,6 +4,7 @@
 	import BottomNav from '$lib/components/navigation/BottomNav.svelte';
 	import type { Conversation } from '$lib/types/messaging';
 	import { cn } from '$lib/utils';
+	import * as m from '$lib/paraglide/messages';
 
 	interface Props {
 		conversations: Conversation[];
@@ -63,24 +64,24 @@
 		
 		if (diffHours < 1) {
 			const diffMinutes = Math.floor(diffMs / (1000 * 60));
-			return diffMinutes < 1 ? 'now' : `${diffMinutes}m`;
+			return diffMinutes < 1 ? m['messages.now']() : m['messages.minutes_ago']({count: diffMinutes});
 		}
 		if (diffHours < 24) {
-			return `${diffHours}h`;
+			return m['messages.hours_ago']({count: diffHours});
 		}
 		if (diffHours < 168) { // Less than a week
 			const diffDays = Math.floor(diffHours / 24);
-			return `${diffDays}d`;
+			return m['messages.days_ago']({count: diffDays});
 		}
 		const diffWeeks = Math.floor(diffHours / 168);
-		return `${diffWeeks}w`;
+		return m['messages.weeks_ago']({count: diffWeeks});
 	}
 
 	function getMessagePreview(message: any): string {
-		if (!message) return 'Start a conversation';
+		if (!message) return m['messages.start_conversation']();
 		
 		if (message.message_type === 'product_inquiry') {
-			return '💬 Asked about product';
+			return m['messages.asked_about_product']();
 		}
 		
 		if (message.content) {
@@ -89,7 +90,7 @@
 				: message.content;
 		}
 		
-		return 'Sent a message';
+		return m['messages.sent_message']();
 	}
 
 	function toggleSearch() {
@@ -104,17 +105,17 @@
 	<!-- Header -->
 	<header class="inbox-header">
 		<div class="header-top">
-			<button class="icon-btn" onclick={onBack} aria-label="Go back">
+			<button class="icon-btn" onclick={onBack} aria-label={m['messages.go_back']()}>
 				<ArrowLeft size={24} />
 			</button>
 			
-			<h1 class="header-title">{username || 'Messages'}</h1>
+			<h1 class="header-title">{username || m['messages.title']().split(' - ')[0]}</h1>
 			
 			<div class="header-actions">
-				<button class="icon-btn" onclick={toggleSearch} aria-label="Search">
+				<button class="icon-btn" onclick={toggleSearch} aria-label={m['messages.search']()}>
 					<Search size={22} />
 				</button>
-				<button class="icon-btn" onclick={onCompose} aria-label="New message">
+				<button class="icon-btn" onclick={onCompose} aria-label={m['messages.compose']()}>
 					<Edit2 size={22} />
 				</button>
 			</div>
@@ -126,7 +127,7 @@
 				<Search size={18} class="search-icon" />
 				<input
 					type="text"
-					placeholder="Search messages..."
+					placeholder={m['messages.search_messages']()}
 					class="search-input"
 					value={searchQuery}
 					oninput={(e) => onSearchChange(e.currentTarget.value)}
@@ -141,13 +142,13 @@
 				class={cn("filter-tab", activeFilter === 'all' && "active")}
 				onclick={() => activeFilter = 'all'}
 			>
-				All
+				{m['messages.all']()}
 			</button>
 			<button 
 				class={cn("filter-tab", activeFilter === 'unread' && "active")}
 				onclick={() => activeFilter = 'unread'}
 			>
-				Unread
+				{m['messages.unread']()}
 				{#if conversations.some(c => c.unread_count > 0)}
 					<span class="badge">{conversations.reduce((sum, c) => sum + c.unread_count, 0)}</span>
 				{/if}
@@ -156,7 +157,7 @@
 				class={cn("filter-tab", activeFilter === 'requests' && "active")}
 				onclick={() => activeFilter = 'requests'}
 			>
-				Requests
+				{m['messages.requests']()}
 			</button>
 		</div>
 	</header>
@@ -178,10 +179,10 @@
 			<!-- Empty State -->
 			<div class="empty-state">
 				<div class="empty-icon">💬</div>
-				<h3>No messages yet</h3>
-				<p>Start a conversation by messaging a seller about their products</p>
+				<h3>{m['messages.no_conversations']()}</h3>
+				<p>{m['messages.start_chat']()}</p>
 				<button class="btn-primary" onclick={onCompose}>
-					Browse Products
+					{m['browse.title']().split(' - ')[0]}
 				</button>
 			</div>
 		{:else}
@@ -225,7 +226,7 @@
 								conversation.unread_count > 0 && "unread"
 							)}>
 								{#if conversation.last_message?.sender_id === currentUserId}
-									<span class="sent-indicator">You: </span>
+									<span class="sent-indicator">{m['messages.you']()} </span>
 								{/if}
 								{getMessagePreview(conversation.last_message)}
 							</span>
@@ -242,7 +243,7 @@
 						<!-- Product Preview (if applicable) -->
 						{#if conversation.product}
 							<div class="product-preview">
-								<span class="product-label">About:</span>
+								<span class="product-label">{m['profile.about']()}:</span>
 								<span class="product-title">{conversation.product.title}</span>
 								<span class="product-price">{conversation.product.price}лв</span>
 							</div>

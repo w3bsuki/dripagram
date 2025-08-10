@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import AnimatedLogo from '$lib/components/branding/AnimatedLogo.svelte';
 	import { LocaleSwitcher } from '$lib/components/ui/locale-switcher';
+	import ThemeToggle from '$lib/components/ui/ThemeToggle/ThemeToggle.svelte';
 	import * as m from '$lib/paraglide/messages';
 	
 	interface Props {
@@ -81,6 +82,11 @@
 			<!-- Locale Switcher - appears first on desktop -->
 			<div class="locale-switcher-container">
 				<LocaleSwitcher compact={true} />
+			</div>
+			
+			<!-- Theme Toggle -->
+			<div class="theme-toggle-container">
+				<ThemeToggle size={24} />
 			</div>
 			
 			<button 
@@ -342,9 +348,21 @@
 		margin-right: 0.5rem;
 	}
 	
+	/* Theme Toggle Container */
+	.theme-toggle-container {
+		margin-right: 0.5rem;
+	}
+	
 	/* Hide locale switcher on very small mobile screens */
 	@media (max-width: 480px) {
 		.locale-switcher-container {
+			display: none;
+		}
+	}
+	
+	/* Hide theme toggle on very small mobile screens to save space */
+	@media (max-width: 360px) {
+		.theme-toggle-container {
 			display: none;
 		}
 	}

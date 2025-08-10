@@ -102,7 +102,7 @@
 			)}
 		/>
 		{#if item.badge}
-			<span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+			<span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
 				{item.badge}
 			</span>
 		{/if}
@@ -112,7 +112,7 @@
 <nav 
 	class={cn(
 		"fixed bottom-0 left-0 right-0 z-40",
-		"bg-white border-t border-gray-200",
+		"bg-surface border-t border-border",
 		"pb-safe-bottom",
 		"md:hidden", // Hide on desktop
 		className
@@ -137,7 +137,7 @@
 						"flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200",
 						"bg-black text-white", // Clean black filled button
 						"shadow-md",
-						"hover:scale-110 hover:bg-gray-900",
+						"hover:scale-110 hover:bg-foreground",
 						"active:scale-95"
 					)}>
 						<Plus size={26} strokeWidth={2.5} />
@@ -149,11 +149,11 @@
 					href={item.href}
 					class={cn(
 						"relative flex flex-1 flex-col items-center justify-center gap-0.5 px-2",
-						"text-gray-500 transition-all duration-200",
-						"active:scale-95 active:bg-gray-50",
+						"text-muted-foreground transition-all duration-200",
+						"active:scale-95 active:bg-muted",
 						"touch-manipulation",
-						active && "text-gray-900",
-						item.accent && !active && "text-blue-500"
+						active && "text-foreground",
+						item.accent && !active && "text-primary"
 					)}
 					aria-label={item.label}
 					aria-current={active ? 'page' : undefined}

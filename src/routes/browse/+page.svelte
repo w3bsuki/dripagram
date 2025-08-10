@@ -416,33 +416,33 @@
 <!-- Removed local <SearchHeader />; layout already renders mobile/desktop headers -->
 
 <main class="main-content">
-		<!-- Clean Search Section -->
-		<section class="bg-white border-b border-gray-200 px-4 py-3 relative">
+		<!-- Search Section -->
+		<section class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3 relative">
 			<div class="max-w-7xl mx-auto">
 				<div class="relative" bind:this={searchInputEl}>
 					<div class="relative flex items-center">
-						<Search size={18} class="absolute left-3 text-gray-400 pointer-events-none z-10" />
+						<Search size={18} class="absolute left-3 text-gray-400 dark:text-gray-500 pointer-events-none z-10" />
 						<input
 							type="search"
 							placeholder="Search items or @sellers"
 							bind:value={searchQuery}
 							onkeydown={(e) => e.key === 'Enter' && handleSearch(e)}
 							onfocus={handleSearchFocus}
-							class="w-full h-12 pl-10 pr-4 bg-gray-50 border border-gray-200 rounded-xl text-sm transition-all duration-200 focus:outline-none focus:border-gray-900 focus:bg-white focus:shadow-sm"
+							class="w-full h-12 pl-10 pr-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white transition-all duration-200 focus:outline-none focus:border-gray-900 dark:focus:border-gray-300 focus:bg-white dark:focus:bg-gray-700 focus:shadow-sm"
 						/>
 					</div>
 
 					<!-- Category Dropdown -->
 					{#if showSearchDropdown}
-						<div class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
+						<div class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-lg dark:shadow-gray-900/50 z-50 max-h-96 overflow-y-auto">
 							<div class="p-4" bind:this={searchDropdownEl}>
 								<!-- Demographics -->
 								<div class="mb-5">
-									<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Browse by Category</h3>
-									<div class="flex gap-2 overflow-x-auto pb-2">
+									<h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Browse by Category</h3>
+									<div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
 										{#each demographics as demographic}
 											<button 
-												class="flex items-center gap-2 px-4 py-2 rounded-full border whitespace-nowrap transition-all duration-150 {selectedDemographic === demographic.id ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'}"
+												class="flex items-center gap-2 px-4 py-2 rounded-full border whitespace-nowrap transition-all duration-150 {selectedDemographic === demographic.id ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-900 dark:border-gray-100' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500'}"
 												onclick={() => handleDemographicClick(demographic.id)}
 											>
 												<span class="text-sm">{demographic.emoji}</span>
@@ -455,14 +455,14 @@
 								
 								<!-- Subcategories -->
 								{#if selectedDemographic && currentDemographicSubcategories.length > 0}
-									<div class="mb-5 pt-4 border-t border-gray-100">
-										<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+									<div class="mb-5 pt-4 border-t border-gray-100 dark:border-gray-700">
+										<h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
 											{demographics.find(d => d.id === selectedDemographic)?.name} Categories
 										</h3>
-										<div class="flex gap-2 overflow-x-auto pb-2">
+										<div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
 											{#each currentDemographicSubcategories as subcategory}
 												<button 
-													class="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-gray-900 hover:text-white hover:border-gray-900 hover:-translate-y-0.5 hover:shadow-md min-w-fit"
+													class="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap transition-all duration-150 hover:bg-gray-900 dark:hover:bg-gray-100 hover:text-white dark:hover:text-gray-900 hover:border-gray-900 dark:hover:border-gray-100 hover:-translate-y-0.5 hover:shadow-md min-w-fit"
 													onclick={() => handleCategorySelect(subcategory.id)}
 												>
 													<span>{subcategory.emoji}</span>
@@ -474,22 +474,22 @@
 								{/if}
 
 								<!-- Quick Actions -->
-								<div class="pt-4 border-t border-gray-100">
-									<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Popular Searches</h3>
-									<div class="flex gap-2 overflow-x-auto pb-2">
-										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('new-tags')}>
+								<div class="pt-4 border-t border-gray-100 dark:border-gray-700">
+									<h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Popular Searches</h3>
+									<div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+										<button class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap transition-all duration-150 hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('new-tags')}>
 											<span>🏷️</span>
 											<span>New with tags</span>
 										</button>
-										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-green-500 hover:text-white hover:border-green-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('under-50')}>
+										<button class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap transition-all duration-150 hover:bg-green-500 hover:text-white hover:border-green-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('under-50')}>
 											<span>💰</span>
 											<span>Under 50лв</span>
 										</button>
-										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-red-500 hover:text-white hover:border-red-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('trending')}>
+										<button class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap transition-all duration-150 hover:bg-red-500 hover:text-white hover:border-red-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('trending')}>
 											<span>🔥</span>
 											<span>Trending</span>
 										</button>
-										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-blue-600 hover:text-white hover:border-blue-600 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('verified')}>
+										<button class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap transition-all duration-150 hover:bg-blue-600 hover:text-white hover:border-blue-600 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('verified')}>
 											<span>✅</span>
 											<span>Verified sellers</span>
 										</button>
@@ -504,12 +504,12 @@
 
 
 		<!-- Filter Pills Section -->
-		<div class="bg-white border-b border-gray-200 py-3">
+		<div class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 py-3">
 			<div class="max-w-7xl mx-auto px-4">
-				<div class="flex items-center gap-2 overflow-x-auto scrollbar-none">
+				<div class="flex items-center gap-2 overflow-x-auto scrollbar-hide">
 					<!-- Sort Pill -->
 					<button 
-						class="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-full border transition-all duration-150 whitespace-nowrap {sortBy !== 'newest' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'}"
+						class="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-full border transition-all duration-150 whitespace-nowrap {sortBy !== 'newest' ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-900 dark:border-gray-100' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500'}"
 						onclick={() => {
 							if (sortBy === 'newest') sortBy = 'price-low';
 							else if (sortBy === 'price-low') sortBy = 'price-high';
@@ -529,7 +529,7 @@
 					<!-- Active Filter Pills -->
 					{#if filters.selectedCondition}
 						<button 
-							class="flex items-center gap-1 px-3 py-2 bg-gray-900 text-white border border-gray-900 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
+							class="flex items-center gap-1 px-3 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border border-gray-900 dark:border-gray-100 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
 							onclick={() => { filters.selectedCondition = null; updateURL(); }}
 						>
 							{conditions.find(c => c.id === filters.selectedCondition)?.name || 'Condition'}
@@ -539,7 +539,7 @@
 
 					{#if filters.selectedBrand}
 						<button 
-							class="flex items-center gap-1 px-3 py-2 bg-gray-900 text-white border border-gray-900 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
+							class="flex items-center gap-1 px-3 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border border-gray-900 dark:border-gray-100 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
 							onclick={() => { filters.selectedBrand = ''; updateURL(); }}
 						>
 							{filters.selectedBrand.charAt(0).toUpperCase() + filters.selectedBrand.slice(1)}
@@ -549,7 +549,7 @@
 
 					{#if filters.selectedSize}
 						<button 
-							class="flex items-center gap-1 px-3 py-2 bg-gray-900 text-white border border-gray-900 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
+							class="flex items-center gap-1 px-3 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border border-gray-900 dark:border-gray-100 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
 							onclick={() => { filters.selectedSize = ''; updateURL(); }}
 						>
 							Size {filters.selectedSize}
@@ -559,14 +559,14 @@
 
 					<!-- More Filters Button -->
 					<button 
-						class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border transition-all duration-150 whitespace-nowrap relative {activeFiltersCount > 0 ? 'bg-blue-500 text-white border-blue-500' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}"
+						class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border transition-all duration-150 whitespace-nowrap relative {activeFiltersCount > 0 ? 'bg-blue-500 dark:bg-blue-600 text-white border-blue-500 dark:border-blue-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'}"
 						onclick={() => showFilters = true}
 						aria-label="More filters"
 					>
 						<Filter size={12} />
 						<span>Filters</span>
 						{#if activeFiltersCount > 0}
-							<span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center border-2 border-white">
+							<span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center border-2 border-white dark:border-gray-900">
 								{activeFiltersCount}
 							</span>
 						{/if}
@@ -742,12 +742,12 @@
 					{#if nextCursor}
 						<div class="flex justify-center py-8 px-4">
 							<button 
-								class="flex items-center gap-2 px-8 py-3 bg-gray-900 text-white rounded-full font-semibold transition-all duration-150 min-h-12 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-gray-800 hover:-translate-y-0.5 hover:shadow-lg" 
+								class="flex items-center gap-2 px-8 py-3 bg-gray-900 text-white rounded-full font-semibold transition-all duration-150 min-h-12 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-foreground/90 hover:-translate-y-0.5 hover:shadow-lg" 
 								onclick={loadMore} 
 								disabled={loadingMore}
 							>
 								{#if loadingMore}
-									<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+									<div class="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin"></div>
 									Loading...
 								{:else}
 									Load More
@@ -759,7 +759,7 @@
 					<div class="flex flex-col items-center justify-center py-16 px-8 text-center text-gray-500">
 						<div class="text-5xl mb-4 opacity-70">🔍</div>
 						<h3 class="text-xl font-semibold text-gray-900 mb-2">No listings found</h3>
-						<p class="text-sm leading-6 max-w-xs text-gray-600">Try adjusting your filters or search terms to find more items.</p>
+						<p class="text-sm leading-6 max-w-xs text-gray-500">Try adjusting your filters or search terms to find more items.</p>
 					</div>
 				{/if}
 			</div>
@@ -933,6 +933,14 @@
 		min-height: 100vh;
 		background: var(--color-surface-secondary);
 		padding-bottom: 80px;
+		/* Fix header overlap */
+		padding-top: 56px;
+	}
+
+	@media (min-width: 768px) {
+		.main-content {
+			padding-top: 60px;
+		}
 	}
 
 	/* Remove all padding/constraints - match main page */
@@ -961,7 +969,7 @@
 			display: block;
 			width: 280px;
 			flex-shrink: 0;
-			background: white;
+			background: var(--color-surface);
 			border-right: 1px solid var(--color-border);
 			height: fit-content;
 			position: sticky;
@@ -997,7 +1005,7 @@
 		font-size: 0.875rem;
 		font-weight: 500;
 		color: var(--color-text-dark);
-		background: white;
+		background: var(--color-surface);
 		cursor: pointer;
 		white-space: nowrap;
 		transition: all 0.15s;
@@ -1147,7 +1155,7 @@
 	.brand-input:focus {
 		outline: none;
 		border-color: var(--color-border-darker);
-		background: white;
+		background: var(--color-surface);
 	}
 
 	.popular-brands {
@@ -1200,7 +1208,7 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: white;
+		background: var(--color-surface);
 		z-index: var(--z-overlay);
 		border-radius: 1.5rem 1.5rem 0 0;
 		max-height: 90vh;
@@ -1317,7 +1325,7 @@
 	.price-input:focus {
 		outline: none;
 		border-color: var(--color-border-darker);
-		background: white;
+		background: var(--color-surface);
 	}
 	
 	.filter-footer {
@@ -1331,7 +1339,7 @@
 	.reset-btn {
 		flex: 1;
 		padding: 1rem;
-		background: white;
+		background: var(--color-surface);
 		border: 1px solid var(--color-border-light);
 		border-radius: 0.75rem;
 		font-weight: 600;
@@ -1378,3 +1386,4 @@
 		}
 	}
 </style>
+

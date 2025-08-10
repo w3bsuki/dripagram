@@ -255,3 +255,38 @@ Your design-tokens.css is **professional-grade architecture** that follows moder
 **This is the correct path forward for a production social commerce platform.**
 
 Ready to execute this plan? The foundation is solid - we just need to wire it up properly.
+
+---
+
+### GPT5: Styling audit — reality check (based on current repo)
+
+Short verdict: Strategy is right. Execution is incomplete and slightly contradictory. Fix the wiring and remove duplication.
+
+Key findings:
+- design-tokens.css is not imported anywhere. It’s currently unused. Import it from `src/app.css` or make it the single entry CSS.
+- Bridging exists in `src/app.css` under `@theme` (tokens like `--color-background`, `--color-foreground`, etc.). The guide suggests moving bridging into `design-tokens.css`. Pick one place (prefer `design-tokens.css`) and delete the duplicate mapping from `app.css` afterward.
+- tailwind.config.js is still present (v3-style extends). With Tailwind v4 + `@tailwindcss/vite`, this is legacy. Remove it after you confirm the `@theme` mappings generate the utilities you need.
+- Duplicate token systems in `app.css`: both `@theme --color-*` and `:root --background/--primary` sets exist. Consolidate to one set to avoid drift.
+- Undefined primitives: `design-tokens.css` references `--color-primitive-*` vars (e.g., `--color-primitive-neutral-950`) that are not defined. Either define a primitive palette or replace these with existing tokens.
+- Hardcoded grays are still in components (e.g., `src/routes/wishlist/+page.svelte`: `bg-white`, `text-gray-900`, `border-gray-200`, `bg-gray-100`). Proceed with the semantic replacements per your mapping.
+- @apply usage: It appears in global `app.css` (OK), but avoid `@apply` inside component `<style>` blocks per your own guideline.
+- Dark mode: No ThemeToggle component yet and no runtime `data-theme` switch in the app. Implement the toggle and ensure your tokens respond to `[data-theme='dark']`. Today, `.dark` and `[data-theme]` strategies are mixed across files—standardize on one (recommend `[data-theme]`).
+- QA scripts in the doc are Unix-oriented. On Windows (PowerShell), use:
+  - Count hardcoded grays:
+    ```powershell
+    Get-ChildItem -Recurse src | Select-String -Pattern "bg-gray-|text-gray-|border-gray-" | Measure-Object | % Count
+    ```
+  - Count semantic utilities:
+    ```powershell
+    Get-ChildItem -Recurse src | Select-String -Pattern "bg-surface|text-foreground|border-border" | Measure-Object | % Count
+    ```
+
+Safer execution plan (incremental):
+1) In `src/app.css`, add `@import './lib/styles/design-tokens.css';` below `@import 'tailwindcss';` so tokens begin to flow without nuking existing CSS.
+2) Move the `@theme` bridging block from `app.css` into `design-tokens.css` (as in your Step 1), then remove the duplicate from `app.css`.
+3) Define or remove the `--color-primitive-*` references.
+4) Migrate hardcoded `gray-*` utilities to semantic ones in the five priority components first.
+5) Add the ThemeToggle component and standardize on `[data-theme]`.
+6) When everything compiles and looks right, delete `tailwind.config.js`.
+
+Impact estimate: 1–2 days to complete migration safely; same-day if focused.

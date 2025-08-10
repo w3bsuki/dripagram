@@ -101,14 +101,16 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
 			// Redirect to onboarding if not completed
 			if (profile && !profile.onboarding_completed) {
-				// Allow access to onboarding routes and auth routes
-				const allowedPaths = ['/onboarding', '/auth/', '/api/'];
+				// Allow access to onboarding routes, auth routes, and API routes
+				const allowedPaths = ['/onboarding', '/auth/', '/api/', '/bg/onboarding', '/en/onboarding', '/bg/auth/', '/en/auth/'];
 				const isAllowedPath = allowedPaths.some(path => 
 					event.url.pathname.startsWith(path)
 				);
 
 				if (!isAllowedPath) {
-					throw redirect(303, '/onboarding');
+					// Determine locale and redirect to onboarding
+					const locale = event.url.pathname.match(/^\/(bg|en)\//) ? event.url.pathname.split('/')[1] : 'bg';
+					throw redirect(303, `/${locale}/onboarding`);
 				}
 			}
 		}
@@ -120,15 +122,18 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
 	if (isProtectedRoute && !session) {
 		const redirectTo = event.url.pathname + event.url.search;
-		throw redirect(303, `/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`);
+		// Determine locale from URL or default to 'bg'
+		const locale = event.url.pathname.match(/^\/(bg|en)\//) ? event.url.pathname.split('/')[1] : 'bg';
+		throw redirect(303, `/${locale}/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`);
 	}
 
 	// Redirect authenticated users away from auth pages (except verify)
 	const authPaths = ['/auth/login', '/auth/signup'];
-	const isAuthRoute = authPaths.some((path) => event.url.pathname === path);
+	const isAuthRoute = authPaths.some((path) => event.url.pathname === path) || 
+					  event.url.pathname.match(/\/(bg|en)\/auth\/(login|signup)$/);
 
 	if (isAuthRoute && session) {
-		const redirectTo = event.url.searchParams.get('redirectTo') || '/';
+		const redirectTo = event.url.searchParams.get('redirectTo') || '/bg';
 		throw redirect(303, redirectTo);
 	}
 

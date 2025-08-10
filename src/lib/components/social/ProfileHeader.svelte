@@ -10,6 +10,7 @@ Responsive design with mobile/desktop variations
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
 	import type { Profile } from '$lib/types';
+	import * as m from '$lib/paraglide/messages';
 
 	interface Props {
 		profile: Profile;
@@ -87,15 +88,15 @@ Responsive design with mobile/desktop variations
 				<div class="stats-section">
 					<div class="stat-item">
 						<div class="stat-number">{formatNumber(profile.listing_count || 0)}</div>
-						<div class="stat-label">posts</div>
+						<div class="stat-label">{m['profile.posts']()}</div>
 					</div>
 					<div class="stat-item">
 						<div class="stat-number">{formatNumber(profile.follower_count || 0)}</div>
-						<div class="stat-label">followers</div>
+						<div class="stat-label">{m['profile.followers']()}</div>
 					</div>
 					<div class="stat-item">
 						<div class="stat-number">{formatNumber(profile.following_count || 0)}</div>
-						<div class="stat-label">following</div>
+						<div class="stat-label">{m['profile.following']()}</div>
 					</div>
 				</div>
 			{/if}
@@ -131,7 +132,7 @@ Responsive design with mobile/desktop variations
 			<div class="actions-mobile">
 				{#if isOwnProfile}
 					<Button variant="secondary" onclick={onEdit} class="flex-1">
-						Edit Profile
+						{m['profile.edit_profile']()}
 					</Button>
 					<Button variant="ghost" size="icon" onclick={onSettings}>
 						<Settings size={20} />
@@ -144,15 +145,15 @@ Responsive design with mobile/desktop variations
 					>
 						{#if isFollowing}
 							<UserCheck size={16} class="mr-2" />
-							Following
+							{m['profile.unfollow']()}
 						{:else}
 							<UserPlus size={16} class="mr-2" />
-							Follow
+							{m['profile.follow']()}
 						{/if}
 					</Button>
 					<Button variant="secondary" onclick={onMessage} class="flex-1">
 						<MessageCircle size={16} class="mr-2" />
-						Message
+						{m['profile.message']()}
 					</Button>
 					<Button variant="ghost" size="icon" onclick={onShare}>
 						<Share2 size={20} />
@@ -188,7 +189,7 @@ Responsive design with mobile/desktop variations
 						<div class="actions-desktop">
 							{#if isOwnProfile}
 								<Button variant="secondary" onclick={onEdit}>
-									Edit Profile
+									{m['profile.edit_profile']()}
 								</Button>
 								<Button variant="ghost" size="icon" onclick={onSettings}>
 									<Settings size={20} />
@@ -200,15 +201,15 @@ Responsive design with mobile/desktop variations
 								>
 									{#if isFollowing}
 										<UserCheck size={16} class="mr-2" />
-										Following
+										{m['profile.unfollow']()}
 									{:else}
 										<UserPlus size={16} class="mr-2" />
-										Follow
+										{m['profile.follow']()}
 									{/if}
 								</Button>
 								<Button variant="secondary" onclick={onMessage}>
 									<MessageCircle size={16} class="mr-2" />
-									Message
+									{m['profile.message']()}
 								</Button>
 								<Button variant="ghost" size="icon" onclick={onShare}>
 									<Share2 size={20} />
@@ -226,15 +227,15 @@ Responsive design with mobile/desktop variations
 					<div class="stats-desktop">
 						<div class="stat-item">
 							<span class="stat-number">{formatNumber(profile.listing_count || 0)}</span>
-							<span class="stat-label">posts</span>
+							<span class="stat-label">{m['profile.posts']()}</span>
 						</div>
 						<div class="stat-item">
 							<span class="stat-number">{formatNumber(profile.follower_count || 0)}</span>
-							<span class="stat-label">followers</span>
+							<span class="stat-label">{m['profile.followers']()}</span>
 						</div>
 						<div class="stat-item">
 							<span class="stat-number">{formatNumber(profile.following_count || 0)}</span>
-							<span class="stat-label">following</span>
+							<span class="stat-label">{m['profile.following']()}</span>
 						</div>
 					</div>
 				{/if}

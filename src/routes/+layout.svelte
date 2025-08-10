@@ -69,31 +69,9 @@
 </script>
 
 <style>
-	.main-content {
-		transition: padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	}
-	
-	.main-content.default-layout {
-		padding-top: var(--header-height);
-		padding-bottom: var(--bottom-nav-height);
-	}
-	
-	.main-content.special-layout {
-		padding-top: var(--header-height);
+	.special-layout {
+		padding-top: 0;
 		padding-bottom: 0;
-	}
-	
-	
-	@media (min-width: 768px) {
-		.main-content.default-layout {
-			padding-top: var(--header-height-md);
-			padding-bottom: 0;
-		}
-		
-		.main-content.special-layout {
-			padding-top: var(--header-height-md);
-		}
-		
 	}
 </style>
 
@@ -112,7 +90,7 @@
 		{/if}
 
 		<!-- Main Content -->
-		<main class="main-content {$page.url.pathname.includes('/sell') || $page.url.pathname.includes('/onboarding') || $page.url.pathname.includes('/auth') || $page.url.pathname.includes('/messages') || $page.url.pathname.includes('/products') ? 'special-layout' : 'default-layout'}">
+		<main class="{$page.url.pathname.includes('/sell') || $page.url.pathname.includes('/onboarding') || $page.url.pathname.includes('/auth') || $page.url.pathname.includes('/messages') || $page.url.pathname.includes('/products') ? 'special-layout' : ''}">
 			{@render children?.()}
 		</main>
 

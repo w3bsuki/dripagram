@@ -12,7 +12,18 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const { session, user } = await locals.safeGetSession();
 	
 	if (!session || !user) {
-		throw redirect(303, `/${lang}/auth/login`);
+		throw redirect(303, `/${lang}/auth/login?redirectTo=/${lang}/sell`);
+	}
+
+	// Check if user has completed onboarding
+	const { data: profile } = await locals.supabase
+		.from('profiles')
+		.select('onboarding_completed, username')
+		.eq('id', user.id)
+		.single();
+
+	if (!profile?.onboarding_completed) {
+		throw redirect(303, `/${lang}/onboarding`);
 	}
 
 	// Initialize form with defaults
