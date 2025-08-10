@@ -27,3 +27,5 @@ nul
 
 # Claude
 .claude/settings.local.json
+
+.vercel
