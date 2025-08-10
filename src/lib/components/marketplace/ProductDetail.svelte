@@ -188,31 +188,23 @@
 				<Heart size={24} fill={isLiked ? 'currentColor' : 'none'} />
 			</button>
 		</div>
+		
+		<!-- Stats overlay (bottom right) -->
+		<div class="image-stats">
+			<div class="stat-item">
+				<Heart size={14} fill="white" />
+				{likeCount}
+			</div>
+			<div class="stat-item">
+				<Eye size={14} fill="white" />
+				{viewCount}
+			</div>
+		</div>
 	</div>
 	
 	<!-- Product Info -->
 	<div class="product-info">
-		<div class="price-section">
-			<span class="price">{formattedPrice} лв</span>
-			<div class="stats">
-				<span class="stat">
-					<Heart size={16} />
-					{likeCount}
-				</span>
-				<span class="stat">
-					<Eye size={16} />
-					{viewCount}
-				</span>
-			</div>
-		</div>
-		
-		<h2 class="product-title">{product.title}</h2>
-		
-		{#if product.description}
-			<p class="description">{product.description}</p>
-		{/if}
-		
-		<!-- Seller Info -->
+		<!-- Seller Info (moved up, compact) -->
 		{#if product.seller}
 			<a href="/user/{product.seller.username}" class="seller-info">
 				<div class="seller-avatar">
@@ -224,9 +216,48 @@
 				</div>
 				<div class="seller-details">
 					<span class="seller-name">{product.seller.username || 'Anonymous'}</span>
-					<span class="seller-label">Seller</span>
+					<div class="seller-rating">
+						{#if product.seller.username === 'w3bsuki'}
+							<span class="admin-badge">ADMIN</span>
+						{:else if product.seller.rating_average && product.seller.rating_count}
+							⭐ {product.seller.rating_average.toFixed(1)} ({product.seller.rating_count} reviews)
+						{:else if product.seller.rating_average}
+							⭐ {product.seller.rating_average.toFixed(1)}
+						{:else}
+							New seller
+						{/if}
+					</div>
 				</div>
 			</a>
+		{/if}
+		
+		<div class="product-header">
+			<h2 class="product-title">{product.title}</h2>
+			
+			<!-- Product Details Chips -->
+			<div class="product-details">
+				{#if product.size}
+					<span class="detail-chip">Size {product.size}</span>
+				{/if}
+				{#if product.color}
+					<span class="detail-chip">Color {product.color}</span>
+				{/if}
+				{#if product.category}
+					<span class="detail-chip">{product.category}</span>
+				{/if}
+				{#if product.condition}
+					<span class="detail-chip condition">{product.condition}</span>
+				{/if}
+				{#if product.brand}
+					<span class="detail-chip brand">{product.brand}</span>
+				{/if}
+			</div>
+		</div>
+		
+		{#if product.description}
+			<div class="description-section">
+				<p class="description">{product.description}</p>
+			</div>
 		{/if}
 	</div>
 </div>
@@ -250,16 +281,16 @@
 			Message
 		</button>
 		<button class="primary-btn buy-btn" onclick={handleBuy} disabled={isLoading}>
-			Buy Now
+			Buy - {formattedPrice}лв
 		</button>
 	{/if}
 </div>
 
 <style>
 	.product-detail {
-		min-height: 100vh;
 		background: white;
-		padding-bottom: 80px;
+		padding-bottom: 88px;
+		margin-bottom: 0;
 	}
 	
 	.header {
@@ -366,65 +397,105 @@
 	}
 	
 	.product-info {
-		padding: 20px;
-	}
-	
-	.price-section {
+		padding: 1rem 1rem 0.5rem 1rem;
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		margin-bottom: 12px;
+		flex-direction: column;
+		gap: 1rem;
 	}
 	
-	.price {
-		font-size: 24px;
-		font-weight: 700;
-		color: #000;
-	}
-	
-	.stats {
+	/* Image stats overlay */
+	.image-stats {
+		position: absolute;
+		bottom: 12px;
+		right: 12px;
 		display: flex;
-		gap: 16px;
+		gap: 8px;
 	}
 	
-	.stat {
+	.stat-item {
 		display: flex;
 		align-items: center;
 		gap: 4px;
-		color: #666;
-		font-size: 14px;
+		padding: 4px 8px;
+		background: rgba(0, 0, 0, 0.6);
+		color: white;
+		font-size: 12px;
+		font-weight: 500;
+		border-radius: 12px;
+		backdrop-filter: blur(8px);
+	}
+	
+	.product-header {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
 	}
 	
 	.product-title {
-		font-size: 20px;
+		font-size: 1.25rem;
 		font-weight: 600;
-		margin: 0 0 12px 0;
+		margin: 0;
 		line-height: 1.3;
+		color: #111;
+	}
+	
+	.product-details {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.375rem;
+		margin: 0;
+	}
+	
+	.detail-chip {
+		padding: 0.25rem 0.625rem;
+		background: #f8f9fa;
+		border-radius: 8px;
+		font-size: 0.75rem;
+		color: #495057;
+		font-weight: 500;
+		border: 1px solid #e9ecef;
+	}
+	
+	.detail-chip.condition {
+		background: #e8f5e8;
+		color: #2d6a2d;
+	}
+	
+	.detail-chip.brand {
+		background: #f0f8ff;
+		color: #1e5ba8;
+		font-weight: 500;
+	}
+	
+	.description-section {
+		padding-top: 0.25rem;
 	}
 	
 	.description {
-		color: #666;
-		line-height: 1.5;
-		margin: 0 0 20px 0;
+		color: #374151;
+		line-height: 1.6;
+		margin: 0;
+		font-size: 0.9375rem;
+		font-weight: 400;
 	}
 	
 	.seller-info {
 		display: flex;
 		align-items: center;
-		gap: 12px;
-		padding: 16px 0;
-		border-top: 1px solid #efefef;
+		gap: 0.75rem;
+		padding: 0.5rem 0;
+		border-bottom: 1px solid #f1f3f4;
 		text-decoration: none;
 		color: inherit;
-		transition: background-color 0.2s ease;
+		transition: all 0.2s ease;
 		cursor: pointer;
 	}
 	
 	.seller-info:hover {
-		background-color: #f9f9f9;
+		background-color: #f8f9fa;
 		border-radius: 8px;
-		padding: 16px 12px;
-		margin: 0 -12px;
+		padding: 0.5rem 0.75rem;
+		margin: 0 -0.75rem;
 	}
 	
 	.seller-avatar {
@@ -432,6 +503,7 @@
 		height: 40px;
 		border-radius: 50%;
 		overflow: hidden;
+		flex-shrink: 0;
 	}
 	
 	.avatar {
@@ -441,18 +513,33 @@
 	}
 	
 	.seller-details {
+		flex: 1;
 		display: flex;
 		flex-direction: column;
+		gap: 0.125rem;
 	}
 	
 	.seller-name {
 		font-weight: 600;
-		font-size: 14px;
+		font-size: 0.9375rem;
+		color: #111;
 	}
 	
-	.seller-label {
+	.seller-rating {
 		color: #666;
-		font-size: 12px;
+		font-size: 0.8125rem;
+	}
+	
+	.admin-badge {
+		background: linear-gradient(135deg, #dc2626, #991b1b);
+		color: white;
+		padding: 2px 8px;
+		border-radius: 4px;
+		font-size: 0.6875rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+		box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3);
 	}
 	
 	.bottom-actions {
@@ -517,10 +604,60 @@
 		background: #f5f5f5;
 	}
 	
+	/* Responsive Design - Match main page dimensions */
 	@media (min-width: 768px) {
 		.product-detail {
-			max-width: 500px;
+			max-width: 600px;
 			margin: 0 auto;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+			border-radius: 16px;
+			overflow: hidden;
+			margin-top: 1rem;
+		}
+		
+		.header {
+			border-radius: 0;
+		}
+		
+		.product-info {
+			padding: 1.5rem 1.5rem 1rem 1.5rem;
+		}
+		
+		.seller-info:hover {
+			margin: 0 -1.5rem;
+			padding: 0.5rem 1.5rem;
+		}
+		
+		.bottom-actions {
+			position: static;
+			border-top: 1px solid #eee;
+			background: white;
+			border-radius: 0 0 16px 16px;
+			margin-top: 1rem;
+		}
+	}
+	
+	@media (max-width: 480px) {
+		.product-info {
+			padding: 0.875rem 0.875rem 0.5rem 0.875rem;
+		}
+		
+		.product-title {
+			font-size: 1.125rem;
+		}
+		
+		.detail-chip {
+			font-size: 0.75rem;
+			padding: 0.1875rem 0.625rem;
+		}
+		
+		.seller-info {
+			padding: 0.5rem 0;
+		}
+		
+		.seller-info:hover {
+			padding: 0.5rem 0.625rem;
+			margin: 0 -0.625rem;
 		}
 	}
 </style>

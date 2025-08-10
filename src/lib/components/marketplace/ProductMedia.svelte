@@ -91,11 +91,12 @@
 		background: var(--color-gray-50);
 		cursor: pointer;
 		flex: 0 0 auto;
+		outline: none;
+		-webkit-tap-highlight-color: transparent;
 	}
 	
 	.image-container:focus {
-		outline: 2px solid var(--color-primary);
-		outline-offset: -2px;
+		outline: none;
 	}
 	
 	.product-image {

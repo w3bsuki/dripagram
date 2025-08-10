@@ -51,9 +51,10 @@
 	.related-section,
 	.similar-section {
 		width: 100%;
-		padding: 32px 0;
-		border-top: 1px solid #efefef;
+		padding: 8px 0 16px 0;
+		border-top: 1px solid #f1f3f4;
 		background: #ffffff;
+		margin-top: -80px;
 	}
 	
 	.not-found {

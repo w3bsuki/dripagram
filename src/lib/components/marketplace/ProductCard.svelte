@@ -86,6 +86,21 @@
 		border: 1px solid oklch(0.95 0 0); /* OKLCH gray */
 		box-shadow: 0 1px 2px oklch(0 0 0 / 0.04);
 		position: relative;
+		outline: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.product-card:focus {
+		outline: none;
+	}
+
+	.product-info {
+		outline: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.product-info:focus {
+		outline: none;
 	}
 	
 	.product-card:hover {

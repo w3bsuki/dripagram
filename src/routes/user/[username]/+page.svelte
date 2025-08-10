@@ -185,6 +185,24 @@
 		{#if profile.is_brand && profile.brand_name}
 			<p class="brand-name">{profile.brand_name}</p>
 		{/if}
+		
+		<!-- User Rating -->
+		<div class="user-rating">
+			{#if profile.username === 'w3bsuki'}
+				<span class="admin-badge">ADMIN</span>
+			{:else if data.profile.rating_average && data.profile.rating_count}
+				<div class="rating">
+					⭐ {data.profile.rating_average.toFixed(1)} ({data.profile.rating_count} reviews)
+				</div>
+			{:else if data.profile.rating_average}
+				<div class="rating">
+					⭐ {data.profile.rating_average.toFixed(1)} (1 review)
+				</div>
+			{:else}
+				<span class="new-seller">New seller</span>
+			{/if}
+		</div>
+		
 		{#if profile.bio}
 			<p class="bio">{profile.bio}</p>
 		{/if}
@@ -444,6 +462,37 @@
 		line-height: 1.4;
 		color: var(--color-foreground);
 		margin: 0;
+	}
+	
+	.user-rating {
+		margin: 4px 0 8px 0;
+	}
+	
+	.rating {
+		font-size: var(--font-size-sm);
+		color: var(--color-foreground);
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+	
+	.new-seller {
+		font-size: var(--font-size-sm);
+		color: var(--color-muted-foreground);
+		font-style: italic;
+	}
+	
+	.admin-badge {
+		background: linear-gradient(135deg, #dc2626, #991b1b);
+		color: white;
+		padding: 4px 10px;
+		border-radius: 6px;
+		font-size: var(--font-size-xs);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+		box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+		display: inline-block;
 	}
 	
 	/* Action Buttons */

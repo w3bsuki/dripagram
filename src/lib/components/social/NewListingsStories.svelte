@@ -228,6 +228,12 @@
 		transition: transform 0.2s;
 		width: 80px; /* Increased for premium visibility */
 		height: 110px; /* Increased height */
+		outline: none;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.story-item:focus {
+		outline: none;
 	}
 
 	.story-item:active {

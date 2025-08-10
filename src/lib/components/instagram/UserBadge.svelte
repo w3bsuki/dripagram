@@ -7,7 +7,8 @@
 		username: string;
 		subtitle?: string;
 		verified?: boolean;
-		rating?: number;
+		rating_average?: number;
+		rating_count?: number;
 		hasStory?: boolean;
 		storyViewed?: boolean;
 		size?: 'sm' | 'md' | 'lg';
@@ -21,7 +22,8 @@
 		username,
 		subtitle,
 		verified = false,
-		rating,
+		rating_average,
+		rating_count,
 		hasStory = false,
 		storyViewed = false,
 		size = 'md',
@@ -65,16 +67,24 @@
 				{/if}
 			</div>
 			
-			{#if subtitle || rating}
+			{#if subtitle || rating_average || username === 'w3bsuki'}
 				<div class="user-meta">
 					{#if subtitle}
 						<span class="subtitle">{subtitle}</span>
-					{/if}
-					{#if rating}
+					{:else if username === 'w3bsuki'}
+						<span class="admin-badge">ADMIN</span>
+					{:else if rating_average && rating_count}
 						<div class="rating">
 							<Star size={12} fill="currentColor" />
-							<span>{rating.toFixed(1)}</span>
+							<span>{rating_average.toFixed(1)} ({rating_count})</span>
 						</div>
+					{:else if rating_average}
+						<div class="rating">
+							<Star size={12} fill="currentColor" />
+							<span>{rating_average.toFixed(1)} (1)</span>
+						</div>
+					{:else}
+						<span class="subtitle">New seller</span>
 					{/if}
 				</div>
 			{/if}
@@ -155,6 +165,18 @@
 		gap: 0.125rem;
 		color: var(--color-warning);
 		font-weight: 600;
+		flex-shrink: 0;
+	}
+	
+	.admin-badge {
+		background: linear-gradient(135deg, #dc2626, #991b1b);
+		color: white;
+		padding: 2px 6px;
+		border-radius: 4px;
+		font-size: 0.625rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.4px;
 		flex-shrink: 0;
 	}
 </style>

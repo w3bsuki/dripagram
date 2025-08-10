@@ -267,14 +267,24 @@ Responsive design with mobile/desktop variations
 					<Badge variant="secondary">✓ Verified Seller</Badge>
 				</div>
 			{/if}
-			{#if profile.seller_rating}
+			{#if profile.username === 'w3bsuki'}
+				<div class="trust-item">
+					<Badge variant="destructive" class="admin-badge">ADMIN</Badge>
+				</div>
+			{:else if profile.rating_average}
 				<div class="trust-item">
 					<div class="rating">
-						⭐ {profile.seller_rating.toFixed(1)}
-						{#if profile.seller_rating_count}
-							<span class="rating-count">({profile.seller_rating_count})</span>
+						⭐ {profile.rating_average.toFixed(1)}
+						{#if profile.rating_count}
+							<span class="rating-count">({profile.rating_count} reviews)</span>
+						{:else}
+							<span class="rating-count">(1 review)</span>
 						{/if}
 					</div>
+				</div>
+			{:else if profile.username !== 'w3bsuki'}
+				<div class="trust-item">
+					<span class="new-seller">New seller</span>
 				</div>
 			{/if}
 		</div>
@@ -401,6 +411,14 @@ Responsive design with mobile/desktop variations
 
 	.rating-count {
 		@apply text-muted-foreground;
+	}
+	
+	.new-seller {
+		@apply text-sm text-muted-foreground font-medium;
+	}
+	
+	:global(.admin-badge) {
+		@apply bg-gradient-to-r from-red-600 to-red-700 text-white font-bold shadow-lg;
 	}
 
 	/* Responsive adjustments */
