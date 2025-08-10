@@ -15,7 +15,6 @@
 
 	let { data, children }: { data: PageData; children?: any } = $props();
 	let showUserMenu = $state(false);
-	let hasScrolledPast100 = $state(false);
 
 	// Set Supabase client in context for child components
 	setContext('supabase', data.supabase);
@@ -28,12 +27,6 @@
 		// Initialize CSS optimizations
 		initializeCSSOptimizations();
 		
-		// Track scroll position for mobile search bar
-		const handleScroll = () => {
-			hasScrolledPast100 = window.scrollY > 100;
-		};
-		
-		window.addEventListener('scroll', handleScroll, { passive: true });
 		const { data: { subscription } } = data.supabase.auth.onAuthStateChange((event, session) => {
 			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
 				// Update auth context immediately
@@ -52,7 +45,6 @@
 
 		return () => {
 			subscription.unsubscribe();
-			window.removeEventListener('scroll', handleScroll);
 		};
 	});
 
@@ -74,9 +66,6 @@
 		padding-bottom: 0;
 	}
 	
-	.main-content.search-active:not(.special-layout) {
-		padding-top: calc(var(--header-height) + var(--search-bar-height));
-	}
 	
 	@media (min-width: 768px) {
 		.main-content.default-layout {
@@ -88,9 +77,6 @@
 			padding-top: var(--header-height-md);
 		}
 		
-		.main-content.search-active {
-			padding-top: var(--header-height-md);
-		}
 	}
 </style>
 
@@ -106,7 +92,7 @@
 	</div>
 
 	<!-- Main Content -->
-	<main class="main-content {$page.url.pathname.includes('/sell') || $page.url.pathname.includes('/onboarding') || $page.url.pathname.includes('/auth') || $page.url.pathname.includes('/messages') || $page.url.pathname.includes('/products') ? 'special-layout' : 'default-layout'} {hasScrolledPast100 ? 'search-active' : ''}">
+	<main class="main-content {$page.url.pathname.includes('/sell') || $page.url.pathname.includes('/onboarding') || $page.url.pathname.includes('/auth') || $page.url.pathname.includes('/messages') || $page.url.pathname.includes('/products') ? 'special-layout' : 'default-layout'}">
 		{@render children?.()}
 	</main>
 
