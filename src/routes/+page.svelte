@@ -59,9 +59,9 @@
 				title: user.username || 'User',
 				subtitle: user.seller_verified ? 'Verified Seller' : 'Seller',
 				imageUrl: user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || 'U')}&background=random`,
-				isVerified: user.verified || false,
-				followerCount: user.follower_count || 0,
-				productCount: user.listing_count || 0
+				isVerified: user.seller_verified || false,
+				followerCount: 0,
+				productCount: user.total_sales || 0
 			}));
 		}
 	});

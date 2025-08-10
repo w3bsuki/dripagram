@@ -181,7 +181,7 @@
 
 	// Group messages by date
 	let messagesByDate = $derived((() => {
-		const grouped = new Map<string, typeof messages>();
+		const grouped = new Map<string, any[]>();
 		
 		messages.forEach((msg: any) => {
 			const date = new Date(msg.created_at).toDateString();
@@ -277,7 +277,7 @@
 			disabled={sending}
 			{typingUsers}
 			placeholder={conversation?.product 
-				? `Ask about ${conversation.product.title}...` 
+				? `Ask about ${(conversation.product as any).title}...` 
 				: 'Type a message...'}
 		/>
 	</div>

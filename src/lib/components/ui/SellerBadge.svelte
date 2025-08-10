@@ -9,12 +9,14 @@
 		level = 'new',
 		totalSales = 0,
 		rating = 0,
-		size = 'small'
+		size = 'small',
+		class: className = ''
 	}: {
 		level?: 'new' | 'rising' | 'trusted' | 'pro' | 'elite';
 		totalSales?: number;
 		rating?: number;
 		size?: 'small' | 'medium' | 'large';
+		class?: string;
 	} = $props();
 
 	// Calculate level based on sales if not provided
@@ -93,7 +95,7 @@
 	});
 </script>
 
-<div class="seller-badge {badgeConfig().color} {badgeConfig().textColor} {sizeClasses()} {$$props.class || ''}">
+<div class="seller-badge {badgeConfig().color} {badgeConfig().textColor} {sizeClasses()} {className}">
 	<svelte:component this={badgeConfig().icon} size={iconSize()} />
 	<span class="font-medium">{badgeConfig().label}</span>
 	{#if totalSales > 0 && size !== 'small'}
