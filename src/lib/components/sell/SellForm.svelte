@@ -38,11 +38,11 @@
 			if (result.type === 'redirect') {
 				// Successfully created listing - redirect to success page
 				isPublishing = true;
-				toast.success(m.sell?.success_message?.() ?? 'Listing created successfully!');
+				toast.success(m['sell.success_message']());
 				window.location.href = result.location;
 			} else if (result.type === 'failure') {
 				isPublishing = false;
-				toast.error(m.sell?.errors?.failed_to_create?.() ?? 'Failed to create listing. Please try again.');
+				toast.error(m['sell.errors.failed_to_create']());
 			}
 		},
 		onSubmit: () => {
@@ -54,11 +54,11 @@
 	let currentStep = $state(1);
 	const totalSteps = 5;
 	const stepLabels = [
-		m.sell?.category?.() ?? 'Category',
-		m.sell?.add_photos?.() ?? 'Photos', 
-		m.sell?.details?.() ?? 'Details',
-		m.sell?.shipping?.() ?? 'Shipping',
-		m.sell?.preview?.() ?? 'Review'
+		m['sell.category'](),
+		m['sell.add_photos'](), 
+		m['sell.details'](),
+		m['sell.shipping'](),
+		m['sell.preview']()
 	];
 
 	// Step validation
@@ -78,21 +78,21 @@
 				
 				// Show specific error messages
 				if (step === 1 && !$form.category) {
-					toast.error(m.sell?.errors?.select_category?.() ?? 'Please select a category');
+					toast.error(m['sell.errors.select_category']());
 				} else if (step === 2 && (!$form.images || $form.images.length === 0)) {
-					toast.error(m.sell?.errors?.add_photo?.() ?? 'Please add at least one photo');
+					toast.error(m['sell.errors.add_photo']());
 				} else if (step === 3) {
 					// Check for specific missing fields
 					if (!$form.title) {
-						toast.error(m.sell?.errors?.add_title?.() ?? 'Please add a title');
+						toast.error(m['sell.errors.add_title']());
 					} else if (!$form.description) {
-						toast.error(m.sell?.errors?.add_description?.() ?? 'Please add a description');
+						toast.error(m['sell.errors.add_description']());
 					} else if (!$form.price || $form.price <= 0) {
-						toast.error(m.sell?.errors?.add_price?.() ?? 'Please add a valid price');
+						toast.error(m['sell.errors.add_price']());
 					} else if (!$form.size) {
-						toast.error(m.sell?.errors?.select_size?.() ?? 'Please select a size');
+						toast.error(m['sell.errors.select_size']());
 					} else if (!$form.condition) {
-						toast.error(m.sell?.errors?.select_condition?.() ?? 'Please select item condition');
+						toast.error(m['sell.errors.select_condition']());
 					} else {
 						// Show first error if we don't have a specific message
 						const firstError = errors[0]?.message;
@@ -102,7 +102,7 @@
 					}
 				} else if (step === 4) {
 					if (!$form.location) {
-						toast.error(m.sell?.errors?.add_location?.() ?? 'Please add your location');
+						toast.error(m['sell.errors.add_location']());
 					}
 				} else {
 					// Generic error for other cases
@@ -117,7 +117,7 @@
 			
 			return true;
 		} catch (e) {
-			toast.error(m.sell?.errors?.validation_error?.() ?? 'Validation error. Please check your input.');
+			toast.error(m['sell.errors.validation_error']());
 			return false;
 		}
 	}
@@ -201,13 +201,13 @@
 	<div class="mx-auto max-w-2xl px-4 py-6">
 		<!-- Mobile-optimized header -->
 		<div class="mb-6 flex items-center justify-between">
-			<h1 class="text-xl font-semibold">{m.sell?.title?.() ?? 'Create Listing'}</h1>
+			<h1 class="text-xl font-semibold">{m['sell.title']()}</h1>
 			<button
 				type="button"
 				onclick={() => goto('/')}
 				class="text-gray-600 hover:text-gray-900"
 			>
-				{m.common?.cancel?.() ?? 'Cancel'}
+				{m['common.cancel']()}
 			</button>
 		</div>
 
@@ -326,7 +326,7 @@
 						onclick={handlePrev}
 						class="flex-1"
 					>
-						{m.common?.back?.() ?? 'Back'}
+						{m['common.back']()}
 					</Button>
 				{/if}
 
@@ -337,7 +337,7 @@
 						disabled={!canProceed}
 						class="flex-1"
 					>
-						{m.common?.next?.() ?? 'Next'}
+						{m['common.next']()}
 					</Button>
 				{:else}
 					<Button
@@ -345,7 +345,7 @@
 						disabled={$submitting || isPublishing}
 						class="flex-1"
 					>
-						{$submitting || isPublishing ? (m.sell?.publishing?.() ?? 'Publishing...') : (m.sell?.publish?.() ?? 'Publish Listing')}
+						{$submitting || isPublishing ? m['sell.publishing']() : m['sell.publish']()}
 					</Button>
 				{/if}
 			</div>
