@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Bell, User, Plus, MessageCircle } from '@lucide/svelte';
+	import { Bell, User, Plus, MessageCircle, Search } from '@lucide/svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
@@ -19,12 +19,18 @@
 	}: Props = $props();
 	
 	let isScrolled = $state(false);
+	let showMobileSearch = $state(false);
+	let searchQuery = $state('');
+	let searchInputRef = $state<HTMLInputElement | null>(null);
 	
-	// Handle scroll for subtle shadow on scroll
+	// Handle scroll for subtle shadow and search bar appearance
 	onMount(() => {
 		if (browser) {
 			const handleScroll = () => {
-				isScrolled = window.scrollY > 10;
+				const scrollY = window.scrollY;
+				isScrolled = scrollY > 10;
+				// Show mobile search after scrolling past 100px
+				showMobileSearch = scrollY > 100;
 			};
 			
 			window.addEventListener('scroll', handleScroll, { passive: true });
@@ -49,6 +55,21 @@
 	
 	function handleProfile() {
 		goto('/profile');
+	}
+	
+	function handleSearch(e: Event) {
+		e.preventDefault();
+		if (searchQuery.trim()) {
+			goto(`/search?q=${encodeURIComponent(searchQuery)}`);
+			searchQuery = '';
+		}
+	}
+	
+	function toggleSearch() {
+		showMobileSearch = !showMobileSearch;
+		if (showMobileSearch && searchInputRef) {
+			setTimeout(() => searchInputRef?.focus(), 100);
+		}
 	}
 </script>
 
@@ -101,6 +122,25 @@
 			</button>
 		</div>
 	</div>
+	
+	<!-- Mobile Compact Search Bar (shown on scroll) -->
+	{#if showMobileSearch}
+		<div class="mobile-search-bar md:hidden">
+			<form class="search-form" onsubmit={handleSearch}>
+				<div class="search-input-wrapper">
+					<Search size={18} class="search-icon" />
+					<input
+						bind:this={searchInputRef}
+						type="search"
+						bind:value={searchQuery}
+						placeholder="Search items..."
+						class="search-input"
+						autocomplete="off"
+					/>
+				</div>
+			</form>
+		</div>
+	{/if}
 </header>
 
 <style>
@@ -242,5 +282,77 @@
 		.action-btn:nth-child(1) {
 			display: none; /* Hide create button on mobile - it's in bottom nav */
 		}
+	}
+	
+	/* Mobile Search Bar */
+	.mobile-search-bar {
+		position: fixed;
+		top: 56px;
+		left: 0;
+		right: 0;
+		background: var(--color-white);
+		border-bottom: 1px solid var(--color-gray-200);
+		padding: 0.5rem 1rem;
+		z-index: calc(var(--z-higher) - 1);
+		animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+	}
+	
+	@keyframes slideDown {
+		from {
+			opacity: 0;
+			transform: translateY(-100%);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+	
+	.search-form {
+		width: 100%;
+	}
+	
+	.search-input-wrapper {
+		display: flex;
+		align-items: center;
+		background: var(--color-gray-50);
+		border: 1px solid var(--color-gray-200);
+		border-radius: 999px;
+		padding: 0 0.75rem;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		height: 36px;
+	}
+	
+	.search-input-wrapper:focus-within {
+		border-color: var(--color-primary);
+		background: var(--color-white);
+		box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.1);
+	}
+	
+	.search-icon {
+		color: var(--color-gray-500);
+		flex-shrink: 0;
+		margin-right: 0.5rem;
+	}
+	
+	.search-input {
+		flex: 1;
+		background: none;
+		border: none;
+		padding: 0;
+		font-size: 0.875rem;
+		color: var(--color-gray-900);
+		outline: none;
+		min-width: 0;
+	}
+	
+	.search-input::placeholder {
+		color: var(--color-gray-500);
+	}
+	
+	.search-input::-webkit-search-cancel-button {
+		-webkit-appearance: none;
+		appearance: none;
 	}
 </style>

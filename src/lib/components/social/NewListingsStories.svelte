@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Plus from '@lucide/svelte/icons/plus';
+	import QuickViewModal from '$lib/components/modals/QuickViewModal.svelte';
 	import type { FeedProduct } from '$lib/types';
 
 	type Story = {
@@ -21,6 +22,10 @@
 		currentUserId?: string;
 	} = $props();
 
+	let selectedProduct = $state<FeedProduct | null>(null);
+	let selectedProductIndex = $state<number>(-1);
+	let showQuickView = $state(false);
+
 	// Transform products into stories (last 20 newest)
 	const stories = $derived(
 		products
@@ -29,7 +34,7 @@
 				id: product.id,
 				product,
 				isNew: isWithin24Hours(product.created_at),
-				hasMultipleImages: product.images?.length > 1
+				hasMultipleImages: (product.images?.length ?? 0) > 1
 			}))
 	);
 
@@ -40,12 +45,34 @@
 		return diff < 24 * 60 * 60 * 1000;
 	}
 
-	function handleStoryClick(story: Story) {
+	function handleStoryClick(story: Story, index: number) {
+		selectedProduct = story.product;
+		selectedProductIndex = index;
+		showQuickView = true;
+		
+		// Call original handler if provided
 		if (onStoryClick) {
 			onStoryClick(story.product);
-		} else {
-			// Default: navigate to product page
-			window.location.href = `/products/${story.product.id}`;
+		}
+	}
+
+	function closeQuickView() {
+		showQuickView = false;
+		selectedProduct = null;
+		selectedProductIndex = -1;
+	}
+
+	function showNextProduct() {
+		if (selectedProductIndex < stories.length - 1) {
+			selectedProductIndex++;
+			selectedProduct = stories[selectedProductIndex].product;
+		}
+	}
+
+	function showPreviousProduct() {
+		if (selectedProductIndex > 0) {
+			selectedProductIndex--;
+			selectedProduct = stories[selectedProductIndex].product;
 		}
 	}
 
@@ -87,10 +114,10 @@
 		{/if}
 
 		<!-- Product Stories -->
-		{#each stories as story (story.id)}
+		{#each stories as story, index (story.id)}
 			<button 
 				class="story-item {story.isNew ? 'has-new' : ''}"
-				onclick={() => handleStoryClick(story)}
+				onclick={() => handleStoryClick(story, index)}
 				aria-label="View {story.product.title}"
 			>
 				<div class="story-circle">
@@ -147,11 +174,22 @@
 	</div>
 </div>
 
+<!-- Quick View Modal -->
+<QuickViewModal 
+	product={selectedProduct}
+	isOpen={showQuickView}
+	onClose={closeQuickView}
+	onNext={selectedProductIndex < stories.length - 1 ? showNextProduct : undefined}
+	onPrevious={selectedProductIndex > 0 ? showPreviousProduct : undefined}
+	hasNext={selectedProductIndex < stories.length - 1}
+	hasPrevious={selectedProductIndex > 0}
+/>
+
 <style>
 	.stories-bar {
 		background: white;
-		border-bottom: 1px solid #e5e7eb;
-		height: 120px; /* Fixed height to prevent layout shift */
+		border-bottom: 1px solid var(--color-gray-300);
+		height: 130px; /* Increased for premium visibility */
 		display: flex;
 		align-items: center;
 		overflow: hidden;
@@ -186,8 +224,8 @@
 		cursor: pointer;
 		flex-shrink: 0;
 		transition: transform 0.2s;
-		width: 72px; /* Fixed width */
-		height: 100px; /* Fixed height */
+		width: 80px; /* Increased for premium visibility */
+		height: 110px; /* Increased height */
 	}
 
 	.story-item:active {
@@ -196,11 +234,11 @@
 
 	/* Add Story Button */
 	.add-story .story-circle {
-		width: 66px;
-		height: 66px;
+		width: 74px;
+		height: 74px;
 		border-radius: 50%;
 		background: transparent;
-		border: 1px solid #2563eb; /* Thin blue border only */
+		border: 2px solid #2563eb; /* Slightly thicker for visibility */
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -214,8 +252,8 @@
 	}
 
 	.add-icon-wrapper {
-		width: 60px;
-		height: 60px;
+		width: 68px;
+		height: 68px;
 		border-radius: 50%;
 		background: transparent;
 		display: flex;
@@ -226,8 +264,8 @@
 
 	/* Product Story Circle */
 	.story-circle {
-		width: 66px;
-		height: 66px;
+		width: 74px;
+		height: 74px;
 		border-radius: 50%;
 		position: relative;
 		padding: 2px;
@@ -236,7 +274,7 @@
 	/* Gradient ring for new stories */
 	.story-ring {
 		position: absolute;
-		inset: -2px;
+		inset: -1px;
 		border-radius: 50%;
 		background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
 		z-index: -1;
@@ -249,8 +287,8 @@
 	}
 
 	.story-image-wrapper {
-		width: 62px;
-		height: 62px;
+		width: 70px;
+		height: 70px;
 		border-radius: 50%;
 		overflow: hidden;
 		border: 2px solid white;
@@ -267,17 +305,20 @@
 	/* Price Badge */
 	.price-badge {
 		position: absolute;
-		bottom: -6px;
+		bottom: -3px;
 		left: 50%;
 		transform: translateX(-50%);
-		background: rgba(0, 0, 0, 0.8);
+		background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8));
 		color: white;
-		padding: 2px 6px;
-		border-radius: 10px;
-		font-size: 9px;
+		padding: 3px 8px;
+		border-radius: 12px;
+		font-size: 10px;
 		font-weight: 600;
 		white-space: nowrap;
-		backdrop-filter: blur(4px);
+		backdrop-filter: blur(8px);
+		z-index: 2;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+		border: 0.5px solid rgba(255, 255, 255, 0.1);
 	}
 
 	/* Multiple Images Indicator */
@@ -295,15 +336,16 @@
 	/* Seller Avatar Overlay */
 	.seller-avatar {
 		position: absolute;
-		top: 25%;
+		top: -2px;
 		right: -2px;
-		transform: translateY(-50%);
 		width: 24px;
 		height: 24px;
 		border-radius: 50%;
 		border: 2px solid white;
 		overflow: hidden;
 		background: white;
+		z-index: 3;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 	}
 
 	.seller-avatar img {
@@ -379,36 +421,36 @@
 	/* Mobile optimizations */
 	@media (max-width: 640px) {
 		.stories-bar {
-			height: 110px; /* Slightly smaller on mobile */
+			height: 120px; /* Bigger for premium visibility */
 		}
 
 		.stories-container {
 			padding: 0 0.75rem;
-			gap: 0.5rem;
+			gap: 0.625rem;
 		}
 
 		.story-item {
-			width: 66px;
-			height: 94px;
+			width: 72px;
+			height: 100px;
 		}
 
 		.story-circle {
+			width: 66px;
+			height: 66px;
+		}
+
+		.story-image-wrapper {
+			width: 62px;
+			height: 62px;
+		}
+
+		.add-icon-wrapper {
 			width: 60px;
 			height: 60px;
 		}
 
-		.story-image-wrapper {
-			width: 56px;
-			height: 56px;
-		}
-
-		.add-icon-wrapper {
-			width: 54px;
-			height: 54px;
-		}
-
 		.story-label {
-			width: 60px;
+			width: 66px;
 			height: 26px;
 		}
 	}

@@ -67,11 +67,11 @@
 		padding: 0 1rem;
 		background: none;
 		border: none;
-		font-size: 0.875rem;
-		font-weight: 600;
+		font-size: 0.9375rem;
+		font-weight: 500;
 		color: #6b7280;
 		cursor: pointer;
-		transition: color 0.2s ease;
+		transition: all 0.2s ease;
 		position: relative;
 	}
 
@@ -85,17 +85,19 @@
 	}
 
 	.feed-tab.active {
-		color: #1f2937;
+		color: #111827;
+		font-weight: 600;
 	}
 
 	.feed-tab.active::after {
 		content: '';
 		position: absolute;
 		bottom: 0;
-		left: 20%;
-		right: 20%;
-		height: 2px;
+		left: 15%;
+		right: 15%;
+		height: 3px;
 		background: #2563eb;
+		border-radius: 3px 3px 0 0;
 	}
 
 	/* Vertical Separator */
@@ -107,12 +109,12 @@
 
 	@media (max-width: 640px) {
 		.tabs-container {
-			height: 44px; /* Slightly smaller on mobile */
+			height: 48px; /* Keep consistent height */
 		}
 		
 		.feed-tab {
-			font-size: 0.8125rem;
-			padding: 0 0.5rem;
+			font-size: 0.875rem;
+			padding: 0 0.75rem;
 		}
 	}
 </style>

@@ -48,6 +48,16 @@
 	--color-secondary-foreground: oklch(0.278 0.033 256.848);
 	--color-muted: oklch(0.967 0.003 264.542);
 	--color-muted-foreground: oklch(0.446 0.03 256.802);
+	
+	/* Z-index scale */
+	--z-base: 0;
+	--z-behind: 1;
+	--z-low: 10;
+	--z-medium: 20;
+	--z-medium-high: 25;
+	--z-high: 50;
+	--z-higher: 100;
+	--z-highest: 200;
 	--color-accent: oklch(0.967 0.003 264.542);
 	--color-accent-foreground: oklch(0.278 0.033 256.848);
 	--color-destructive: oklch(0.637 0.237 25.331);

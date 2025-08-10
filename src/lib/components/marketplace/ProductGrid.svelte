@@ -106,8 +106,8 @@
 	.product-feed.grid {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		gap: 16px; /* Increased spacing to match modern ProductCard */
-		padding: 16px;
+		gap: 8px; /* Compact spacing for mobile */
+		padding: 8px;
 		width: 100%;
 		margin: 0 auto;
 		background: #f9fafb; /* Light background for better card contrast */
@@ -171,8 +171,8 @@
 	@media (min-width: 768px) {
 		.product-feed.grid {
 			grid-template-columns: repeat(3, 1fr);
-			gap: 20px;
-			padding: 20px;
+			gap: 16px;
+			padding: 16px;
 			max-width: 1200px;
 		}
 	}
@@ -180,8 +180,8 @@
 	@media (min-width: 1024px) {
 		.product-feed.grid {
 			grid-template-columns: repeat(4, 1fr);
-			gap: 24px;
-			padding: 24px;
+			gap: 20px;
+			padding: 20px;
 			max-width: 1400px;
 		}
 	}

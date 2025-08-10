@@ -13,7 +13,7 @@
 	const supabase = getContext<SupabaseClient<Database>>('supabase');
 	const auth = getAuthContext();
 
-	let conversations = $state<Conversation[]>(data.conversations || []);
+	let conversations = $state<Conversation[]>([]);
 	let loading = $state(false);
 	let searchQuery = $state('');
 

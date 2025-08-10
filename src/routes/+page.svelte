@@ -211,8 +211,8 @@
 	}
 
 	function handleStoryClick(product: any) {
-		// Navigate to product detail page
-		goto(`/products/${product.id}`);
+		// Story clicks are now handled by the QuickViewModal in the component
+		// Optional: Add analytics or other tracking here
 	}
 
 	function handleAddListing() {

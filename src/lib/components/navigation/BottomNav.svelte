@@ -95,11 +95,13 @@
 					aria-label={item.label}
 				>
 					<div class={cn(
-						"flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200",
-						"bg-gray-900 text-white shadow-sm",
-						"hover:scale-105 active:scale-95"
+						"flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200",
+						"bg-gradient-to-r from-blue-600 to-blue-500 text-white",
+						"shadow-lg shadow-blue-500/25",
+						"hover:scale-110 hover:shadow-xl hover:shadow-blue-500/30",
+						"active:scale-95"
 					)}>
-						<PlusCircle size={20} strokeWidth={2} />
+						<PlusCircle size={26} strokeWidth={2.5} />
 					</div>
 				</a>
 			{:else}

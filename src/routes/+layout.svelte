@@ -15,6 +15,7 @@
 
 	let { data, children }: { data: PageData; children?: any } = $props();
 	let showUserMenu = $state(false);
+	let hasScrolledPast100 = $state(false);
 
 	// Set Supabase client in context for child components
 	setContext('supabase', data.supabase);
@@ -26,6 +27,13 @@
 	onMount(() => {
 		// Initialize CSS optimizations
 		initializeCSSOptimizations();
+		
+		// Track scroll position for mobile search bar
+		const handleScroll = () => {
+			hasScrolledPast100 = window.scrollY > 100;
+		};
+		
+		window.addEventListener('scroll', handleScroll, { passive: true });
 		const { data: { subscription } } = data.supabase.auth.onAuthStateChange((event, session) => {
 			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
 				// Update auth context immediately
@@ -42,7 +50,10 @@
 			}
 		});
 
-		return () => subscription.unsubscribe();
+		return () => {
+			subscription.unsubscribe();
+			window.removeEventListener('scroll', handleScroll);
+		};
 	});
 
 	// Navigation items moved to AppHeader and BottomNav components
@@ -60,7 +71,7 @@
 	</div>
 
 	<!-- Main Content -->
-	<main class="{$page.url.pathname.includes('/sell') || $page.url.pathname.includes('/onboarding') || $page.url.pathname.includes('/auth') || $page.url.pathname.includes('/messages') || $page.url.pathname.includes('/products') ? 'pt-14 pb-0 md:pt-15' : 'pt-14 pb-20 md:pt-15 md:pb-0'}">
+	<main class="{$page.url.pathname.includes('/sell') || $page.url.pathname.includes('/onboarding') || $page.url.pathname.includes('/auth') || $page.url.pathname.includes('/messages') || $page.url.pathname.includes('/products') ? 'pt-14 pb-0 md:pt-15' : hasScrolledPast100 ? 'pt-24 pb-20 md:pt-15 md:pb-0' : 'pt-14 pb-20 md:pt-15 md:pb-0'}">
 		{@render children?.()}
 	</main>
 
