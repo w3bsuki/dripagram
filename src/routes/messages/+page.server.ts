@@ -79,8 +79,13 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 
 		return {
 			id: conv.id,
-			participant1_id: conv.participant1_id,
-			participant2_id: conv.participant2_id,
+			buyer_id: conv.participant1_id, // Map participant1_id to buyer_id
+			seller_id: conv.participant2_id, // Map participant2_id to seller_id
+			product_id: conv.product_id,
+			last_message_at: lastMessage?.created_at || conv.created_at,
+			status: 'active' as const, // Default status
+			created_at: conv.created_at,
+			updated_at: conv.updated_at || conv.created_at, // Fallback to created_at if updated_at is missing
 			other_user: {
 				id: otherUserId,
 				username: otherProfile.username || 'User',
@@ -92,11 +97,9 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 				title: 'Product',
 				price: 0,
 				images: []
-			} : null,
+			} : undefined,
 			last_message: lastMessage || null,
-			unread_count: unreadCounts.get(conv.id) || 0,
-			last_message_at: lastMessage?.created_at || conv.created_at,
-			created_at: conv.created_at
+			unread_count: unreadCounts.get(conv.id) || 0
 		};
 	});
 

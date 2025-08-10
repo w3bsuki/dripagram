@@ -9,7 +9,7 @@
 	import Zap from '@lucide/svelte/icons/zap';
 	import { liveShoppingService, type LiveSession } from '$lib/services/live-shopping';
 	import LiveShopping from './LiveShopping.svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/ui/button';
 
 	// State
 	let activeSessions = $state<LiveSession[]>([]);
@@ -87,8 +87,18 @@
 <div class="live-shopping-list">
 	<!-- Full Session View (Modal) -->
 	{#if selectedSession}
-		<div class="session-modal-overlay" onclick={closeSession}>
-			<div class="session-modal" onclick={(e) => e.stopPropagation()}>
+		<div class="session-modal-overlay" role="dialog" tabindex="0" onclick={closeSession} onkeydown={(e) => {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				closeSession();
+			}
+		}} aria-label="Live shopping session modal">
+			<div class="session-modal" role="document" tabindex="0" onclick={(e) => e.stopPropagation()} onkeydown={(e) => {
+				if (e.key === 'Escape') {
+					e.preventDefault();
+					closeSession();
+				}
+			}}>
 				<div class="modal-header">
 					<h2>Live Shopping Session</h2>
 					<button class="close-btn" onclick={closeSession}>&times;</button>
@@ -144,7 +154,12 @@
 		<!-- Sessions Grid -->
 		<div class="sessions-grid">
 			{#each sortedSessions as session}
-				<div class="session-card" onclick={() => joinSession(session)}>
+				<div class="session-card" role="button" tabindex="0" onclick={() => joinSession(session)} onkeydown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						joinSession(session);
+					}
+				}} aria-label="Join live session: {session.title}">
 					<!-- Live Indicator -->
 					<div class="live-badge">
 						<span class="live-dot"></span>
@@ -236,7 +251,12 @@
 				<h4 class="featured-title">🔥 Hottest Sessions</h4>
 				<div class="featured-sessions">
 					{#each sortedSessions.slice(0, 3) as session}
-						<div class="featured-session" onclick={() => joinSession(session)}>
+						<div class="featured-session" role="button" tabindex="0" onclick={() => joinSession(session)} onkeydown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								joinSession(session);
+							}
+						}} aria-label="Join featured session: {session.title}">
 							<div class="featured-image">
 								<img src={session.product?.images?.[0] || '/placeholder.jpg'} alt={session.title} />
 								<div class="featured-overlay">

@@ -10,7 +10,7 @@
 	import Zap from '@lucide/svelte/icons/zap';
 	import { liveShoppingService, type LiveSession, type LiveMessage } from '$lib/services/live-shopping';
 	import { gamificationService } from '$lib/services/gamification';
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/ui/button';
 	import { toast } from '$lib/utils/toast';
 
 	let { 
@@ -38,9 +38,7 @@
 	let isAsking = $state(false);
 
 	// Toast state
-	let showToast = $state(false);
-	let toastMessage = $state('');
-	let toastType = $state<'success' | 'error'>('success');
+	// Toast messages handled by toast utility
 
 	// Auto-join on mount if specified
 	onMount(async () => {
@@ -274,10 +272,11 @@
 	}
 
 	function showToastMessage(message: string, type: 'success' | 'error') {
-		toastMessage = message;
-		toastType = type;
-		showToast = true;
-		setTimeout(() => showToast = false, 3000);
+		if (type === 'success') {
+			toast.success(message);
+		} else {
+			toast.error(message);
+		}
 	}
 
 	// Handle Enter key in message input
@@ -448,10 +447,7 @@
 	</div>
 </div>
 
-<!-- Toast Notifications -->
-{#if showToast}
-	<Toast message={toastMessage} type={toastType} />
-{/if}
+<!-- Toast notifications handled by global toast utility -->
 
 <style>
 	.live-shopping-container {

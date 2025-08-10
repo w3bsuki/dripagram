@@ -78,7 +78,7 @@ class UnifiedAnalyticsService {
 	private initialized = false;
 	private consentGiven = false;
 	private userId: string | null = null;
-	private sessionId: string;
+	private sessionId: string = '';
 	
 	// Event queue and batching
 	private eventQueue: QueuedEvent[] = [];
@@ -650,14 +650,7 @@ class UnifiedAnalyticsService {
 // Export singleton instance
 export const analytics = new UnifiedAnalyticsService();
 
-// Export types
-export type {
-	BaseEventProperties,
-	ProductProperties,
-	SearchProperties,
-	SocialProperties,
-	UserProperties
-};
+// Types are already exported as interfaces above
 
 // Convenience functions for backward compatibility
 export const trackEvent = (name: string, properties?: Record<string, any>) => 

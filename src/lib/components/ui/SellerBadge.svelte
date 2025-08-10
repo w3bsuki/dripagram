@@ -4,6 +4,7 @@
 	import Award from '@lucide/svelte/icons/award';
 	import Crown from '@lucide/svelte/icons/crown';
 	import Zap from '@lucide/svelte/icons/zap';
+	import * as m from '$lib/paraglide/messages';
 
 	let { 
 		level = 'new',
@@ -35,7 +36,7 @@
 			case 'elite':
 				return {
 					icon: Crown,
-					label: 'Elite Seller',
+					label: m['badges.top_seller'](),
 					color: 'bg-gradient-to-r from-purple-500 to-pink-500',
 					textColor: 'text-white',
 					borderColor: 'border-purple-500'
@@ -43,7 +44,7 @@
 			case 'pro':
 				return {
 					icon: Trophy,
-					label: 'Pro Seller',
+					label: m['badges.verified_seller'](),
 					color: 'bg-gradient-to-r from-yellow-400 to-orange-500',
 					textColor: 'text-white',
 					borderColor: 'border-yellow-500'
@@ -51,7 +52,7 @@
 			case 'trusted':
 				return {
 					icon: Award,
-					label: 'Trusted',
+					label: m['badges.trusted_seller'](),
 					color: 'bg-blue-500',
 					textColor: 'text-white',
 					borderColor: 'border-blue-500'
@@ -59,7 +60,7 @@
 			case 'rising':
 				return {
 					icon: Zap,
-					label: 'Rising Star',
+					label: m['badges.featured'](),
 					color: 'bg-green-500',
 					textColor: 'text-white',
 					borderColor: 'border-green-500'
@@ -67,7 +68,7 @@
 			default:
 				return {
 					icon: Star,
-					label: 'New Seller',
+					label: m['badges.new_seller'](),
 					color: 'bg-gray-400',
 					textColor: 'text-white',
 					borderColor: 'border-gray-400'
@@ -93,10 +94,12 @@
 			default: return 12;
 		}
 	});
+
+	const IconComponent = $derived(badgeConfig().icon);
 </script>
 
 <div class="seller-badge {badgeConfig().color} {badgeConfig().textColor} {sizeClasses()} {className}">
-	<svelte:component this={badgeConfig().icon} size={iconSize()} />
+	<IconComponent size={iconSize()} />
 	<span class="font-medium">{badgeConfig().label}</span>
 	{#if totalSales > 0 && size !== 'small'}
 		<span class="opacity-90">({totalSales}+ sales)</span>

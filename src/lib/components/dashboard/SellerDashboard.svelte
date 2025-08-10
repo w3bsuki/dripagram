@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
+	import Button from '$lib/components/ui/button';
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Progress } from '$lib/components/ui/progress';
 	import { Separator } from '$lib/components/ui/separator';
@@ -20,7 +20,7 @@
 		Wallet,
 		CreditCard,
 		Calendar
-	} from 'lucide-svelte';
+	} from '@lucide/svelte';
 	import type { User } from '@supabase/supabase-js';
 	import { formatCurrency, formatNumber } from '$lib/utils/format';
 

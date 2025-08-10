@@ -118,7 +118,12 @@
 {#if showFilters}
 	<div class="filter-overlay" role="dialog" aria-modal="true" aria-labelledby="filter-title" bind:this={modalElement}>
 		<button class="filter-backdrop" onclick={onClose} aria-label="Close filters"></button>
-		<div class="filter-sheet" onclick={(e) => e.stopPropagation()} role="document">
+		<div class="filter-sheet" onclick={(e) => e.stopPropagation()} onkeydown={(e) => {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				onClose();
+			}
+		}} role="document">
 			<div class="filter-header">
 				<h2 id="filter-title">Filters</h2>
 				<button class="close-filters" onclick={onClose} aria-label="Close filters">

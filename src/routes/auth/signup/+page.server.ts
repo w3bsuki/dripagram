@@ -1,5 +1,11 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { superValidate, message } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { signupSchema } from '$lib/schemas/auth';
 import type { Actions, PageServerLoad } from './$types';
+
+// Define adapter at module level for memoization
+const signupAdapter = zod(signupSchema as any);
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const { session } = await locals.safeGetSession();
@@ -9,97 +15,59 @@ export const load: PageServerLoad = async ({ locals }) => {
 		redirect(303, '/');
 	}
 	
-	return {};
+	const form = await superValidate(signupAdapter, { id: 'signup' });
+	return { form };
 };
 
 export const actions: Actions = {
 	default: async ({ request, locals, url }) => {
-		const formData = await request.formData();
-		const email = formData.get('email') as string;
-		const password = formData.get('password') as string;
-		const fullName = formData.get('fullName') as string;
-		const username = formData.get('username') as string;
-		const accountType = formData.get('accountType') as 'personal' | 'brand';
-		const brandName = formData.get('brandName') as string;
-		const acceptTerms = formData.get('acceptTerms') === 'on';
-
-		// Validation
-		if (!email || !password || !fullName || !username) {
-			return fail(400, {
-				error: 'Email, full name, username, and password are required',
-				email,
-				fullName,
-				username,
-				accountType
-			});
+		const form = await superValidate(request, signupAdapter, { id: 'signup' });
+		
+		if (!form.valid) {
+			return fail(400, { form });
 		}
-
-		if (!acceptTerms) {
-			return fail(400, {
-				error: 'Please accept the terms and conditions',
-				email,
-				fullName,
-				username,
-				accountType
-			});
-		}
-
-		if (accountType === 'brand' && !brandName?.trim()) {
-			return fail(400, {
-				error: 'Brand name is required for brand accounts',
-				email,
-				fullName,
-				username,
-				accountType
-			});
-		}
-
-		// Create metadata
-		const metadata: any = { username, full_name: fullName };
-		if (accountType) metadata.account_type = accountType;
-		if (brandName) metadata.brand_name = brandName;
+		
+		const { email, password, fullName } = form.data as {
+			email: string;
+			password: string;
+			confirmPassword: string;
+			fullName: string;
+		};
 
 		// Sign up the user
 		const { data: authData, error } = await locals.supabase.auth.signUp({
 			email,
 			password,
 			options: {
-				data: metadata,
+				data: {
+					full_name: fullName
+				},
 				emailRedirectTo: `${url.origin}/auth/confirm`
 			}
 		});
 
 		if (error) {
-			return fail(400, {
-				error: error.message,
-				email,
-				fullName,
-				username,
-				accountType
-			});
+			return message(form, error.message, { status: 400 });
 		}
 
 		if (authData.user) {
-			// Update profile with additional data
-			if (fullName || username || accountType || brandName) {
-				const profileUpdates: any = { 
+			// Update profile with additional data - username will be set during onboarding
+			const { error: profileError } = await locals.supabase
+				.from('profiles')
+				.upsert({
 					id: authData.user.id,
 					full_name: fullName,
-					username,
-					account_type: accountType
-				};
-				if (brandName) profileUpdates.brand_name = brandName;
+					account_type: 'personal',
+					created_at: new Date().toISOString(),
+					updated_at: new Date().toISOString()
+				});
 
-				const { error: profileError } = await locals.supabase
-					.from('profiles')
-					.upsert(profileUpdates);
-
-				if (profileError) {
-				}
+			if (profileError) {
+				console.error('Profile creation error:', profileError);
 			}
 		}
 
 		// Redirect to verification page
-		redirect(303, '/auth/verify');
+		throw redirect(303, '/auth/verify');
 	}
 };

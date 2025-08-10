@@ -4,8 +4,11 @@ import type { LayoutLoad } from './$types';
 import type { Database } from '$lib/types/database.types';
 import posthog from 'posthog-js';
 import { browser } from '$app/environment';
+import { setLocale } from '$lib/paraglide/runtime';
 
 export const load: LayoutLoad = async ({ data, depends, fetch }) => {
+	// Force Bulgarian locale
+	setLocale('bg');
 	/**
 	 * Declare a dependency so the layout can be invalidated, for example, on
 	 * session refresh.

@@ -214,19 +214,4 @@
 		}
 	}
 	
-	/* Loading state support */
-	.product-card[data-loading="true"] {
-		opacity: 0.7;
-		pointer-events: none;
-	}
-	
-	/* Featured/promoted product styling */
-	.product-card[data-featured="true"] {
-		border-color: #f59e0b;
-		box-shadow: 0 1px 3px rgba(245, 158, 11, 0.1);
-	}
-	
-	.product-card[data-featured="true"]:hover {
-		box-shadow: 0 10px 25px rgba(245, 158, 11, 0.15), 0 4px 10px rgba(245, 158, 11, 0.08);
-	}
 </style>

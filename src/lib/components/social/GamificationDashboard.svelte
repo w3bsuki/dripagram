@@ -177,7 +177,8 @@
 				{#if reputation}
 					<div class="stat-card reputation-card">
 						<div class="card-header">
-							<svelte:component this={getLevelIcon(reputation.level)} class="header-icon {getLevelColor(reputation.level)}" size={24} />
+							{@const IconComponent = getLevelIcon(reputation.level)}
+							<IconComponent class="header-icon {getLevelColor(reputation.level)}" size={24} />
 							<div>
 								<h3>Seller Reputation</h3>
 								<p class="level-text {getLevelColor(reputation.level)}">{reputation.level.toUpperCase()}</p>

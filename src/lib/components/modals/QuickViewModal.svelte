@@ -3,6 +3,7 @@
 	import { fade } from 'svelte/transition';
 	import { goto } from '$app/navigation';
 	import type { FeedProduct } from '$lib/types';
+	import * as m from '$lib/paraglide/messages';
 
 	interface Props {
 		product: FeedProduct | null;
@@ -71,10 +72,17 @@
 	<div 
 		class="modal-overlay"
 		onclick={handleOverlayClick}
+		onkeydown={(e) => {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				onClose();
+			}
+		}}
 		transition:fade={{ duration: 150 }}
 		role="dialog"
 		aria-modal="true"
 		aria-labelledby="quick-view-title"
+		tabindex="0"
 	>
 		<div class="modal-content">
 			<!-- Close Button -->
@@ -103,10 +111,30 @@
 				{#if product.size || product.condition}
 					<div class="product-meta">
 						{#if product.size}
-							<span class="meta-item">Size: {product.size}</span>
+							<span class="meta-item">{m['product.size']()}: {product.size}</span>
 						{/if}
 						{#if product.condition}
-							<span class="meta-item">{product.condition}</span>
+							<span class="meta-item">
+								{#if product.condition === 'new_with_tags'}
+									{m['conditions.new_with_tags']()}
+								{:else if product.condition === 'new_without_tags'}
+									{m['conditions.new_without_tags']()}
+								{:else if product.condition === 'like_new'}
+									{m['conditions.like_new']()}
+								{:else if product.condition === 'very_good'}
+									{m['conditions.very_good']()}
+								{:else if product.condition === 'good'}
+									{m['conditions.good']()}
+								{:else if product.condition === 'brand_new'}
+									{m['conditions.brand_new']()}
+								{:else if product.condition === 'fair'}
+									{m['conditions.fair']()}
+								{:else if product.condition === 'satisfactory'}
+									{m['conditions.satisfactory']()}
+								{:else}
+									{product.condition.replace('_', ' ')}
+								{/if}
+							</span>
 						{/if}
 					</div>
 				{/if}

@@ -1,856 +1,1436 @@
 <script lang="ts">
-	import { getAuthContext } from '$lib/stores/auth.svelte';
-	import { goto } from '$app/navigation';
-	import { toast } from '$lib/utils/toast';
-	import {
-		UserCircle,
-		CreditCard,
-		Settings,
-		CheckCircle,
-		ChevronRight,
-		Building2,
-		Camera,
-		MapPin,
-		Phone,
-		Globe,
-		Instagram,
-		Facebook,
-		Twitter,
-	} from '@lucide/svelte';
-	import { createClient } from '$lib/supabase/client';
+  import { createClient } from '$lib/supabase/client';
+  import { goto } from '$app/navigation';
+  import { toast } from '$lib/utils/toast';
+  import { browser } from '$app/environment';
+  import { 
+    ChevronRight, 
+    ChevronLeft,
+    User, 
+    Building2, 
+    Instagram, 
+    Facebook,
+    CheckCircle,
+    Sparkles,
+    Shield,
+    Zap,
+    Heart,
+    TrendingUp,
+    CreditCard,
+    Wallet
+  } from '@lucide/svelte';
+  import * as m from '$lib/paraglide/messages';
+  import type { PageData } from './$types';
 
-	const supabase = createClient();
-	const auth = getAuthContext();
+  let { data }: { data: PageData } = $props();
+  
+  const supabase = createClient();
+  
+  // Onboarding state
+  let currentStep = $state(1);
+  let isLoading = $state(false);
+  let showSuccess = $state(false);
+  
+  // Form data
+  let formData = $state({
+    username: '',
+    account_type: '' as 'personal' | 'brand',
+    payout_method: '' as 'revolut' | 'paypal' | 'card' | '',
+    payout_details: '',
+    social_links: {
+      instagram: '',
+      facebook: '',
+      tiktok: ''
+    },
+    bio: '',
+    region: 'sofia' // Default region for Bulgaria
+  });
 
-	interface OnboardingStep {
-		id: string;
-		title: string;
-		description: string;
-		icon: any;
-		completed: boolean;
-	}
+  // Validation
+  let errors = $state<Record<string, string>>({});
 
-	let currentStep = $state(0);
-	let loading = $state(false);
+  const steps = [
+    {
+      id: 1,
+      title: m['onboarding.username.title'](),
+      subtitle: m['onboarding.username.subtitle'](),
+      icon: User
+    },
+    {
+      id: 2,
+      title: m['onboarding.account_type.title'](),
+      subtitle: m['onboarding.account_type.subtitle'](),
+      icon: Building2
+    },
+    {
+      id: 3,
+      title: m['onboarding.payout.title'](),
+      subtitle: m['onboarding.payout.subtitle'](),
+      icon: Wallet
+    },
+    {
+      id: 4,
+      title: m['onboarding.social.title'](),
+      subtitle: m['onboarding.social.subtitle'](),
+      icon: Sparkles
+    }
+  ];
 
-	// Profile data
-	let profileData = $state({
-		full_name: '',
-		phone: '',
-		address: {
-			street: '',
-			city: '',
-			postal_code: '',
-			country: 'България',
-		},
-		bio: '',
-		website: '',
-		social_links: {
-			instagram: '',
-			facebook: '',
-			twitter: '',
-		},
-	});
+  let currentStepInfo = $derived(steps.find(s => s.id === currentStep)!);
 
-	// Brand specific data
-	let brandData = $state({
-		brand_description: '',
-		brand_website: '',
-		brand_category: '',
-	});
+  // Platform benefits for step 4
+  const benefits = [
+    {
+      icon: Shield,
+      title: m['onboarding.social.benefit_protection_title'](),
+      description: m['onboarding.social.benefit_protection_desc']()
+    },
+    {
+      icon: Zap,
+      title: m['onboarding.social.benefit_fees_title'](),
+      description: m['onboarding.social.benefit_fees_desc']()
+    },
+    {
+      icon: Heart,
+      title: m['onboarding.social.benefit_community_title'](),
+      description: m['onboarding.social.benefit_community_desc']()
+    },
+    {
+      icon: TrendingUp,
+      title: m['onboarding.social.benefit_growth_title'](),
+      description: m['onboarding.social.benefit_growth_desc']()
+    }
+  ];
 
-	// Payout data
-	let payoutData = $state({
-		method: '',
-		bank_name: '',
-		iban: '',
-		account_holder: '',
-	});
+  // Username validation
+  async function validateUsername() {
+    if (!formData.username) {
+      errors.username = m['onboarding.username.error_required']();
+      return false;
+    }
 
-	// Preferences
-	let preferences = $state({
-		newsletter: true,
-		notifications: {
-			email: true,
-			push: true,
-			sms: false,
-		},
-		privacy: {
-			show_online_status: true,
-			show_location: false,
-		},
-	});
+    if (formData.username.length < 3) {
+      errors.username = m['onboarding.username.error_short']();
+      return false;
+    }
 
-	let steps = $state<OnboardingStep[]>([
-		{
-			id: 'profile',
-			title: 'Complete Your Profile',
-			description: 'Add your personal information',
-			icon: UserCircle,
-			completed: false,
-		},
-		{
-			id: 'payout',
-			title: 'Payout Method',
-			description: "How you'll receive payments",
-			icon: CreditCard,
-			completed: false,
-		},
-		{
-			id: 'preferences',
-			title: 'Preferences',
-			description: 'Customize your experience',
-			icon: Settings,
-			completed: false,
-		},
-	]);
+    if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      errors.username = m['onboarding.username.error_invalid']();
+      return false;
+    }
 
-	const isBrand = auth.user?.user_metadata?.account_type === 'brand';
+    // Check if username exists
+    const { data: existing } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('username', formData.username.toLowerCase())
+      .single();
 
-	function nextStep() {
-		if (currentStep < steps.length - 1) {
-			steps[currentStep].completed = true;
-			currentStep++;
-		} else {
-			completeOnboarding();
-		}
-	}
+    if (existing) {
+      errors.username = m['onboarding.username.error_taken']();
+      return false;
+    }
 
-	function previousStep() {
-		if (currentStep > 0) {
-			currentStep--;
-		}
-	}
+    errors.username = '';
+    return true;
+  }
 
-	async function completeOnboarding() {
-		loading = true;
+  // Step navigation
+  async function nextStep() {
+    if (currentStep === 1) {
+      const isValid = await validateUsername();
+      if (!isValid) return;
+    }
 
-		try {
-			// Update profile
-			const { error: profileError } = await supabase
-				.from('profiles')
-				.update({
-					full_name: profileData.full_name,
-					phone: profileData.phone,
-					address: profileData.address,
-					bio: profileData.bio,
-					website: profileData.website,
-					social_links: profileData.social_links,
-					payout_method: payoutData,
-					preferences: preferences,
-					onboarding_completed: true,
-					...(isBrand && {
-						brand_description: brandData.brand_description,
-						brand_website: brandData.brand_website,
-						brand_category: brandData.brand_category,
-					}),
-				})
-				.eq('id', auth.user!.id);
+    if (currentStep === 2) {
+      if (!formData.account_type) {
+        errors.account_type = m['onboarding.account_type.error_required']();
+        return;
+      }
+      errors.account_type = '';
+    }
 
-			if (profileError) throw profileError;
+    if (currentStep === 3) {
+      if (!formData.payout_method) {
+        errors.payout_method = m['onboarding.payout.error_method_required']();
+        return;
+      }
+      if (!formData.payout_details) {
+        errors.payout_details = m['onboarding.payout.error_details_required']();
+        return;
+      }
+      errors.payout_method = '';
+      errors.payout_details = '';
+    }
 
-			// Update onboarding progress
-			const { error: onboardingError } = await supabase
-				.from('user_onboarding')
-				.update({
-					profile_completed: true,
-					payout_method_added: true,
-					preferences_set: true,
-					completed_at: new Date().toISOString(),
-				})
-				.eq('user_id', auth.user!.id);
+    if (currentStep < 4) {
+      currentStep++;
+    } else {
+      await completeOnboarding();
+    }
+  }
 
-			if (onboardingError) throw onboardingError;
+  function previousStep() {
+    if (currentStep > 1) {
+      currentStep--;
+    }
+  }
 
-			toast.success('Welcome to Driplo! Your profile is all set up.');
-			await goto('/');
-		} catch (error) {
-			toast.error('Failed to complete onboarding. Please try again.');
-		} finally {
-			loading = false;
-		}
-	}
+  // Complete onboarding
+  async function completeOnboarding() {
+    isLoading = true;
 
-	function skipOnboarding() {
-		goto('/');
-	}
+    try {
+      const user = data.user;
+      
+      // Clean social links - remove empty ones
+      const socialLinks = Object.fromEntries(
+        Object.entries(formData.social_links).filter(([_, value]) => value.trim() !== '')
+      );
+
+      // Update profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          username: formData.username.toLowerCase(),
+          account_type: formData.account_type,
+          social_links: socialLinks,
+          bio: formData.bio,
+          region: formData.region,
+          onboarding_completed: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+      
+      if (profileError) throw profileError;
+      
+      // Save payout information (encrypted in real app)
+      await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: user.id,
+          payout_method: formData.payout_method,
+          payout_details: formData.payout_details, // Should be encrypted in production
+          updated_at: new Date().toISOString()
+        });
+
+      // Update user preferences
+      const { error: preferencesError } = await supabase.rpc('sync_cookie_preferences', {
+        p_user_id: user.id,
+        p_locale: 'bg-BG', // Default to Bulgarian
+        p_region: formData.region
+      });
+
+      if (preferencesError) throw preferencesError;
+
+      // Show success screen
+      showSuccess = true;
+      
+      // Auto redirect to main page after 3 seconds
+      setTimeout(() => {
+        toast.success(m['onboarding.welcome_toast']());
+        goto('/');
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Onboarding error:', error);
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  // Handle social link changes
+  function updateSocialLink(platform: keyof typeof formData.social_links, value: string) {
+    formData.social_links[platform] = value;
+  }
+
+  // Navigation from success screen
+  async function goToHome() {
+    toast.success(m['onboarding.welcome_toast']());
+    await goto('/');
+  }
+
+  async function goToSell() {
+    toast.success(m['onboarding.welcome_toast']());
+    await goto('/sell');
+  }
 </script>
 
+<svelte:head>
+  <title>Welcome to Driplo - Complete Your Profile</title>
+  <meta name="description" content="Complete your Driplo profile to start buying and selling fashion" />
+</svelte:head>
+
 <div class="onboarding-container">
-	<div class="onboarding-header">
-		<a href="/" class="logo">driplo</a>
-		<button class="skip-btn" onclick={skipOnboarding}> Skip for now </button>
-	</div>
+  {#if showSuccess}
+    <!-- Success Screen -->
+    <div class="success-container">
+      <div class="success-content">
+        <div class="success-header">
+          <div class="success-icon">
+            <CheckCircle />
+          </div>
+          <h1>{m['onboarding.success.title']()}</h1>
+          <p class="success-subtitle">{m['onboarding.success.subtitle']()}</p>
+          <p class="welcome-message">{m['onboarding.success.welcome_message']()}</p>
+        </div>
 
-	<!-- Progress Bar -->
-	<div class="progress-container">
-		<div class="progress-bar">
-			<div class="progress-fill" style="width: {((currentStep + 1) / steps.length) * 100}%"></div>
-		</div>
-		<div class="progress-steps">
-			{#each steps as step, index}
-				<div
-					class="progress-step"
-					class:active={index === currentStep}
-					class:completed={step.completed}
-				>
-					<div class="step-icon">
-						{#if step.completed}
-							<CheckCircle size={20} />
-						{:else}
-							{@const IconComponent = step.icon}
-							<IconComponent size={20} />
-						{/if}
-					</div>
-					<span class="step-label">{step.title}</span>
-				</div>
-			{/each}
-		</div>
-	</div>
+        <div class="next-steps">
+          <h2>{m['onboarding.success.what_next_title']()}</h2>
+          <div class="steps-list">
+            <div class="step-item">
+              <Sparkles class="step-icon" />
+              <span>{m['onboarding.success.next_step_1']()}</span>
+            </div>
+            <div class="step-item">
+              <Heart class="step-icon" />
+              <span>{m['onboarding.success.next_step_2']()}</span>
+            </div>
+            <div class="step-item">
+              <TrendingUp class="step-icon" />
+              <span>{m['onboarding.success.next_step_3']()}</span>
+            </div>
+          </div>
+        </div>
 
-	<!-- Step Content -->
-	<div class="step-content">
-		{#if currentStep === 0}
-			<!-- Profile Step -->
-			<div class="step-card">
-				<h2>Complete Your Profile</h2>
-				<p>Help buyers and sellers get to know you better</p>
+        <div class="success-actions">
+          <button class="btn-secondary" onclick={goToHome}>
+            {m['onboarding.success.start_exploring']()}
+            <Sparkles />
+          </button>
+          <button class="btn-primary" onclick={goToSell}>
+            {m['onboarding.success.go_to_sell']()}
+            <TrendingUp />
+          </button>
+        </div>
+      </div>
+    </div>
+  {:else}
+    <!-- Regular Onboarding Flow -->
+    <!-- Header -->
+    <div class="header">
+      <a href="/" class="logo">
+        <Sparkles class="logo-icon" />
+        <span>driplo</span>
+      </a>
+      
+      <div class="progress">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: {(currentStep / 4) * 100}%"></div>
+        </div>
+        <span class="progress-text">{m['onboarding.step_counter']({ current: currentStep, total: 4 })}</span>
+      </div>
+    </div>
 
-				<div class="form-section">
-					<div class="form-group">
-						<label for="full_name">Full Name</label>
-						<input
-							id="full_name"
-							type="text"
-							bind:value={profileData.full_name}
-							placeholder="John Doe"
-							class="input-field"
-						/>
-					</div>
+    <!-- Main Content -->
+  <div class="content">
+    <div class="step-header">
+      {#if currentStepInfo}
+        {@const Icon = currentStepInfo.icon}
+        <div class="step-icon">
+          <Icon />
+        </div>
+      {/if}
+      {#if currentStepInfo}
+        <h1>{currentStepInfo.title}</h1>
+        <p>{currentStepInfo.subtitle}</p>
+      {/if}
+    </div>
 
-					<div class="form-group">
-						<label for="phone">Phone Number</label>
-						<div class="input-wrapper">
-							<Phone size={20} class="input-icon" />
-							<input
-								id="phone"
-								type="tel"
-								bind:value={profileData.phone}
-								placeholder="+359 88 123 4567"
-								class="input-field with-icon"
-							/>
-						</div>
-					</div>
+    <div class="step-content">
+      {#if currentStep === 1}
+        <!-- Step 1: Username -->
+        <div class="form-section">
+          <div class="input-group">
+            <label for="username">{m['onboarding.username.label']()}</label>
+            <div class="username-input">
+              <span class="username-prefix">@</span>
+              <input
+                id="username"
+                type="text"
+                bind:value={formData.username}
+                placeholder={m['onboarding.username.placeholder']()}
+                class:error={errors.username}
+                maxlength="30"
+              />
+            </div>
+            {#if errors.username}
+              <span class="error-text">{errors.username}</span>
+            {/if}
+          </div>
+          
+          <div class="username-tips">
+            <h4>{m['onboarding.username.tips_title']()}</h4>
+            <ul>
+              <li>{m['onboarding.username.tip_1']()}</li>
+              <li>{m['onboarding.username.tip_2']()}</li>
+              <li>{m['onboarding.username.tip_3']()}</li>
+              <li>{m['onboarding.username.tip_4']()}</li>
+            </ul>
+          </div>
+        </div>
 
-					<div class="form-group">
-						<label for="bio">Bio</label>
-						<textarea
-							id="bio"
-							bind:value={profileData.bio}
-							placeholder="Tell us about yourself..."
-							rows="3"
-							class="input-field"
-						></textarea>
-					</div>
+      {:else if currentStep === 2}
+        <!-- Step 2: Account Type -->
+        <div class="account-types">
+          <label class="account-option" class:selected={formData.account_type === 'personal'}>
+            <input
+              type="radio"
+              bind:group={formData.account_type}
+              value="personal"
+            />
+            <div class="option-content">
+              <div class="option-icon">
+                <User />
+              </div>
+              <div class="option-text">
+                <h3>{m['onboarding.account_type.personal_title']()}</h3>
+                <p>{m['onboarding.account_type.personal_subtitle']()}</p>
+                <ul>
+                  <li>{m['onboarding.account_type.personal_benefit_1']()}</li>
+                  <li>{m['onboarding.account_type.personal_benefit_2']()}</li>
+                  <li>{m['onboarding.account_type.personal_benefit_3']()}</li>
+                </ul>
+              </div>
+            </div>
+          </label>
 
-					{#if isBrand}
-						<div class="brand-section">
-							<h3>Brand Information</h3>
+          <label class="account-option" class:selected={formData.account_type === 'brand'}>
+            <input
+              type="radio"
+              bind:group={formData.account_type}
+              value="brand"
+            />
+            <div class="option-content">
+              <div class="option-icon">
+                <Building2 />
+              </div>
+              <div class="option-text">
+                <h3>{m['onboarding.account_type.brand_title']()}</h3>
+                <p>{m['onboarding.account_type.brand_subtitle']()}</p>
+                <ul>
+                  <li>{m['onboarding.account_type.brand_benefit_1']()}</li>
+                  <li>{m['onboarding.account_type.brand_benefit_2']()}</li>
+                  <li>{m['onboarding.account_type.brand_benefit_3']()}</li>
+                </ul>
+              </div>
+            </div>
+          </label>
+        </div>
 
-							<div class="form-group">
-								<label for="brand_category">Category</label>
-								<select
-									id="brand_category"
-									bind:value={brandData.brand_category}
-									class="input-field"
-								>
-									<option value="">Select category</option>
-									<option value="Fashion">Fashion</option>
-									<option value="Sportswear">Sportswear</option>
-									<option value="Accessories">Accessories</option>
-									<option value="Footwear">Footwear</option>
-									<option value="Luxury">Luxury</option>
-									<option value="Streetwear">Streetwear</option>
-									<option value="Vintage">Vintage</option>
-								</select>
-							</div>
+        {#if errors.account_type}
+          <span class="error-text">{errors.account_type}</span>
+        {/if}
 
-							<div class="form-group">
-								<label for="brand_description">Brand Description</label>
-								<textarea
-									id="brand_description"
-									bind:value={brandData.brand_description}
-									placeholder="What makes your brand special?"
-									rows="3"
-									class="input-field"
-								></textarea>
-							</div>
+      {:else if currentStep === 3}
+        <!-- Step 3: Payout Method -->
+        <div class="payout-section">
+          <div class="payout-methods">
+            <label class="payout-option" class:selected={formData.payout_method === 'revolut'}>
+              <input
+                type="radio"
+                bind:group={formData.payout_method}
+                value="revolut"
+              />
+              <div class="option-content">
+                <div class="option-icon" style="background: linear-gradient(135deg, #191726, #2e2c3f);">
+                  <Wallet />
+                </div>
+                <div class="option-text">
+                  <h3>{m['onboarding.payout.revolut_title']()}</h3>
+                  <p>{m['onboarding.payout.revolut_subtitle']()}</p>
+                </div>
+              </div>
+            </label>
 
-							<div class="form-group">
-								<label for="brand_website">Website</label>
-								<div class="input-wrapper">
-									<Globe size={20} class="input-icon" />
-									<input
-										id="brand_website"
-										type="url"
-										bind:value={brandData.brand_website}
-										placeholder="https://yourbrand.com"
-										class="input-field with-icon"
-									/>
-								</div>
-							</div>
-						</div>
-					{/if}
+            <label class="payout-option" class:selected={formData.payout_method === 'paypal'}>
+              <input
+                type="radio"
+                bind:group={formData.payout_method}
+                value="paypal"
+              />
+              <div class="option-content">
+                <div class="option-icon" style="background: linear-gradient(135deg, #003087, #009cde);">
+                  <Wallet />
+                </div>
+                <div class="option-text">
+                  <h3>{m['onboarding.payout.paypal_title']()}</h3>
+                  <p>{m['onboarding.payout.paypal_subtitle']()}</p>
+                </div>
+              </div>
+            </label>
 
-					<div class="address-section">
-						<h3>Address</h3>
-						<div class="form-row">
-							<div class="form-group">
-								<label for="city">City</label>
-								<input
-									id="city"
-									type="text"
-									bind:value={profileData.address.city}
-									placeholder="Sofia"
-									class="input-field"
-								/>
-							</div>
-							<div class="form-group">
-								<label for="postal_code">Postal Code</label>
-								<input
-									id="postal_code"
-									type="text"
-									bind:value={profileData.address.postal_code}
-									placeholder="1000"
-									class="input-field"
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		{:else if currentStep === 1}
-			<!-- Payout Step -->
-			<div class="step-card">
-				<h2>Set Up Payout Method</h2>
-				<p>Choose how you'd like to receive payments for your sales</p>
+            <label class="payout-option" class:selected={formData.payout_method === 'card'}>
+              <input
+                type="radio"
+                bind:group={formData.payout_method}
+                value="card"
+              />
+              <div class="option-content">
+                <div class="option-icon">
+                  <CreditCard />
+                </div>
+                <div class="option-text">
+                  <h3>{m['onboarding.payout.card_title']()}</h3>
+                  <p>{m['onboarding.payout.card_subtitle']()}</p>
+                </div>
+              </div>
+            </label>
+          </div>
 
-				<div class="payout-methods">
-					<label class="payout-option">
-						<input type="radio" bind:group={payoutData.method} value="bank" name="payout" />
-						<div class="option-content">
-							<div class="option-icon">🏦</div>
-							<div class="option-text">
-								<h4>Bank Transfer</h4>
-								<p>Direct deposit to your bank account</p>
-							</div>
-						</div>
-					</label>
+          {#if formData.payout_method}
+            <div class="payout-details">
+              <label for="payout_details">
+                {#if formData.payout_method === 'revolut'}
+                  {m['onboarding.payout.revolut_label']()}
+                {:else if formData.payout_method === 'paypal'}
+                  {m['onboarding.payout.paypal_label']()}
+                {:else}
+                  {m['onboarding.payout.card_label']()}
+                {/if}
+              </label>
+              <input
+                id="payout_details"
+                type="text"
+                bind:value={formData.payout_details}
+                placeholder={
+                  formData.payout_method === 'revolut' ? m['onboarding.payout.revolut_placeholder']() :
+                  formData.payout_method === 'paypal' ? m['onboarding.payout.paypal_placeholder']() :
+                  m['onboarding.payout.card_placeholder']()
+                }
+                class="payout-input"
+              />
+            </div>
+          {/if}
 
-					<label class="payout-option">
-						<input type="radio" bind:group={payoutData.method} value="revolut" name="payout" />
-						<div class="option-content">
-							<div class="option-icon">💳</div>
-							<div class="option-text">
-								<h4>Revolut</h4>
-								<p>Fast transfers to your Revolut account</p>
-							</div>
-						</div>
-					</label>
-				</div>
+          {#if errors.payout_method}
+            <span class="error-text">{errors.payout_method}</span>
+          {/if}
+          {#if errors.payout_details}
+            <span class="error-text">{errors.payout_details}</span>
+          {/if}
+        </div>
 
-				{#if payoutData.method === 'bank'}
-					<div class="bank-details">
-						<div class="form-group">
-							<label for="bank_name">Bank Name</label>
-							<input
-								id="bank_name"
-								type="text"
-								bind:value={payoutData.bank_name}
-								placeholder="UniCredit Bulbank"
-								class="input-field"
-							/>
-						</div>
+      {:else if currentStep === 4}
+        <!-- Step 4: Social Links & Launch -->
+        <div class="final-step">
+          <div class="social-links">
+            <h3>{m['onboarding.social.connect_title']()} <span class="optional">({m['onboarding.social.optional']()})</span></h3>
+            <p>{m['onboarding.social.connect_subtitle']()}</p>
+            
+            <div class="social-inputs">
+              <div class="social-input">
+                <Instagram class="social-icon" />
+                <input
+                  type="text"
+                  placeholder={m['onboarding.social.instagram_placeholder']()}
+                  bind:value={formData.social_links.instagram}
+                />
+              </div>
+              
+              <div class="social-input">
+                <Facebook class="social-icon" />
+                <input
+                  type="text"
+                  placeholder={m['onboarding.social.facebook_placeholder']()}
+                  bind:value={formData.social_links.facebook}
+                />
+              </div>
+              
+              <div class="social-input">
+                <span class="social-icon tiktok">🎵</span>
+                <input
+                  type="text"
+                  placeholder={m['onboarding.social.tiktok_placeholder']()}
+                  bind:value={formData.social_links.tiktok}
+                />
+              </div>
+            </div>
+          </div>
 
-						<div class="form-group">
-							<label for="iban">IBAN</label>
-							<input
-								id="iban"
-								type="text"
-								bind:value={payoutData.iban}
-								placeholder="BG00 UNCR 0000 0000 0000 00"
-								class="input-field"
-							/>
-						</div>
+          <div class="platform-benefits">
+            <h3>{m['onboarding.social.benefits_title']()}</h3>
+            <div class="benefits-grid">
+              {#each benefits as benefit}
+                {@const BenefitIcon = benefit.icon}
+                <div class="benefit">
+                  <BenefitIcon class="benefit-icon" />
+                  <div class="benefit-text">
+                    <h4>{benefit.title}</h4>
+                    <p>{benefit.description}</p>
+                  </div>
+                </div>
+              {/each}
+            </div>
+          </div>
+        </div>
+      {/if}
+    </div>
 
-						<div class="form-group">
-							<label for="account_holder">Account Holder Name</label>
-							<input
-								id="account_holder"
-								type="text"
-								bind:value={payoutData.account_holder}
-								placeholder="As it appears on your bank account"
-								class="input-field"
-							/>
-						</div>
-					</div>
-				{/if}
-			</div>
-		{:else if currentStep === 2}
-			<!-- Preferences Step -->
-			<div class="step-card">
-				<h2>Customize Your Experience</h2>
-				<p>Choose how you want to use Driplo</p>
+    <!-- Navigation -->
+    <div class="navigation">
+      {#if currentStep > 1}
+        <button class="btn-secondary" onclick={previousStep} disabled={isLoading}>
+          <ChevronLeft />
+          {m['onboarding.actions.back']()}
+        </button>
+      {:else}
+        <div></div>
+      {/if}
 
-				<div class="preferences-section">
-					<h3>Notifications</h3>
-					<div class="preference-group">
-						<label class="preference-item">
-							<input type="checkbox" bind:checked={preferences.notifications.email} />
-							<div class="preference-text">
-								<h4>Email Notifications</h4>
-								<p>Get updates about your orders and messages</p>
-							</div>
-						</label>
-
-						<label class="preference-item">
-							<input type="checkbox" bind:checked={preferences.notifications.push} />
-							<div class="preference-text">
-								<h4>Push Notifications</h4>
-								<p>Real-time alerts on your device</p>
-							</div>
-						</label>
-
-						<label class="preference-item">
-							<input type="checkbox" bind:checked={preferences.notifications.sms} />
-							<div class="preference-text">
-								<h4>SMS Notifications</h4>
-								<p>Important updates via text message</p>
-							</div>
-						</label>
-					</div>
-
-					<h3>Privacy</h3>
-					<div class="preference-group">
-						<label class="preference-item">
-							<input type="checkbox" bind:checked={preferences.privacy.show_online_status} />
-							<div class="preference-text">
-								<h4>Show Online Status</h4>
-								<p>Let others see when you're active</p>
-							</div>
-						</label>
-
-						<label class="preference-item">
-							<input type="checkbox" bind:checked={preferences.privacy.show_location} />
-							<div class="preference-text">
-								<h4>Show Location</h4>
-								<p>Display your city on your profile</p>
-							</div>
-						</label>
-					</div>
-
-					<h3>Marketing</h3>
-					<div class="preference-group">
-						<label class="preference-item">
-							<input type="checkbox" bind:checked={preferences.newsletter} />
-							<div class="preference-text">
-								<h4>Newsletter</h4>
-								<p>Receive tips, trends, and exclusive offers</p>
-							</div>
-						</label>
-					</div>
-				</div>
-			</div>
-		{/if}
-	</div>
-
-	<!-- Navigation -->
-	<div class="navigation">
-		{#if currentStep > 0}
-			<button class="nav-btn secondary" onclick={previousStep}> Back </button>
-		{/if}
-
-		<button class="nav-btn primary" onclick={nextStep} disabled={loading}>
-			{#if currentStep === steps.length - 1}
-				{loading ? 'Completing...' : 'Complete Setup'}
-			{:else}
-				Continue
-				<ChevronRight size={20} />
-			{/if}
-		</button>
-	</div>
+      <button class="btn-primary" onclick={nextStep} disabled={isLoading}>
+        {#if isLoading}
+          <div class="spinner"></div>
+          {m['onboarding.actions.setting_up']()}
+        {:else if currentStep === 4}
+          {m['onboarding.actions.complete']()}
+          <CheckCircle />
+        {:else}
+          {m['onboarding.actions.continue']()}
+          <ChevronRight />
+        {/if}
+      </button>
+    </div>
+  </div>
+  {/if}
 </div>
 
 <style>
-	.onboarding-container {
-		max-width: 800px;
-		margin: 0 auto;
-		padding: 2rem 1rem;
-	}
+  .onboarding-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 0.5rem;
+  }
 
-	.onboarding-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 3rem;
-	}
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem 0;
+  }
 
-	.logo {
-		font-size: 2rem;
-		font-weight: 800;
-		background: linear-gradient(135deg, var(--color-primary), #6c63ff);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
-		text-decoration: none;
-	}
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    text-decoration: none;
+    font-size: 1.25rem;
+    font-weight: 800;
+  }
 
-	.skip-btn {
-		background: none;
-		border: none;
-		color: var(--color-text-secondary);
-		font-size: 0.875rem;
-		cursor: pointer;
-		text-decoration: underline;
-	}
+  .logo-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 
-	.progress-container {
-		margin-bottom: 3rem;
-	}
+  .progress {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
 
-	.progress-bar {
-		height: 8px;
-		background: var(--color-gray-200);
-		border-radius: 999px;
-		overflow: hidden;
-		margin-bottom: 2rem;
-	}
+  .progress-bar {
+    width: 100px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
 
-	.progress-fill {
-		height: 100%;
-		background: var(--color-primary);
-		transition: width 0.3s ease;
-	}
+  .progress-fill {
+    height: 100%;
+    background: white;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
 
-	.progress-steps {
-		display: flex;
-		justify-content: space-between;
-	}
+  .progress-text {
+    color: white;
+    font-size: 0.625rem;
+    opacity: 0.8;
+  }
 
-	.progress-step {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.5rem;
-		opacity: 0.5;
-		transition: opacity 0.3s;
-	}
+  .content {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
 
-	.progress-step.active,
-	.progress-step.completed {
-		opacity: 1;
-	}
+  .step-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
 
-	.step-icon {
-		width: 40px;
-		height: 40px;
-		border-radius: 50%;
-		background: var(--color-gray-200);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: var(--color-text-secondary);
-		transition: all 0.3s;
-	}
+  .step-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--color-primary), #6c63ff);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+  }
 
-	.progress-step.active .step-icon {
-		background: var(--color-primary);
-		color: white;
-	}
+  .step-icon :global(svg) {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 
-	.progress-step.completed .step-icon {
-		background: var(--color-success);
-		color: white;
-	}
+  .step-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+  }
 
-	.step-label {
-		font-size: 0.75rem;
-		color: var(--color-text-secondary);
-		text-align: center;
-		max-width: 100px;
-	}
+  .step-header p {
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+  }
 
-	.step-content {
-		margin-bottom: 3rem;
-	}
+  .step-content {
+    margin-bottom: 2rem;
+  }
 
-	.step-card {
-		background: var(--color-background);
-		border-radius: 16px;
-		padding: 2rem;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-	}
+  /* Step 1: Username */
+  .form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
 
-	.step-card h2 {
-		font-size: 1.75rem;
-		font-weight: 700;
-		color: var(--color-text-primary);
-		margin-bottom: 0.5rem;
-	}
+  .input-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+  }
 
-	.step-card > p {
-		color: var(--color-text-secondary);
-		margin-bottom: 2rem;
-	}
+  .username-input {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    padding: 0 1rem;
+    transition: border-color 0.2s ease;
+  }
 
-	.form-section {
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-	}
+  .username-input:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
+  }
 
-	.form-group {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
+  .username-input.error {
+    border-color: var(--color-danger);
+  }
 
-	.form-group label {
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--color-text-primary);
-	}
+  .username-prefix {
+    color: var(--color-text-muted);
+    font-weight: 600;
+    margin-right: 0.25rem;
+  }
 
-	.input-wrapper {
-		position: relative;
-	}
+  .username-input input {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 0.75rem 0;
+    font-size: 1rem;
+    outline: none;
+  }
 
-	.input-icon {
-		position: absolute;
-		left: 1rem;
-		top: 50%;
-		transform: translateY(-50%);
-		color: var(--color-text-muted);
-	}
+  .username-tips {
+    background: var(--color-surface);
+    border-radius: 12px;
+    padding: 1rem;
+  }
 
-	.input-field {
-		width: 100%;
-		padding: 0.75rem 1rem;
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
-		border-radius: 8px;
-		font-size: 1rem;
-		color: var(--color-text-primary);
-		transition: all 0.2s;
-	}
+  .username-tips h4 {
+    color: var(--color-text-primary);
+    margin-bottom: 1rem;
+  }
 
-	.input-field.with-icon {
-		padding-left: 3rem;
-	}
+  .username-tips ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
 
-	.input-field:focus {
-		outline: none;
-		border-color: var(--color-primary);
-		box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
-	}
+  .username-tips li {
+    color: var(--color-text-secondary);
+    padding: 0.25rem 0;
+    position: relative;
+    padding-left: 1.5rem;
+  }
 
-	textarea.input-field {
-		resize: vertical;
-		min-height: 100px;
-	}
+  .username-tips li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--color-success);
+    font-weight: bold;
+  }
 
-	.form-row {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 1rem;
-	}
+  /* Step 2: Account Type */
+  .account-types {
+    display: grid;
+    gap: 1rem;
+  }
 
-	.brand-section,
-	.address-section {
-		margin-top: 2rem;
-	}
+  .account-option {
+    cursor: pointer;
+    border: 2px solid var(--color-border);
+    border-radius: 16px;
+    padding: 0;
+    transition: all 0.2s ease;
+    overflow: hidden;
+  }
 
-	.brand-section h3,
-	.address-section h3,
-	.preferences-section h3 {
-		font-size: 1.125rem;
-		font-weight: 600;
-		color: var(--color-text-primary);
-		margin-bottom: 1rem;
-	}
+  .account-option:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
 
-	/* Payout Methods */
-	.payout-methods {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		margin-bottom: 2rem;
-	}
+  .account-option.selected {
+    border-color: var(--color-primary);
+    background: rgba(24, 119, 242, 0.02);
+  }
 
-	.payout-option {
-		position: relative;
-		cursor: pointer;
-	}
+  .account-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
 
-	.payout-option input[type='radio'] {
-		position: absolute;
-		opacity: 0;
-	}
+  .option-content {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    align-items: flex-start;
+  }
 
-	.option-content {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		padding: 1.5rem;
-		background: var(--color-surface);
-		border: 2px solid var(--color-border);
-		border-radius: 12px;
-		transition: all 0.2s;
-	}
+  .option-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--color-primary), #6c63ff);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+  }
 
-	.payout-option input:checked + .option-content {
-		border-color: var(--color-primary);
-		background: rgba(24, 119, 242, 0.05);
-	}
+  .option-icon :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
 
-	.option-icon {
-		font-size: 2rem;
-	}
+  .option-text h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+  }
 
-	.option-text h4 {
-		font-size: 1rem;
-		font-weight: 600;
-		color: var(--color-text-primary);
-		margin-bottom: 0.25rem;
-	}
+  .option-text p {
+    color: var(--color-text-secondary);
+    margin-bottom: 1rem;
+  }
 
-	.option-text p {
-		font-size: 0.875rem;
-		color: var(--color-text-secondary);
-	}
+  .option-text ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
 
-	.bank-details {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		animation: slideIn 0.3s ease;
-	}
+  .option-text li {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    padding: 0.25rem 0;
+    position: relative;
+    padding-left: 1.25rem;
+  }
 
-	@keyframes slideIn {
-		from {
-			opacity: 0;
-			transform: translateY(-10px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
+  .option-text li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--color-primary);
+  }
 
-	/* Preferences */
-	.preferences-section {
-		display: flex;
-		flex-direction: column;
-		gap: 2rem;
-	}
+  /* Step 3: Payout Section */
+  .payout-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
 
-	.preference-group {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
+  .payout-methods {
+    display: grid;
+    gap: 1rem;
+  }
 
-	.preference-item {
-		display: flex;
-		align-items: flex-start;
-		gap: 1rem;
-		cursor: pointer;
-		padding: 1rem;
-		background: var(--color-surface);
-		border-radius: 8px;
-		transition: all 0.2s;
-	}
+  .payout-option {
+    cursor: pointer;
+    border: 2px solid var(--color-border);
+    border-radius: 16px;
+    padding: 0;
+    transition: all 0.2s ease;
+    overflow: hidden;
+  }
 
-	.preference-item:hover {
-		background: var(--color-gray-50);
-	}
+  .payout-option:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
 
-	.preference-item input[type='checkbox'] {
-		margin-top: 0.25rem;
-	}
+  .payout-option.selected {
+    border-color: var(--color-primary);
+    background: rgba(24, 119, 242, 0.02);
+  }
 
-	.preference-text h4 {
-		font-size: 0.875rem;
-		font-weight: 600;
-		color: var(--color-text-primary);
-		margin-bottom: 0.25rem;
-	}
+  .payout-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
 
-	.preference-text p {
-		font-size: 0.75rem;
-		color: var(--color-text-secondary);
-	}
+  .payout-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 
-	/* Navigation */
-	.navigation {
-		display: flex;
-		justify-content: space-between;
-		gap: 1rem;
-	}
+  .payout-details label {
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
 
-	.nav-btn {
-		padding: 0.75rem 1.5rem;
-		border: none;
-		border-radius: 8px;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
+  .payout-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    font-size: 0.875rem;
+    background: var(--color-surface);
+    transition: all 0.2s ease;
+  }
 
-	.nav-btn.primary {
-		background: var(--color-primary);
-		color: white;
-		margin-left: auto;
-	}
+  .payout-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
+  }
 
-	.nav-btn.primary:hover:not(:disabled) {
-		background: #1567d8;
-		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(24, 119, 242, 0.2);
-	}
+  /* Step 4: Final Step */
+  .final-step {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
 
-	.nav-btn.secondary {
-		background: var(--color-gray-100);
-		color: var(--color-text-primary);
-	}
+  .social-links h3 {
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+  }
 
-	.nav-btn.secondary:hover {
-		background: var(--color-gray-200);
-	}
+  .optional {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    font-weight: normal;
+  }
 
-	.nav-btn:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
+  .social-links p {
+    color: var(--color-text-secondary);
+    margin-bottom: 1.5rem;
+  }
 
-	@media (max-width: 640px) {
-		.onboarding-container {
-			padding: 1rem;
-		}
+  .social-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 
-		.step-card {
-			padding: 1.5rem;
-		}
+  .social-input {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    transition: border-color 0.2s ease;
+  }
 
-		.form-row {
-			grid-template-columns: 1fr;
-		}
+  .social-input:focus-within {
+    border-color: var(--color-primary);
+  }
 
-		.progress-step .step-label {
-			font-size: 0.625rem;
-		}
-	}
+  .social-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+
+  .social-icon.tiktok {
+    font-size: 1.25rem;
+  }
+
+  .social-input input {
+    flex: 1;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 1rem;
+  }
+
+  .platform-benefits h3 {
+    color: var(--color-text-primary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .benefit {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 1rem;
+    background: var(--color-surface);
+    border-radius: 12px;
+  }
+
+  .benefit-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .benefit-text h4 {
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .benefit-text p {
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  /* Navigation */
+  .navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .btn-secondary,
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+  }
+
+  .btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-gray-200);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--color-primary), #6c63ff);
+    color: white;
+    box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(24, 119, 242, 0.4);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-primary :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .btn-secondary :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .error-text {
+    color: var(--color-danger);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: block;
+  }
+
+  /* Mobile responsiveness */
+  @media (max-width: 640px) {
+    .onboarding-container {
+      padding: 0.25rem;
+    }
+
+    .header {
+      padding: 0.75rem 0;
+    }
+
+    .logo {
+      font-size: 1rem;
+    }
+
+    .logo-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .progress-bar {
+      width: 80px;
+      height: 2px;
+    }
+
+    .progress-text {
+      font-size: 0.5rem;
+    }
+
+    .content {
+      padding: 1.5rem 1rem;
+      border-radius: 16px;
+    }
+
+    .step-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .step-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0.75rem;
+    }
+
+    .step-icon :global(svg) {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .step-header h1 {
+      font-size: 1.25rem;
+    }
+
+    .step-header p {
+      font-size: 0.875rem;
+    }
+
+    .step-content {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-section {
+      gap: 1rem;
+    }
+
+    .username-tips {
+      padding: 0.75rem;
+    }
+
+    .account-types {
+      gap: 0.75rem;
+    }
+
+    .option-content {
+      padding: 1rem;
+      gap: 0.75rem;
+    }
+
+    .option-icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .option-icon :global(svg) {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .option-text h3 {
+      font-size: 1rem;
+    }
+
+    .option-text p {
+      font-size: 0.875rem;
+    }
+
+    .option-text li {
+      font-size: 0.75rem;
+    }
+
+    .payout-section {
+      gap: 1rem;
+    }
+
+    .final-step {
+      gap: 1.5rem;
+    }
+
+    .social-input {
+      padding: 0.625rem;
+    }
+
+    .social-icon {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .social-input input {
+      font-size: 0.875rem;
+    }
+
+    .benefits-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .benefit {
+      padding: 0.75rem;
+    }
+
+    .benefit-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .benefit-text h4 {
+      font-size: 0.875rem;
+    }
+
+    .benefit-text p {
+      font-size: 0.75rem;
+    }
+
+    .navigation {
+      flex-direction: column-reverse;
+      gap: 0.75rem;
+    }
+
+    .btn-secondary,
+    .btn-primary {
+      width: 100%;
+      justify-content: center;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-primary :global(svg),
+    .btn-secondary :global(svg) {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  /* Success Screen Styles */
+  .success-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+  }
+
+  .success-content {
+    max-width: 600px;
+    background: white;
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .success-header {
+    margin-bottom: 3rem;
+  }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #10b981, #34d399);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+  }
+
+  .success-icon :global(svg) {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .success-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .success-subtitle {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 1rem;
+  }
+
+  .welcome-message {
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    font-size: 1rem;
+  }
+
+  .next-steps {
+    margin-bottom: 3rem;
+  }
+
+  .next-steps h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 1.5rem;
+  }
+
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--color-surface);
+    border-radius: 12px;
+    text-align: left;
+  }
+
+  .step-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .success-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .success-actions .btn-secondary,
+  .success-actions .btn-primary {
+    flex: 1;
+    max-width: 200px;
+  }
+
+  @media (max-width: 640px) {
+    .success-content {
+      padding: 2rem 1.5rem;
+    }
+
+    .success-icon {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 1rem;
+    }
+
+    .success-icon :global(svg) {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .success-header h1 {
+      font-size: 1.5rem;
+    }
+
+    .success-subtitle {
+      font-size: 1rem;
+    }
+
+    .welcome-message {
+      font-size: 0.875rem;
+    }
+
+    .next-steps h2 {
+      font-size: 1.25rem;
+    }
+
+    .step-item {
+      padding: 0.75rem;
+      gap: 0.75rem;
+    }
+
+    .step-icon {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .success-actions {
+      flex-direction: column;
+    }
+
+    .success-actions .btn-secondary,
+    .success-actions .btn-primary {
+      max-width: none;
+    }
+  }
 </style>

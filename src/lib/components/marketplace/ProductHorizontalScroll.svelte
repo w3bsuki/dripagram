@@ -211,10 +211,6 @@
 		background: rgba(255, 255, 255, 1);
 	}
 	
-	.heart-btn.liked {
-		color: #ff3040;
-		background: rgba(255, 48, 64, 0.1);
-	}
 	
 	.message-btn:hover {
 		color: #3b82f6;

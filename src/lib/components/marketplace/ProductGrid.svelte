@@ -218,11 +218,6 @@
 		overscroll-behavior: contain;
 	}
 
-	/* Image loading optimizations */
-	.feed-item img {
-		transform: translateZ(0);
-		will-change: opacity;
-	}
 
 	/* Reduce motion for accessibility */
 	@media (prefers-reduced-motion: reduce) {

@@ -173,7 +173,16 @@
 				{#each images as _, index}
 					<div 
 						class="indicator {currentImageIndex === index ? 'active' : ''}"
+						role="button"
+						tabindex="0"
 						onclick={() => currentImageIndex = index}
+						onkeydown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								currentImageIndex = index;
+							}
+						}}
+						aria-label="Go to image {index + 1}"
 					></div>
 				{/each}
 			</div>

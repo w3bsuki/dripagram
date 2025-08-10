@@ -1,0 +1,1502 @@
+
+> driplo-fresh@0.0.1 check K:\driplo-fresh
+> svelte-kit sync && svelte-check --tsconfig ./tsconfig.json "2"
+
+Loading svelte-check in workspace: k:\driplo-fresh
+Getting Svelte diagnostics...
+
+k:\driplo-fresh\[32msrc\lib\components\social\PostCard.svelte[39m:351:8
+[33mWarn[39m: Unused CSS selector ".verified-badge"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.post-card {[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\PostCard.svelte[39m:351:8
+[33mWarn[39m: Unused CSS selector ".price-badge"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.post-card {[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\ProfileHeader.svelte[39m:414:2
+[33mWarn[39m: Unused CSS selector ".verified-badge"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m	/* Badges */
+	[35m.verified-badge[36m {
+		color: #3b82f6;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\ProfileHeader.svelte[39m:420:2
+[33mWarn[39m: Unused CSS selector ".seller-badge"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+	[35m.seller-badge[36m {
+		color: #059669;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\BrandShowcase.svelte[39m:211:3
+[33mWarn[39m: noninteractive element cannot have nonnegative tabIndex value
+https://svelte.dev/e/a11y_no_noninteractive_tabindex (svelte)
+[36m	>
+		[35m<div
+			class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
+			role="document"
+			tabindex="0"
+			onclick={(e) => e.stopPropagation()}
+			onkeydown={(e) => {
+				if (e.key === 'Escape') {
+					e.preventDefault();
+					closeBrandModal();
+				}
+			}}
+		>
+			<div class="flex items-center gap-4 border-b border-gray-100 p-6">
+				<img
+					src={selectedBrand.brand_logo_url}
+					alt={selectedBrand.brand_name}
+					class="h-14 w-14 rounded-xl border border-gray-200 bg-gray-50 object-cover p-2"
+				/>
+				<div class="flex-1">
+					<h2 class="text-xl font-bold text-gray-900">
+						{selectedBrand.brand_name}
+					</h2>
+					<p class="text-sm text-gray-500">
+						@{selectedBrand.username}
+					</p>
+				</div>
+				<button
+					class="flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+					onclick={closeBrandModal}
+				>
+					<span class="text-2xl leading-none">×</span>
+				</button>
+			</div>
+
+			<div class="grid grid-cols-3 gap-4 border-b border-gray-100 p-6">
+				<div class="text-center">
+					<span class="block text-2xl font-bold text-gray-900">
+						{selectedBrand.listing_count}
+					</span>
+					<span class="mt-1 block text-xs text-gray-500"> Products </span>
+				</div>
+				<div class="text-center">
+					<span class="block text-2xl font-bold text-gray-900">
+						{formatFollowers(selectedBrand.follower_count)}
+					</span>
+					<span class="mt-1 block text-xs text-gray-500"> Followers </span>
+				</div>
+				<div class="text-center">
+					<span class="block text-lg font-bold text-gray-900">
+						{selectedBrand.brand_category}
+					</span>
+					<span class="mt-1 block text-xs text-gray-500"> Category </span>
+				</div>
+			</div>
+
+			<div class="flex gap-3 p-6">
+				<button
+					class="flex-1 rounded-lg bg-blue-500 py-3 font-semibold text-white transition-colors hover:bg-blue-600"
+					onclick={() => selectedBrand && navigateToBrand(selectedBrand)}
+				>
+					View Shop
+				</button>
+				<button
+					class="flex-1 rounded-lg bg-gray-100 py-3 font-semibold text-gray-900 transition-colors hover:bg-gray-200"
+				>
+					{selectedBrand.isFollowing ? 'Following' : 'Follow'}
+				</button>
+			</div>
+		</div>[36m
+	</div>[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\BrandShowcase.svelte[39m:211:3
+[33mWarn[39m: Non-interactive element `<div>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+[36m	>
+		[35m<div
+			class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
+			role="document"
+			tabindex="0"
+			onclick={(e) => e.stopPropagation()}
+			onkeydown={(e) => {
+				if (e.key === 'Escape') {
+					e.preventDefault();
+					closeBrandModal();
+				}
+			}}
+		>
+			<div class="flex items-center gap-4 border-b border-gray-100 p-6">
+				<img
+					src={selectedBrand.brand_logo_url}
+					alt={selectedBrand.brand_name}
+					class="h-14 w-14 rounded-xl border border-gray-200 bg-gray-50 object-cover p-2"
+				/>
+				<div class="flex-1">
+					<h2 class="text-xl font-bold text-gray-900">
+						{selectedBrand.brand_name}
+					</h2>
+					<p class="text-sm text-gray-500">
+						@{selectedBrand.username}
+					</p>
+				</div>
+				<button
+					class="flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+					onclick={closeBrandModal}
+				>
+					<span class="text-2xl leading-none">×</span>
+				</button>
+			</div>
+
+			<div class="grid grid-cols-3 gap-4 border-b border-gray-100 p-6">
+				<div class="text-center">
+					<span class="block text-2xl font-bold text-gray-900">
+						{selectedBrand.listing_count}
+					</span>
+					<span class="mt-1 block text-xs text-gray-500"> Products </span>
+				</div>
+				<div class="text-center">
+					<span class="block text-2xl font-bold text-gray-900">
+						{formatFollowers(selectedBrand.follower_count)}
+					</span>
+					<span class="mt-1 block text-xs text-gray-500"> Followers </span>
+				</div>
+				<div class="text-center">
+					<span class="block text-lg font-bold text-gray-900">
+						{selectedBrand.brand_category}
+					</span>
+					<span class="mt-1 block text-xs text-gray-500"> Category </span>
+				</div>
+			</div>
+
+			<div class="flex gap-3 p-6">
+				<button
+					class="flex-1 rounded-lg bg-blue-500 py-3 font-semibold text-white transition-colors hover:bg-blue-600"
+					onclick={() => selectedBrand && navigateToBrand(selectedBrand)}
+				>
+					View Shop
+				</button>
+				<button
+					class="flex-1 rounded-lg bg-gray-100 py-3 font-semibold text-gray-900 transition-colors hover:bg-gray-200"
+				>
+					{selectedBrand.isFollowing ? 'Following' : 'Follow'}
+				</button>
+			</div>
+		</div>[36m
+	</div>[39m
+
+k:\driplo-fresh\[32msrc\lib\components\ui\locale-switcher\LocaleSwitcher.svelte[39m:116:8
+[33mWarn[39m: Unused CSS selector ".switcher-button.loading .chevron"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.locale-switcher {[39m
+
+k:\driplo-fresh\[32msrc\lib\components\ui\slider\slider.svelte[39m:18:21
+[31mError[39m: Expression produces a union type that is too complex to represent. (ts)
+[36m-->
+<SliderPrimitive.Roo[35mt
+	bind:ref
+	bind:value={value as never}
+	data-slot="slider"
+	{orientation}
+	class={cn(
+		"relative flex w-full touch-none select-none items-center data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col data-[disabled]:opacity-50",
+		className
+	)}
+	{...restProps}
+>
+	{#snippet children({ thumbs })}
+		<span
+			data-orientation={orientation}
+			data-slot="slider-track"
+			class={cn(
+				"bg-muted relative grow overflow-hidden rounded-full data-[orientation=horizontal]:h-1.5 data-[orientation=vertical]:h-full data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-1.5"
+			)}
+		>
+			<SliderPrimitive.Range
+				data-slot="slider-range"
+				class={cn(
+					"bg-primary absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
+				)}
+			/>
+		</span>
+		{#each thumbs as thumb (thumb)}
+			<SliderPrimitive.Thumb
+				data-slot="slider-thumb"
+				index={thumb}
+				class="border-primary bg-background ring-ring/50 focus-visible:outline-hidden block size-4 shrink-0 rounded-full border shadow-sm transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50"
+			/>
+		{/each}
+	[36m{/snippet}
+</SliderPrimitive.Root>[39m
+
+k:\driplo-fresh\[32msrc\lib\components\ui\slider\slider.svelte[39m:18:21
+[31mError[39m: Type '{ children: (this: void, { thumbs }: SliderRootSnippetProps) => any; type: "multiple" | "single"; id?: string | undefined; min?: number | undefined; max?: number | undefined; ... 439 more ...; class: string; }' is not assignable to type 'SliderRootProps | undefined'.
+  Type '{ children: (this: void, { thumbs }: SliderRootSnippetProps) => any; type: "multiple" | "single"; id?: string | undefined; min?: number | undefined; max?: number | undefined; ... 439 more ...; class: string; }' is not assignable to type '(Omit<SliderSingleRootPropsWithoutHTML, "children" | "child"> & { child?: Snippet<[SliderRootSnippetProps & { ...; }]> | undefined; children?: Snippet<...> | undefined; style?: string | ... 2 more ... | undefined; ref?: HTMLElement | ... 1 more ... | undefined; } & Without<...>) | (Omit<...> & ... 1 more ... & Witho...'. (ts)
+[36m-->
+<SliderPrimitive.Roo[35m[36mt
+	bind:ref[39m
+
+k:\driplo-fresh\[32msrc\lib\services\cache-optimizer.ts[39m:186:4
+[31mError[39m: Type 'unknown' is not assignable to type 'T | null'. 
+[36m			const value = this.deserializeValue(entry);
+			[35mreturn[36m value;
+		}[39m
+
+k:\driplo-fresh\[32msrc\lib\services\cache-optimizer.ts[39m:479:5
+[31mError[39m: Type 'string' is not assignable to type 'T'.
+  'T' could be instantiated with an arbitrary type which could be unrelated to 'string'. 
+[36m			} catch {
+				[35mreturn[36m value;
+			}[39m
+
+k:\driplo-fresh\[32msrc\lib\services\gamification.ts[39m:579:8
+[31mError[39m: Conversion of type 'any[]' to type 'Badge' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'any[]' is missing the following properties from type 'Badge': id, name, description, icon, and 3 more. 
+[36m		return (data?.map(item => ({
+			...([35mitem.badges as Badge[36m),
+			earned_at: item.earned_at[39m
+
+k:\driplo-fresh\[32msrc\lib\services\phase5-hub.ts[39m:170:5
+[31mError[39m: Type '"value" | "premium" | "competitive"' is not assignable to type 'never'.
+  Type '"value"' is not assignable to type 'never'. 
+[36m				...recommendation,
+				[35mmarketPosition[36m,
+				confidence,[39m
+
+k:\driplo-fresh\[32msrc\lib\services\phase5-hub.ts[39m:171:5
+[31mError[39m: Type '"low" | "medium" | "high"' is not assignable to type 'never'.
+  Type '"low"' is not assignable to type 'never'. 
+[36m				marketPosition,
+				[35mconfidence[36m,
+				additionalInsights[39m
+
+k:\driplo-fresh\[32msrc\lib\services\phase5-hub.ts[39m:172:5
+[31mError[39m: Type 'string[]' is not assignable to type 'never'. 
+[36m				confidence,
+				[35madditionalInsights[36m
+			};[39m
+
+k:\driplo-fresh\[32msrc\lib\services\phase5-hub.ts[39m:207:5
+[31mError[39m: Type '{}' is missing the following properties from type 'SearchResult': products, suggestions, facets, totalResults, searchTime 
+[36m			if (cachedResult && this.isCacheResultValid(cachedResult, query)) {
+				[35mresult[36m = cachedResult;
+				cacheHit = true;[39m
+
+k:\driplo-fresh\[32msrc\lib\services\productService.ts[39m:127:19
+[31mError[39m: Cannot find name 'getSupabaseClient'. 
+[36mexport async function getProductById(id: string) {
+	const supabase = [35mgetSupabaseClient[36m();
+	const { data, error } = await supabase.from('products').select('*').eq('id', id).single();[39m
+
+k:\driplo-fresh\[32msrc\lib\services\productService.ts[39m:160:19
+[31mError[39m: Cannot find name 'getSupabaseClient'. 
+[36m}) {
+	const supabase = [35mgetSupabaseClient[36m();[39m
+
+k:\driplo-fresh\[32msrc\lib\services\productService.ts[39m:206:19
+[31mError[39m: Cannot find name 'getSupabaseClient'. 
+[36m) {
+	const supabase = [35mgetSupabaseClient[36m();
+	const { data, error } = await supabase[39m
+
+k:\driplo-fresh\[32msrc\lib\services\productService.ts[39m:225:19
+[31mError[39m: Cannot find name 'getSupabaseClient'. 
+[36mexport async function deleteListing(id: string) {
+	const supabase = [35mgetSupabaseClient[36m();
+	const { error } = await supabase.from('listings').delete().eq('id', id);[39m
+
+k:\driplo-fresh\[32msrc\lib\services\productService.ts[39m:239:19
+[31mError[39m: Cannot find name 'getSupabaseClient'. 
+[36mexport async function incrementViewCount(id: string) {
+	const supabase = [35mgetSupabaseClient[36m();
+	// Get current count and increment[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:16:4
+[31mError[39m: Type '"2024-11-20.acacia"' is not assignable to type '"2025-07-30.basil"'. 
+[36m	? new Stripe(PRIVATE_STRIPE_SECRET_KEY, {
+			[35mapiVersion[36m: '2024-11-20.acacia',
+			typescript: true[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:163:31
+[31mError[39m: 'stripe' is possibly 'null'. 
+[36m		// Retrieve payment intent
+		const paymentIntent = await [35mstripe[36m.paymentIntents.retrieve(paymentIntentId);[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:217:32
+[31mError[39m: Property 'charges' does not exist on type 'PaymentIntent'. 
+[36m				status: paymentIntent.status,
+				receipt_url: paymentIntent.[35mcharges[36m.data[0]?.receipt_url,
+				stripe_charge_id: paymentIntent.charges.data[0]?.id,[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:218:37
+[31mError[39m: Property 'charges' does not exist on type 'PaymentIntent'. 
+[36m				receipt_url: paymentIntent.charges.data[0]?.receipt_url,
+				stripe_charge_id: paymentIntent.[35mcharges[36m.data[0]?.id,
+				updated_at: new Date().toISOString()[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:365:9
+[31mError[39m: 'stripe' is possibly 'null'. 
+[36m		// Attach payment method to customer
+		await [35mstripe[36m.paymentMethods.attach(paymentMethodId, {
+			customer: customer.id[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:370:9
+[31mError[39m: 'stripe' is possibly 'null'. 
+[36m		// Set as default payment method
+		await [35mstripe[36m.customers.update(customer.id, {
+			invoice_settings: {[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:377:30
+[31mError[39m: 'stripe' is possibly 'null'. 
+[36m		// Create subscription
+		const subscription = await [35mstripe[36m.subscriptions.create({
+			customer: customer.id,[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:398:49
+[31mError[39m: Property 'current_period_start' does not exist on type 'Response<Subscription>'. 
+[36m				current_price: plan.monthly_price,
+				current_period_start: new Date(subscription.[35mcurrent_period_start[36m * 1000).toISOString(),
+				current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:399:47
+[31mError[39m: Property 'current_period_end' does not exist on type 'Response<Subscription>'. 
+[36m				current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+				current_period_end: new Date(subscription.[35mcurrent_period_end[36m * 1000).toISOString(),
+				stripe_subscription_id: subscription.id,[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:406:10
+[31mError[39m: 'stripe' is possibly 'null'. 
+[36m			// Cancel stripe subscription if database update fails
+			await [35mstripe[36m.subscriptions.cancel(subscription.id);
+			return { success: false, error: 'Failed to store subscription in database' };[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:411:33
+[31mError[39m: Property 'payment_intent' does not exist on type 'Invoice'. 
+[36m		const invoice = subscription.latest_invoice as Stripe.Invoice;
+		const paymentIntent = invoice.[35mpayment_intent[36m as Stripe.PaymentIntent;[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:432:34
+[31mError[39m: 'stripe' is possibly 'null'. 
+[36m	// Try to find existing customer
+	const existingCustomers = await [35mstripe[36m.customers.list({
+		email,[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:442:15
+[31mError[39m: 'stripe' is possibly 'null'. 
+[36m	// Create new customer
+	return await [35mstripe[36m.customers.create({
+		email,[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:459:10
+[31mError[39m: 'stripe' is possibly 'null'. 
+[36m			// Cancel at period end
+			await [35mstripe[36m.subscriptions.update(subscriptionId, {
+				cancel_at_period_end: true[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:464:10
+[31mError[39m: 'stripe' is possibly 'null'. 
+[36m			// Cancel immediately
+			await [35mstripe[36m.subscriptions.cancel(subscriptionId);
+		}[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:547:34
+[31mError[39m: Property 'subscription' does not exist on type 'Invoice'. 
+[36m		const invoice = event.data.object as Stripe.Invoice;
+		const subscriptionId = invoice.[35msubscription[36m as string;[39m
+
+k:\driplo-fresh\[32msrc\lib\services\stripe.ts[39m:558:34
+[31mError[39m: Property 'subscription' does not exist on type 'Invoice'. 
+[36m		const invoice = event.data.object as Stripe.Invoice;
+		const subscriptionId = invoice.[35msubscription[36m as string;[39m
+
+k:\driplo-fresh\[32msrc\lib\utils\performance-monitor.ts[39m:320:80
+[31mError[39m: Property 'navigationStart' does not exist on type 'PerformanceNavigationTiming'. 
+[36m					// DOM Content Loaded
+					const domContentLoaded = navigation.domContentLoadedEventEnd - navigation.[35mnavigationStart[36m;
+					this.recordCustomMetric('dom-content-loaded', domContentLoaded);[39m
+
+k:\driplo-fresh\[32msrc\lib\utils\performance-monitor.ts[39m:324:64
+[31mError[39m: Property 'navigationStart' does not exist on type 'PerformanceNavigationTiming'. 
+[36m					// Page Load Time
+					const pageLoadTime = navigation.loadEventEnd - navigation.[35mnavigationStart[36m;
+					this.recordCustomMetric('page-load-time', pageLoadTime);[39m
+
+k:\driplo-fresh\[32msrc\routes\api\analytics\revenue\+server.ts[39m:35:28
+[31mError[39m: Property 'VALIDATION_ERROR' does not exist on type '{ readonly UNAUTHORIZED: "Authentication required"; readonly SESSION_EXPIRED: "Your session has expired. Please log in again"; readonly INVALID_CREDENTIALS: "Invalid email or password"; ... 16 more ...; readonly OPERATION_FAILED: "Operation failed. Please try again"; }'. 
+[36m				{ 
+					error: ERROR_MESSAGES.[35mVALIDATION_ERROR[36m,
+					details: validation.error.flatten().fieldErrors[39m
+
+k:\driplo-fresh\[32msrc\routes\api\analytics\revenue\+server.ts[39m:43:54
+[31mError[39m: Property 'cookies' does not exist on type 'Locals'. 
+[36m		const { period: validPeriod, sellerId: validSellerId } = validation.data;
+		const supabase = createSupabaseServerClient(locals.[35mcookies[36m);[39m
+
+k:\driplo-fresh\[32msrc\routes\api\feed\+server.ts[39m:37:58
+[31mError[39m: Argument of type 'string | undefined' is not assignable to parameter of type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'. 
+[36m		if (tab === 'for-you') {
+			const result = await loadForYouFeed(supabase, userId, [35mcursor[36m, pageSize);
+			products = result.products;[39m
+
+k:\driplo-fresh\[32msrc\routes\api\feed\+server.ts[39m:41:61
+[31mError[39m: Argument of type 'string | undefined' is not assignable to parameter of type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'. 
+[36m		} else if (tab === 'following') {
+			const result = await loadFollowingFeed(supabase, userId, [35mcursor[36m, pageSize);
+			products = result.products;[39m
+
+k:\driplo-fresh\[32msrc\routes\api\feed\+server.ts[39m:45:60
+[31mError[39m: Argument of type 'string | undefined' is not assignable to parameter of type 'string | null'.
+  Type 'undefined' is not assignable to type 'string | null'. 
+[36m		} else if (tab === 'trending') {
+			const result = await loadTrendingFeed(supabase, userId, [35mcursor[36m, pageSize);
+			products = result.products;[39m
+
+k:\driplo-fresh\[32msrc\routes\api\payments\create\+server.ts[39m:35:28
+[31mError[39m: Property 'VALIDATION_ERROR' does not exist on type '{ readonly UNAUTHORIZED: "Authentication required"; readonly SESSION_EXPIRED: "Your session has expired. Please log in again"; readonly INVALID_CREDENTIALS: "Invalid email or password"; ... 16 more ...; readonly OPERATION_FAILED: "Operation failed. Please try again"; }'. 
+[36m				{ 
+					error: ERROR_MESSAGES.[35mVALIDATION_ERROR[36m,
+					details: validation.error.flatten().fieldErrors[39m
+
+k:\driplo-fresh\[32msrc\routes\api\payments\create\+server.ts[39m:43:54
+[31mError[39m: Property 'cookies' does not exist on type 'Locals'. 
+[36m		const { listingId, shippingPrice, paymentMethodId } = validation.data;
+		const supabase = createSupabaseServerClient(locals.[35mcookies[36m);[39m
+
+k:\driplo-fresh\[32msrc\routes\api\payments\create\+server.ts[39m:128:29
+[31mError[39m: Property 'full_name' does not exist on type 'User'. 
+[36m				metadata: {
+					buyerName: locals.user.[35mfull_name[36m || locals.user.email || '',
+					sellerName: listing.seller.full_name || listing.seller.email || '',[39m
+
+k:\driplo-fresh\[32msrc\routes\api\subscriptions\create\+server.ts[39m:35:28
+[31mError[39m: Property 'VALIDATION_ERROR' does not exist on type '{ readonly UNAUTHORIZED: "Authentication required"; readonly SESSION_EXPIRED: "Your session has expired. Please log in again"; readonly INVALID_CREDENTIALS: "Invalid email or password"; ... 16 more ...; readonly OPERATION_FAILED: "Operation failed. Please try again"; }'. 
+[36m				{ 
+					error: ERROR_MESSAGES.[35mVALIDATION_ERROR[36m,
+					details: validation.error.flatten().fieldErrors[39m
+
+k:\driplo-fresh\[32msrc\routes\api\subscriptions\create\+server.ts[39m:43:54
+[31mError[39m: Property 'cookies' does not exist on type 'Locals'. 
+[36m		const { planId, billingCycle, paymentMethodId } = validation.data;
+		const supabase = createSupabaseServerClient(locals.[35mcookies[36m);[39m
+
+k:\driplo-fresh\[32msrc\routes\api\subscriptions\create\+server.ts[39m:104:60
+[31mError[39m: Property 'current_period_start' does not exist on type 'Subscription'. 
+[36m				status: subscriptionResult.subscription?.status,
+				current_period_start: subscriptionResult.subscription?.[35mcurrent_period_start[36m,
+				current_period_end: subscriptionResult.subscription?.current_period_end,[39m
+
+k:\driplo-fresh\[32msrc\routes\api\subscriptions\create\+server.ts[39m:105:58
+[31mError[39m: Property 'current_period_end' does not exist on type 'Subscription'. 
+[36m				current_period_start: subscriptionResult.subscription?.current_period_start,
+				current_period_end: subscriptionResult.subscription?.[35mcurrent_period_end[36m,
+				clientSecret: subscriptionResult.clientSecret[39m
+
+k:\driplo-fresh\[32msrc\routes\api\webhooks\stripe\+server.ts[39m:28:12
+[31mError[39m: 'stripe' is possibly 'null'. 
+[36m		try {
+			event = [35mstripe[36m.webhooks.constructEvent(
+				body,[39m
+
+k:\driplo-fresh\[32msrc\routes\api\webhooks\stripe\+server.ts[39m:44:54
+[31mError[39m: Property 'cookies' does not exist on type 'Locals'. 
+[36m		// Create Supabase client
+		const supabase = createSupabaseServerClient(locals.[35mcookies[36m);[39m
+
+k:\driplo-fresh\[32msrc\routes\ready\+server.ts[39m:27:60
+[31mError[39m: Argument of type 'Partial<SerializeOptions>' is not assignable to parameter of type 'CookieSerializeOptions & { path: string; }'.
+  Type 'Partial<SerializeOptions>' is not assignable to type '{ path: string; }'.
+    Types of property 'path' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'. 
+[36m					get: (key) => cookies.get(key),
+					set: (key, value, options) => cookies.set(key, value, [35moptions[36m),
+					remove: (key, options) => cookies.delete(key, options)[39m
+
+k:\driplo-fresh\[32msrc\routes\ready\+server.ts[39m:28:52
+[31mError[39m: Argument of type 'Partial<SerializeOptions>' is not assignable to parameter of type 'CookieSerializeOptions & { path: string; }'.
+  Type 'Partial<SerializeOptions>' is not assignable to type '{ path: string; }'.
+    Types of property 'path' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'. 
+[36m					set: (key, value, options) => cookies.set(key, value, options),
+					remove: (key, options) => cookies.delete(key, [35moptions[36m)
+				}[39m
+
+k:\driplo-fresh\[32msrc\routes\ready\+server.ts[39m:73:60
+[31mError[39m: Argument of type 'Partial<SerializeOptions>' is not assignable to parameter of type 'CookieSerializeOptions & { path: string; }'.
+  Type 'Partial<SerializeOptions>' is not assignable to type '{ path: string; }'.
+    Types of property 'path' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'. 
+[36m					get: (key) => cookies.get(key),
+					set: (key, value, options) => cookies.set(key, value, [35moptions[36m),
+					remove: (key, options) => cookies.delete(key, options)[39m
+
+k:\driplo-fresh\[32msrc\routes\ready\+server.ts[39m:74:52
+[31mError[39m: Argument of type 'Partial<SerializeOptions>' is not assignable to parameter of type 'CookieSerializeOptions & { path: string; }'.
+  Type 'Partial<SerializeOptions>' is not assignable to type '{ path: string; }'.
+    Types of property 'path' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'. 
+[36m					set: (key, value, options) => cookies.set(key, value, options),
+					remove: (key, options) => cookies.delete(key, [35moptions[36m)
+				}[39m
+
+k:\driplo-fresh\[32msrc\lib\components\browse\BrowseSearchBar.svelte[39m:82:8
+[33mWarn[39m: Unused CSS selector ".search-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.search-container {[39m
+
+k:\driplo-fresh\[32msrc\lib\components\browse\CategorySelector.svelte[39m:171:2
+[33mWarn[39m: Unused CSS selector ".chevron"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m	
+	[35m.chevron[36m {
+		transition: transform 0.15s;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\browse\CategorySelector.svelte[39m:176:2
+[33mWarn[39m: Unused CSS selector ".chevron.rotated"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m	
+	[35m.chevron.rotated[36m {
+		transform: rotate(180deg);[39m
+
+k:\driplo-fresh\[32msrc\lib\components\browse\FilterSheet.svelte[39m:121:3
+[33mWarn[39m: noninteractive element cannot have nonnegative tabIndex value
+https://svelte.dev/e/a11y_no_noninteractive_tabindex (svelte)
+[36m		<button class="filter-backdrop" onclick={onClose} aria-label="Close filters"></button>
+		[35m<div class="filter-sheet" onclick={(e) => e.stopPropagation()} onkeydown={(e) => {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				onClose();
+			}
+		}} role="document" tabindex="0">
+			<div class="filter-header">
+				<h2 id="filter-title">Filters</h2>
+				<button class="close-filters" onclick={onClose} aria-label="Close filters">
+					<X size={20} />
+				</button>
+			</div>
+			
+			<div class="filter-content">
+				<!-- Collections -->
+				<div class="filter-group">
+					<h3>Collections</h3>
+					<div class="row-wrap">
+						{#each collections as collection}
+							<button 
+								class="filter-button {filters.selectedCollection === collection ? 'active' : ''}"
+								aria-pressed={filters.selectedCollection === collection}
+								onclick={() => updateFilters({ selectedCollection: filters.selectedCollection === collection ? null : collection })}
+							>
+								{collection}
+							</button>
+						{/each}
+					</div>
+				</div>
+				
+				<!-- Condition -->
+				<div class="filter-group">
+					<h3>Condition</h3>
+					<div class="row-wrap">
+						{#each conditions as condition}
+							<button 
+								class="filter-button {filters.selectedCondition === condition ? 'active' : ''}"
+								aria-pressed={filters.selectedCondition === condition}
+								onclick={() => updateFilters({ selectedCondition: filters.selectedCondition === condition ? null : condition })}
+							>
+								{condition}
+							</button>
+						{/each}
+					</div>
+				</div>
+				
+				<!-- Brand -->
+				<div class="filter-group">
+					<h3>Brand</h3>
+					<div class="row-wrap">
+						{#each brands as brand}
+							<button 
+								class="filter-button {filters.selectedBrand === brand ? 'active' : ''}"
+								aria-pressed={filters.selectedBrand === brand}
+								onclick={() => updateFilters({ selectedBrand: filters.selectedBrand === brand ? null : brand })}
+							>
+								{brand}
+							</button>
+						{/each}
+					</div>
+				</div>
+				
+				<!-- Size -->
+				<div class="filter-group">
+					<h3>Size</h3>
+					<div class="row-wrap small-gap">
+						{#each sizes as size}
+							<button 
+								class="filter-button size-button {filters.selectedSize === size ? 'active' : ''}"
+								aria-pressed={filters.selectedSize === size}
+								onclick={() => updateFilters({ selectedSize: filters.selectedSize === size ? null : size })}
+							>
+								{size}
+							</button>
+						{/each}
+					</div>
+				</div>
+				
+				<!-- Price Range -->
+				<div class="filter-group">
+					<h3>Price Range</h3>
+					<div class="price-inputs">
+						<label class="visually-hidden" for="price-min">Minimum price</label>
+						<input 
+							id="price-min"
+							type="number" 
+							placeholder="Min"
+							class="price-input"
+							value={filters.priceRange.min}
+							aria-label="Minimum price"
+							oninput={(e) => updateFilters({ 
+								priceRange: { 
+									...filters.priceRange, 
+									min: parseInt(e.currentTarget.value) || 0 
+								}
+							})}
+						/>
+						<span class="price-separator" aria-hidden="true">–</span>
+						<label class="visually-hidden" for="price-max">Maximum price</label>
+						<input 
+							id="price-max"
+							type="number" 
+							placeholder="Max"
+							class="price-input"
+							value={filters.priceRange.max}
+							aria-label="Maximum price"
+							oninput={(e) => updateFilters({ 
+								priceRange: { 
+									...filters.priceRange, 
+									max: parseInt(e.currentTarget.value) || 500 
+								}
+							})}
+						/>
+					</div>
+				</div>
+			</div>
+			
+			<div class="filter-actions">
+				<button class="clear-button" onclick={handleClear}>
+					Clear All
+				</button>
+				<button class="apply-button" onclick={handleApply}>
+					Apply Filters
+				</button>
+			</div>
+		</div>[36m
+	</div>[39m
+
+k:\driplo-fresh\[32msrc\lib\components\browse\FilterSheet.svelte[39m:121:3
+[33mWarn[39m: Non-interactive element `<div>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+[36m		<button class="filter-backdrop" onclick={onClose} aria-label="Close filters"></button>
+		[35m<div class="filter-sheet" onclick={(e) => e.stopPropagation()} onkeydown={(e) => {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				onClose();
+			}
+		}} role="document" tabindex="0">
+			<div class="filter-header">
+				<h2 id="filter-title">Filters</h2>
+				<button class="close-filters" onclick={onClose} aria-label="Close filters">
+					<X size={20} />
+				</button>
+			</div>
+			
+			<div class="filter-content">
+				<!-- Collections -->
+				<div class="filter-group">
+					<h3>Collections</h3>
+					<div class="row-wrap">
+						{#each collections as collection}
+							<button 
+								class="filter-button {filters.selectedCollection === collection ? 'active' : ''}"
+								aria-pressed={filters.selectedCollection === collection}
+								onclick={() => updateFilters({ selectedCollection: filters.selectedCollection === collection ? null : collection })}
+							>
+								{collection}
+							</button>
+						{/each}
+					</div>
+				</div>
+				
+				<!-- Condition -->
+				<div class="filter-group">
+					<h3>Condition</h3>
+					<div class="row-wrap">
+						{#each conditions as condition}
+							<button 
+								class="filter-button {filters.selectedCondition === condition ? 'active' : ''}"
+								aria-pressed={filters.selectedCondition === condition}
+								onclick={() => updateFilters({ selectedCondition: filters.selectedCondition === condition ? null : condition })}
+							>
+								{condition}
+							</button>
+						{/each}
+					</div>
+				</div>
+				
+				<!-- Brand -->
+				<div class="filter-group">
+					<h3>Brand</h3>
+					<div class="row-wrap">
+						{#each brands as brand}
+							<button 
+								class="filter-button {filters.selectedBrand === brand ? 'active' : ''}"
+								aria-pressed={filters.selectedBrand === brand}
+								onclick={() => updateFilters({ selectedBrand: filters.selectedBrand === brand ? null : brand })}
+							>
+								{brand}
+							</button>
+						{/each}
+					</div>
+				</div>
+				
+				<!-- Size -->
+				<div class="filter-group">
+					<h3>Size</h3>
+					<div class="row-wrap small-gap">
+						{#each sizes as size}
+							<button 
+								class="filter-button size-button {filters.selectedSize === size ? 'active' : ''}"
+								aria-pressed={filters.selectedSize === size}
+								onclick={() => updateFilters({ selectedSize: filters.selectedSize === size ? null : size })}
+							>
+								{size}
+							</button>
+						{/each}
+					</div>
+				</div>
+				
+				<!-- Price Range -->
+				<div class="filter-group">
+					<h3>Price Range</h3>
+					<div class="price-inputs">
+						<label class="visually-hidden" for="price-min">Minimum price</label>
+						<input 
+							id="price-min"
+							type="number" 
+							placeholder="Min"
+							class="price-input"
+							value={filters.priceRange.min}
+							aria-label="Minimum price"
+							oninput={(e) => updateFilters({ 
+								priceRange: { 
+									...filters.priceRange, 
+									min: parseInt(e.currentTarget.value) || 0 
+								}
+							})}
+						/>
+						<span class="price-separator" aria-hidden="true">–</span>
+						<label class="visually-hidden" for="price-max">Maximum price</label>
+						<input 
+							id="price-max"
+							type="number" 
+							placeholder="Max"
+							class="price-input"
+							value={filters.priceRange.max}
+							aria-label="Maximum price"
+							oninput={(e) => updateFilters({ 
+								priceRange: { 
+									...filters.priceRange, 
+									max: parseInt(e.currentTarget.value) || 500 
+								}
+							})}
+						/>
+					</div>
+				</div>
+			</div>
+			
+			<div class="filter-actions">
+				<button class="clear-button" onclick={handleClear}>
+					Clear All
+				</button>
+				<button class="apply-button" onclick={handleApply}>
+					Apply Filters
+				</button>
+			</div>
+		</div>[36m
+	</div>[39m
+
+k:\driplo-fresh\[32msrc\lib\components\browse\FilterSheet.svelte[39m:31:6
+[33mWarn[39m: `modalElement` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
+https://svelte.dev/e/non_reactive_update (svelte)
+[36m	
+	let [35mmodalElement: HTMLDivElement[36m;
+	let previouslyFocusedElement: HTMLElement | null = null;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\home\ProductCarousel.svelte[39m:258:4
+[33mWarn[39m: noninteractive element cannot have nonnegative tabIndex value
+https://svelte.dev/e/a11y_no_noninteractive_tabindex (svelte)
+[36m		<div class="relative">
+			[35m<div
+				bind:this={carousel}
+				onscroll={updateScrollButtons}
+				onmouseenter={stopAutoPlay}
+				onmouseleave={() => isAutoPlaying && startAutoPlay()}
+				role="region"
+				aria-label="Продукти карусел"
+				tabindex="0"
+				onkeydown={handleKeydown}
+				class="scrollbar-hide flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2"
+				style="scroll-snap-type: x mandatory;"
+			>
+				{#each products as product}
+					<div class="w-72 flex-shrink-0 snap-start">
+						<div
+							class="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
+						>
+							<!-- Product Image -->
+							<div class="relative aspect-[4/3] overflow-hidden">
+								<img
+									src={product.image}
+									alt={product.title}
+									class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+									loading="lazy"
+								/>
+
+								<!-- Like button -->
+								<button
+									onclick={() => toggleLike(product.id)}
+									class="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm transition-all hover:bg-white"
+								>
+									<Heart
+										size={16}
+										class="{product.isLiked
+											? 'fill-red-500 text-red-500'
+											: 'text-gray-600'} transition-colors"
+									/>
+								</button>
+
+								<!-- Tags -->
+								{#if product.tags.length > 0}
+									<div class="absolute top-3 left-3 flex gap-1">
+										{#each product.tags.slice(0, 2) as tag}
+											<span
+												class="rounded-full bg-white/90 px-2 py-1 text-xs font-medium text-gray-700 backdrop-blur-sm"
+											>
+												{tag}
+											</span>
+										{/each}
+									</div>
+								{/if}
+
+								<!-- Views -->
+								<div class="absolute bottom-3 left-3">
+									<div
+										class="flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 text-xs text-white backdrop-blur-sm"
+									>
+										<Eye size={12} />
+										<span>{product.views}</span>
+									</div>
+								</div>
+							</div>
+
+							<!-- Product Info -->
+							<div class="p-4">
+								<!-- Title -->
+								<h3
+									class="group-hover:text-primary mb-2 line-clamp-2 font-semibold text-gray-900 transition-colors"
+								>
+									{product.title}
+								</h3>
+
+								<!-- Price -->
+								<div class="mb-3 flex items-center gap-2">
+									<span class="text-xl font-bold text-gray-900">{product.price} лв</span>
+									{#if product.originalPrice}
+										<span class="text-sm text-gray-500 line-through"
+											>{product.originalPrice} лв</span
+										>
+										<span
+											class="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700"
+										>
+											-{Math.round((1 - product.price / product.originalPrice) * 100)}%
+										</span>
+									{/if}
+								</div>
+
+								<!-- Condition & Location -->
+								<div class="mb-3 flex items-center justify-between text-sm text-gray-600">
+									<span class="font-medium">{product.condition}</span>
+									<div class="flex items-center gap-1">
+										<MapPin size={12} />
+										<span>{product.location}</span>
+									</div>
+								</div>
+
+								<!-- Seller Info -->
+								<div class="flex items-center justify-between border-t border-gray-100 pt-3">
+									<div class="flex items-center gap-2">
+										<div
+											class="from-primary flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br to-blue-600 text-sm font-semibold text-white"
+										>
+											{product.seller.name.charAt(0)}
+										</div>
+										<div>
+											<div class="flex items-center gap-1">
+												<span class="text-sm font-medium text-gray-900">{product.seller.name}</span>
+												{#if product.seller.verified}
+													<Verified size={12} class="text-blue-500" />
+												{/if}
+											</div>
+											<div class="flex items-center gap-1 text-xs text-gray-500">
+												<Star size={10} class="fill-yellow-400 text-yellow-400" />
+												<span>{product.seller.rating}</span>
+												<span>•</span>
+												<span>{product.seller.responseTime}</span>
+											</div>
+										</div>
+									</div>
+
+									<!-- Likes -->
+									<div class="flex items-center gap-1 text-xs text-gray-500">
+										<Heart size={12} />
+										<span>{product.likes}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				{/each}
+			</div>[36m[39m
+
+k:\driplo-fresh\[32msrc\lib\components\home\ProductCarousel.svelte[39m:258:4
+[33mWarn[39m: Non-interactive element `<div>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+[36m		<div class="relative">
+			[35m<div
+				bind:this={carousel}
+				onscroll={updateScrollButtons}
+				onmouseenter={stopAutoPlay}
+				onmouseleave={() => isAutoPlaying && startAutoPlay()}
+				role="region"
+				aria-label="Продукти карусел"
+				tabindex="0"
+				onkeydown={handleKeydown}
+				class="scrollbar-hide flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2"
+				style="scroll-snap-type: x mandatory;"
+			>
+				{#each products as product}
+					<div class="w-72 flex-shrink-0 snap-start">
+						<div
+							class="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
+						>
+							<!-- Product Image -->
+							<div class="relative aspect-[4/3] overflow-hidden">
+								<img
+									src={product.image}
+									alt={product.title}
+									class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+									loading="lazy"
+								/>
+
+								<!-- Like button -->
+								<button
+									onclick={() => toggleLike(product.id)}
+									class="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm transition-all hover:bg-white"
+								>
+									<Heart
+										size={16}
+										class="{product.isLiked
+											? 'fill-red-500 text-red-500'
+											: 'text-gray-600'} transition-colors"
+									/>
+								</button>
+
+								<!-- Tags -->
+								{#if product.tags.length > 0}
+									<div class="absolute top-3 left-3 flex gap-1">
+										{#each product.tags.slice(0, 2) as tag}
+											<span
+												class="rounded-full bg-white/90 px-2 py-1 text-xs font-medium text-gray-700 backdrop-blur-sm"
+											>
+												{tag}
+											</span>
+										{/each}
+									</div>
+								{/if}
+
+								<!-- Views -->
+								<div class="absolute bottom-3 left-3">
+									<div
+										class="flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 text-xs text-white backdrop-blur-sm"
+									>
+										<Eye size={12} />
+										<span>{product.views}</span>
+									</div>
+								</div>
+							</div>
+
+							<!-- Product Info -->
+							<div class="p-4">
+								<!-- Title -->
+								<h3
+									class="group-hover:text-primary mb-2 line-clamp-2 font-semibold text-gray-900 transition-colors"
+								>
+									{product.title}
+								</h3>
+
+								<!-- Price -->
+								<div class="mb-3 flex items-center gap-2">
+									<span class="text-xl font-bold text-gray-900">{product.price} лв</span>
+									{#if product.originalPrice}
+										<span class="text-sm text-gray-500 line-through"
+											>{product.originalPrice} лв</span
+										>
+										<span
+											class="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700"
+										>
+											-{Math.round((1 - product.price / product.originalPrice) * 100)}%
+										</span>
+									{/if}
+								</div>
+
+								<!-- Condition & Location -->
+								<div class="mb-3 flex items-center justify-between text-sm text-gray-600">
+									<span class="font-medium">{product.condition}</span>
+									<div class="flex items-center gap-1">
+										<MapPin size={12} />
+										<span>{product.location}</span>
+									</div>
+								</div>
+
+								<!-- Seller Info -->
+								<div class="flex items-center justify-between border-t border-gray-100 pt-3">
+									<div class="flex items-center gap-2">
+										<div
+											class="from-primary flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br to-blue-600 text-sm font-semibold text-white"
+										>
+											{product.seller.name.charAt(0)}
+										</div>
+										<div>
+											<div class="flex items-center gap-1">
+												<span class="text-sm font-medium text-gray-900">{product.seller.name}</span>
+												{#if product.seller.verified}
+													<Verified size={12} class="text-blue-500" />
+												{/if}
+											</div>
+											<div class="flex items-center gap-1 text-xs text-gray-500">
+												<Star size={10} class="fill-yellow-400 text-yellow-400" />
+												<span>{product.seller.rating}</span>
+												<span>•</span>
+												<span>{product.seller.responseTime}</span>
+											</div>
+										</div>
+									</div>
+
+									<!-- Likes -->
+									<div class="flex items-center gap-1 text-xs text-gray-500">
+										<Heart size={12} />
+										<span>{product.likes}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				{/each}
+			</div>[36m[39m
+
+k:\driplo-fresh\[32msrc\lib\components\home\ProductCarousel.svelte[39m:20:6
+[33mWarn[39m: `products` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
+https://svelte.dev/e/non_reactive_update (svelte)
+[36m	// Sample products data
+	let [35mproducts[36m = [
+		{[39m
+
+k:\driplo-fresh\[32msrc\lib\components\home\ProductCarousel.svelte[39m:429:3
+[33mWarn[39m: Also define the standard property 'line-clamp' for compatibility (css)
+[36m		display: -webkit-box;
+		[35m-webkit-line-clamp[36m: 2;
+		-webkit-box-orient: vertical;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\home\TrendingTabs.svelte[39m:365:3
+[33mWarn[39m: Also define the standard property 'line-clamp' for compatibility (css)
+[36m		display: -webkit-box;
+		[35m-webkit-line-clamp[36m: 2;
+		-webkit-box-orient: vertical;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\home\TrustAccordion.svelte[39m:291:2
+[33mWarn[39m: Unused CSS selector ".prose h4"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m	/* Prose styles for accordion content */
+	[35m.prose h4[36m {
+		margin-top: 0;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\home\TrustAccordion.svelte[39m:296:2
+[33mWarn[39m: Unused CSS selector ".prose p"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+	[35m.prose p[36m {
+		margin-top: 0;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\home\TrustAccordion.svelte[39m:301:2
+[33mWarn[39m: Unused CSS selector ".prose ul"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+	[35m.prose ul[36m {
+		margin-top: 0;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\home\TrustAccordion.svelte[39m:307:2
+[33mWarn[39m: Unused CSS selector ".prose li"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+	[35m.prose li[36m {
+		margin-top: 0;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\instagram\PostCard.svelte[39m:136:2
+[31mError[39m: `</div>` attempted to close an element that was not open
+https://svelte.dev/e/element_invalid_closing_tag (svelte)
+[36m		</div>
+	[35m[36m</div>[39m
+
+k:\driplo-fresh\[32msrc\lib\components\instagram\PostCard.svelte[39m:318:3
+[33mWarn[39m: Also define the standard property 'line-clamp' for compatibility (css)
+[36m		display: -webkit-box;
+		[35m-webkit-line-clamp[36m: 2;
+		-webkit-box-orient: vertical;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\instagram\PostCard.svelte[39m:136:2
+[31mError[39m: `</div>` attempted to close an element that was not open
+https://svelte.dev/e/element_invalid_closing_tag (ts)
+[36m		</div>
+	[35m[36m</div>[39m
+
+k:\driplo-fresh\[32msrc\lib\components\messages\InboxUI.svelte[39m:133:6
+[33mWarn[39m: Avoid using autofocus
+https://svelte.dev/e/a11y_autofocus (svelte)
+[36m					oninput={(e) => onSearchChange(e.currentTarget.value)}
+					[35m[36mautofocus
+				/>[39m
+
+k:\driplo-fresh\[32msrc\lib\components\navigation\SearchHeader.svelte[39m:205:6
+[33mWarn[39m: Avoid using autofocus
+https://svelte.dev/e/a11y_autofocus (svelte)
+[36m					class="search-input"
+					[35m[36mautofocus
+				/>[39m
+
+k:\driplo-fresh\[32msrc\lib\components\navigation\SearchHeader.svelte[39m:260:8
+[33mWarn[39m: Unused CSS selector ".logo svg"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.search-header {[39m
+
+k:\driplo-fresh\[32msrc\lib\components\navigation\SearchHeader.svelte[39m:260:8
+[33mWarn[39m: Unused CSS selector ".search-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.search-header {[39m
+
+k:\driplo-fresh\[32msrc\lib\components\navigation\TabBar.svelte[39m:118:4
+[33mWarn[39m: `<svelte:element>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
+[36m			
+			[35m<svelte:element
+				this={Component}
+				href={item.href}
+				onclick={() => handleTabClick(item)}
+				class={cn(
+					"relative flex flex-1 flex-col items-center justify-center",
+					currentSize.gap,
+					"transition-all duration-200",
+					"touch-manipulation",
+					
+					// Default variant
+					variant === 'default' && [
+						"text-gray-500",
+						"active:scale-95 active:bg-gray-50",
+						isActive && "text-gray-900",
+						item.accent && !isActive && "text-blue-500"
+					],
+					
+					// Floating variant
+					variant === 'floating' && [
+						"text-gray-500",
+						"active:scale-95",
+						isActive && "text-gray-900",
+						item.accent && !isActive && "text-blue-500"
+					],
+					
+					// Pills variant
+					variant === 'pills' && [
+						"rounded-xl",
+						"text-gray-600",
+						"active:scale-95",
+						isActive ? "bg-white text-gray-900 shadow-sm" : "hover:bg-gray-50",
+						item.accent && !isActive && "text-blue-500"
+					]
+				)}
+				aria-label={item.label}
+				aria-current={isActive ? 'page' : undefined}
+			>
+				{#if isActive && variant === 'default'}
+					<div class="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-gray-900"></div>
+				{/if}
+				
+				{@render tabIcon(item, isActive)}
+				
+				{#if showLabels}
+					<span class={cn(
+						currentSize.text,
+						"font-medium transition-all duration-200",
+						isActive && "font-semibold"
+					)}>
+						{item.label}
+					</span>
+				{/if}
+			</svelte:element>[36m
+		{/each}[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\GamificationDashboard.svelte[39m:180:8
+[31mError[39m: `{@const}` must be the immediate child of `{#snippet}`, `{#if}`, `{:else if}`, `{:else}`, `{#each}`, `{:then}`, `{:catch}`, `<svelte:fragment>`, `<svelte:boundary` or `<Component>`
+https://svelte.dev/e/const_tag_invalid_placement (svelte)
+[36m						<div class="card-header">
+							[35m{@const IconComponent = getLevelIcon(reputation.level)}[36m
+							<IconComponent class="header-icon {getLevelColor(reputation.level)}" size={24} />[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\LiveShoppingList.svelte[39m:96:4
+[33mWarn[39m: noninteractive element cannot have nonnegative tabIndex value
+https://svelte.dev/e/a11y_no_noninteractive_tabindex (svelte)
+[36m		}} aria-label="Live shopping session modal">
+			[35m<div class="session-modal" role="document" tabindex="0" onclick={(e) => e.stopPropagation()} onkeydown={(e) => {
+				if (e.key === 'Escape') {
+					e.preventDefault();
+					closeSession();
+				}
+			}}>
+				<div class="modal-header">
+					<h2>Live Shopping Session</h2>
+					<button class="close-btn" onclick={closeSession}>&times;</button>
+				</div>
+				<div class="modal-content">
+					<LiveShopping 
+						session={selectedSession} 
+						showChat={true} 
+						autoJoin={true}
+						onPurchase={async (productId) => {
+							// Handle purchase logic here
+							console.log('Purchase product:', productId);
+						}}
+					/>
+				</div>
+			</div>[36m
+		</div>[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\LiveShoppingList.svelte[39m:96:4
+[33mWarn[39m: Non-interactive element `<div>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+[36m		}} aria-label="Live shopping session modal">
+			[35m<div class="session-modal" role="document" tabindex="0" onclick={(e) => e.stopPropagation()} onkeydown={(e) => {
+				if (e.key === 'Escape') {
+					e.preventDefault();
+					closeSession();
+				}
+			}}>
+				<div class="modal-header">
+					<h2>Live Shopping Session</h2>
+					<button class="close-btn" onclick={closeSession}>&times;</button>
+				</div>
+				<div class="modal-content">
+					<LiveShopping 
+						session={selectedSession} 
+						showChat={true} 
+						autoJoin={true}
+						onPurchase={async (productId) => {
+							// Handle purchase logic here
+							console.log('Purchase product:', productId);
+						}}
+					/>
+				</div>
+			</div>[36m
+		</div>[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\LiveShoppingList.svelte[39m:294:8
+[33mWarn[39m: Unused CSS selector ".join-session-btn"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.live-shopping-list {[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\LiveShoppingList.svelte[39m:294:8
+[33mWarn[39m: Unused CSS selector ".join-session-btn:hover"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.live-shopping-list {[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\LiveShoppingList.svelte[39m:294:8
+[33mWarn[39m: Unused CSS selector ".play-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.live-shopping-list {[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\LiveShoppingList.svelte[39m:294:8
+[33mWarn[39m: Unused CSS selector ".featured-session:hover .play-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.live-shopping-list {[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\LiveShoppingList.svelte[39m:294:8
+[33mWarn[39m: Unused CSS selector ".tip-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.live-shopping-list {[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\LiveShoppingList.svelte[39m:519:3
+[33mWarn[39m: Also define the standard property 'line-clamp' for compatibility (css)
+[36m		display: -webkit-box;
+		[35m-webkit-line-clamp[36m: 2;
+		-webkit-box-orient: vertical;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\LiveShoppingList.svelte[39m:577:3
+[33mWarn[39m: Also define the standard property 'line-clamp' for compatibility (css)
+[36m		display: -webkit-box;
+		[35m-webkit-line-clamp[36m: 1;
+		-webkit-box-orient: vertical;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\LiveShoppingList.svelte[39m:700:3
+[33mWarn[39m: Also define the standard property 'line-clamp' for compatibility (css)
+[36m		display: -webkit-box;
+		[35m-webkit-line-clamp[36m: 2;
+		-webkit-box-orient: vertical;[39m
+
+k:\driplo-fresh\[32msrc\lib\components\social\UserModal.svelte[39m:116:3
+[33mWarn[39m: Non-interactive element `<div>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+[36m		<button class="modal-backdrop" onclick={handleOverlayClick} aria-label="Close modal"></button>
+		[35m<div 
+			class="brand-modal" 
+			onclick={handleModalClick}
+			onkeydown={handleModalClick}
+			role="document"
+			tabindex="-1"
+		>
+			<button class="modal-close" onclick={onClose} aria-label="Close modal">✕</button>
+			
+			<div class="brand-modal-header">
+				<img 
+					src={user.imageUrl} 
+					alt={user.title}
+					class="brand-modal-image"
+				/>
+				<div class="brand-modal-info">
+					<div class="brand-modal-title" id="user-modal-title">
+						{user.title}
+						{#if user.isVerified}
+							<svg class="verified-icon" viewBox="0 0 20 20" fill="currentColor" aria-label="Verified user">
+								<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+							</svg>
+						{/if}
+					</div>
+					<div class="brand-modal-subtitle">{user.subtitle}</div>
+					<div class="brand-stats">
+						<div class="stat">
+							<strong>{user.followerCount.toLocaleString()}</strong>
+							<span>Followers</span>
+						</div>
+						<div class="stat">
+							<strong>{user.productCount}</strong>
+							<span>Products</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="brand-modal-actions">
+				<button class="follow-btn" aria-label="Follow {user.title}">Follow</button>
+				<button class="visit-store-btn" onclick={visitUserProfile} aria-label="Visit {user.title}'s profile">
+					Visit Profile
+				</button>
+			</div>
+		</div>[36m
+	</div>[39m
+
+k:\driplo-fresh\[32msrc\routes\auth\signup\+page.svelte[39m:257:2
+[33mWarn[39m: Unused CSS selector ".input-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+	[35m.input-icon[36m {
+		position: absolute;[39m
+
+k:\driplo-fresh\[32msrc\routes\auth\signup\+page.svelte[39m:214:3
+[33mWarn[39m: Also define the standard property 'background-clip' for compatibility (css)
+[36m		background: linear-gradient(135deg, var(--color-primary), #6c63ff);
+		[35m-webkit-background-clip[36m: text;
+		-webkit-text-fill-color: transparent;[39m
+
+k:\driplo-fresh\[32msrc\routes\onboarding\+page.svelte[39m:564:3
+[33mWarn[39m: Unused CSS selector ".logo-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+  [35m.logo-icon[36m {
+    width: 1.5rem;[39m
+
+k:\driplo-fresh\[32msrc\routes\onboarding\+page.svelte[39m:672:3
+[33mWarn[39m: Unused CSS selector ".username-input.error"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+  [35m.username-input.error[36m {
+    border-color: var(--color-danger);[39m
+
+k:\driplo-fresh\[32msrc\routes\onboarding\+page.svelte[39m:960:3
+[33mWarn[39m: Unused CSS selector ".benefit-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+  [35m.benefit-icon[36m {
+    width: 1.5rem;[39m
+
+k:\driplo-fresh\[32msrc\routes\onboarding\+page.svelte[39m:1072:5
+[33mWarn[39m: Unused CSS selector ".logo-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+    [35m.logo-icon[36m {
+      width: 1.25rem;[39m
+
+k:\driplo-fresh\[32msrc\routes\onboarding\+page.svelte[39m:1187:5
+[33mWarn[39m: Unused CSS selector ".benefit-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+    [35m.benefit-icon[36m {
+      width: 1.25rem;[39m
+
+k:\driplo-fresh\[32msrc\routes\products\[id]\+page.svelte[39m:94:3
+[33mWarn[39m: Unused CSS selector ".section-title"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m	@media (min-width: 768px) {
+		[35m.section-title[36m {
+			padding: 0 24px;[39m
+
+k:\driplo-fresh\[32msrc\routes\search\+page.svelte[39m:329:8
+[33mWarn[39m: Unused CSS selector ".search-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.search-page {[39m
+
+k:\driplo-fresh\[32msrc\routes\user\[username]\+page.svelte[39m:302:8
+[33mWarn[39m: Unused CSS selector ".empty-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+<style>[35m[36m
+	.profile-page {[39m
+
+====================================
+[31msvelte-check found 54 errors and 49 warnings in 35 files
+[39m ELIFECYCLE  Command failed with exit code 1.

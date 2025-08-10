@@ -2,6 +2,7 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import QuickViewModal from '$lib/components/modals/QuickViewModal.svelte';
 	import type { FeedProduct } from '$lib/types';
+	import * as m from '$lib/paraglide/messages';
 
 	type Story = {
 		id: string;
@@ -84,13 +85,13 @@
 		
 		if (diffHours < 1) {
 			const diffMinutes = Math.floor(diffMs / (1000 * 60));
-			return diffMinutes < 1 ? 'Just now' : `${diffMinutes}m ago`;
+			return diffMinutes < 1 ? m['stories.just_now']() : m['stories.minutes_ago']({ count: diffMinutes });
 		}
 		if (diffHours < 24) {
-			return `${diffHours}h ago`;
+			return m['stories.hours_ago']({ count: diffHours });
 		}
 		const diffDays = Math.floor(diffHours / 24);
-		return `${diffDays}d ago`;
+		return m['stories.days_ago']({ count: diffDays });
 	}
 </script>
 
@@ -109,7 +110,7 @@
 						<Plus size={28} strokeWidth={2.5} />
 					</div>
 				</div>
-				<span class="story-label">Your Story</span>
+				<span class="story-label">{m['stories.your_story']()}</span>
 			</button>
 		{/if}
 

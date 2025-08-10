@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { ProductGrid } from '$lib/components/marketplace';
-	import type { PageData } from '../../../routes/$types';
+	import type { FeedProduct } from '$lib/types';
+	import * as m from '$lib/paraglide/messages';
 
-	type Product = PageData['products'][0];
 	type FeedType = 'for-you' | 'following' | 'trending';
 
 	let { 
@@ -18,7 +18,7 @@
 		onProductShare,
 		onProductComment
 	}: {
-		products: Product[];
+		products: FeedProduct[];
 		feedType: FeedType;
 		isLoading: boolean;
 		loadingMore: boolean;
@@ -53,11 +53,11 @@
 {#if loadingMore}
 	<div class="load-more-container">
 		<div class="loading-spinner small"></div>
-		<p>Loading more...</p>
+		<p>{m['feed_messages.loading_more']()}</p>
 	</div>
 {:else if !nextCursor && products.length > 0}
 	<div class="end-of-feed">
-		<p>You've reached the end!</p>
+		<p>{m['feed_messages.end_of_feed']()}</p>
 	</div>
 {/if}
 

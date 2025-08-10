@@ -5,7 +5,7 @@ Responsive design with mobile/desktop variations
 -->
 <script lang="ts">
 	import { MoreHorizontal, MessageCircle, UserPlus, UserCheck, Share2, Settings } from '@lucide/svelte';
-	import { Button } from '$lib/components/ui/button';
+	import Button from '$lib/components/ui/button';
 	import { Avatar, AvatarImage, AvatarFallback } from '$lib/components/ui/avatar';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
@@ -77,7 +77,7 @@ Responsive design with mobile/desktop variations
 		<!-- Top row: Avatar and Stats -->
 		<div class="mobile-top">
 			<div class="avatar-section">
-				<Avatar size="xl" class="profile-avatar">
+				<Avatar class="profile-avatar size-20">
 					<AvatarImage src={profile.avatar_url} alt={profile.username} />
 					<AvatarFallback>{initials}</AvatarFallback>
 				</Avatar>
@@ -106,10 +106,10 @@ Responsive design with mobile/desktop variations
 			<div class="username-row">
 				<h1 class="username">{profile.username}</h1>
 				{#if profile.seller_verified}
-					<Badge variant="secondary" class="verified-badge">✓</Badge>
+					<Badge variant="secondary">✓</Badge>
 				{/if}
 				{#if profile.seller_badge}
-					<Badge variant="outline" class="seller-badge">{profile.seller_badge}</Badge>
+					<Badge variant="outline">{profile.seller_badge}</Badge>
 				{/if}
 			</div>
 
@@ -167,7 +167,7 @@ Responsive design with mobile/desktop variations
 		<div class="desktop-content">
 			<!-- Avatar -->
 			<div class="avatar-section">
-				<Avatar size="2xl" class="profile-avatar">
+				<Avatar class="profile-avatar size-32">
 					<AvatarImage src={profile.avatar_url} alt={profile.username} />
 					<AvatarFallback class="text-2xl">{initials}</AvatarFallback>
 				</Avatar>
@@ -180,7 +180,7 @@ Responsive design with mobile/desktop variations
 					<div class="username-row">
 						<h1 class="username">{profile.username}</h1>
 						{#if profile.seller_verified}
-							<Badge variant="secondary" class="verified-badge">✓</Badge>
+							<Badge variant="secondary">✓</Badge>
 						{/if}
 					</div>
 
@@ -246,7 +246,7 @@ Responsive design with mobile/desktop variations
 					{/if}
 					
 					{#if profile.seller_badge}
-						<Badge variant="outline" class="seller-badge mb-2">{profile.seller_badge}</Badge>
+						<Badge variant="outline" class="mb-2">{profile.seller_badge}</Badge>
 					{/if}
 
 					{#if showBio && profile.bio}
@@ -293,146 +293,195 @@ Responsive design with mobile/desktop variations
 
 <style>
 	.profile-header {
-		@apply bg-card border-b border-border p-4;
+		background-color: white;
+		border-bottom: 1px solid #e5e7eb;
+		padding: 1rem;
 	}
 
 	.profile-header.compact {
-		@apply p-2;
+		padding: 0.5rem;
 	}
 
 	/* Mobile Layout */
 	.mobile-layout {
-		@apply space-y-4;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 	}
 
 	.mobile-top {
-		@apply flex items-start gap-4;
+		display: flex;
+		align-items: flex-start;
+		gap: 1rem;
 	}
 
 	.avatar-section {
-		@apply flex-shrink-0;
+		flex-shrink: 0;
 	}
 
 	.stats-section {
-		@apply flex-1 flex justify-around;
+		flex: 1;
+		display: flex;
+		justify-content: space-around;
 	}
 
 	.stat-item {
-		@apply text-center;
+		text-align: center;
 	}
 
 	.stat-number {
-		@apply block text-lg font-bold;
+		display: block;
+		font-size: 1.125rem;
+		font-weight: 700;
 	}
 
 	.stat-label {
-		@apply text-sm text-muted-foreground;
+		font-size: 0.875rem;
+		color: #6b7280;
 	}
 
 	.username-row {
-		@apply flex items-center gap-2 flex-wrap;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex-wrap: wrap;
 	}
 
 	.username {
-		@apply text-xl font-semibold;
+		font-size: 1.25rem;
+		font-weight: 600;
 	}
 
 	.full-name {
-		@apply font-medium text-muted-foreground mt-1;
+		font-weight: 500;
+		color: #6b7280;
+		margin-top: 0.25rem;
 	}
 
 	.bio-section {
-		@apply text-sm leading-relaxed;
+		font-size: 0.875rem;
+		line-height: 1.625;
 	}
 
 	.actions-mobile {
-		@apply flex gap-2;
+		display: flex;
+		gap: 0.5rem;
 	}
 
 	/* Desktop Layout */
 	.desktop-content {
-		@apply flex gap-8 items-start;
+		display: flex;
+		gap: 2rem;
+		align-items: flex-start;
 	}
 
 	.info-section {
-		@apply flex-1 space-y-4;
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 	}
 
 	.username-actions {
-		@apply flex items-center justify-between;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
 	}
 
 	.actions-desktop {
-		@apply flex items-center gap-2;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 	}
 
 	.stats-desktop {
-		@apply flex gap-8;
+		display: flex;
+		gap: 2rem;
 	}
 
 	.stats-desktop .stat-item {
-		@apply flex gap-1;
+		display: flex;
+		gap: 0.25rem;
 	}
 
 	.name-bio {
-		@apply space-y-2;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
 	}
 
-	/* Badges */
-	.verified-badge {
-		@apply text-blue-500 bg-blue-50 border-blue-200;
-	}
-
-	.seller-badge {
-		@apply text-green-600 border-green-200;
-	}
+	/* Badges styled via Badge component props */
 
 	/* Bio links */
 	:global(.bio-link) {
-		@apply text-primary hover:underline;
+		color: #3b82f6;
+	}
+	
+	:global(.bio-link:hover) {
+		text-decoration: underline;
 	}
 
 	:global(.bio-mention) {
-		@apply text-primary hover:underline font-medium;
+		color: #3b82f6;
+		font-weight: 500;
+	}
+	
+	:global(.bio-mention:hover) {
+		text-decoration: underline;
 	}
 
 	:global(.bio-hashtag) {
-		@apply text-primary hover:underline;
+		color: #3b82f6;
+	}
+	
+	:global(.bio-hashtag:hover) {
+		text-decoration: underline;
 	}
 
 	/* Trust indicators */
 	.trust-indicators {
-		@apply flex flex-wrap items-center gap-4;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 1rem;
 	}
 
 	.rating {
-		@apply flex items-center gap-1 text-sm;
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		font-size: 0.875rem;
 	}
 
 	.rating-count {
-		@apply text-muted-foreground;
+		color: #6b7280;
 	}
 	
 	.new-seller {
-		@apply text-sm text-muted-foreground font-medium;
+		font-size: 0.875rem;
+		color: #6b7280;
+		font-weight: 500;
 	}
 	
 	:global(.admin-badge) {
-		@apply bg-gradient-to-r from-red-600 to-red-700 text-white font-bold shadow-lg;
+		background: linear-gradient(to right, #dc2626, #b91c1c);
+		color: white;
+		font-weight: 700;
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 	}
 
 	/* Responsive adjustments */
 	@media (max-width: 480px) {
 		.mobile-top {
-			@apply gap-2;
+			gap: 0.5rem;
 		}
 		
 		.stats-section {
-			@apply text-sm;
+			font-size: 0.875rem;
 		}
 		
 		.stat-number {
-			@apply text-base;
+			font-size: 1rem;
 		}
 	}
 </style>

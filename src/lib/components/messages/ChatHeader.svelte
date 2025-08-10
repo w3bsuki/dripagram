@@ -11,22 +11,24 @@
 			<ArrowLeft size={24} />
 		</button>
 
-		<button class="user-info" onclick={onProfileClick}>
-			<img
-				src={otherUser.avatar_url || `https://ui-avatars.com/api/?name=${otherUser.username}`}
-				alt={otherUser.username}
-				class="user-avatar"
-			/>
-			<div class="user-details">
-				<span class="username">
-					{otherUser.username}
-					{#if otherUser.verified}
-						<span class="verified-badge">✓</span>
-					{/if}
-				</span>
-				<span class="user-status">Active now</span>
-			</div>
-		</button>
+		{#if otherUser}
+			<button class="user-info" onclick={onProfileClick}>
+				<img
+					src={otherUser.avatar_url || `https://ui-avatars.com/api/?name=${otherUser.username}`}
+					alt={otherUser.username}
+					class="user-avatar"
+				/>
+				<div class="user-details">
+					<span class="username">
+						{otherUser.username}
+						{#if otherUser.verified}
+							<span class="verified-badge">✓</span>
+						{/if}
+					</span>
+					<span class="user-status">Active now</span>
+				</div>
+			</button>
+		{/if}
 	</div>
 
 	<div class="header-actions">

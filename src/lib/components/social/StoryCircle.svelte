@@ -316,28 +316,7 @@ Can be used for user stories, brand highlights, category collections, etc.
 		transform: scale(1.1);
 	}
 
-	/* Size-specific adjustments */
-	.story-circle.sm .story-label {
-		max-width: 3rem;
-	}
 
-	.story-circle.sm .story-title,
-	.story-circle.sm .story-subtitle {
-		font-size: 0.75rem;
-	}
-
-	.story-circle.lg .story-label {
-		max-width: 6rem;
-	}
-
-	.story-circle.xl .story-label {
-		max-width: 7rem;
-	}
-
-	.story-circle.lg .story-title,
-	.story-circle.xl .story-title {
-		font-size: 0.875rem;
-	}
 
 	/* Hover effects */
 	.story-circle:hover .gradient-ring {

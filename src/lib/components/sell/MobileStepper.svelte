@@ -1,4 +1,6 @@
 <script lang="ts">
+	import * as m from '$lib/paraglide/messages';
+
 	interface Props {
 		currentStep: number;
 		totalSteps: number;
@@ -18,7 +20,7 @@
 			></div>
 		</div>
 		<p class="text-xs text-center text-gray-600 mt-1">
-			Step {currentStep} of {totalSteps}
+			{m.sell?.step_counter?.({ current: currentStep, total: totalSteps }) ?? `Step ${currentStep} of ${totalSteps}`}
 			{#if labels[currentStep - 1]}
 				• {labels[currentStep - 1]}
 			{/if}

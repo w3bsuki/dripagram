@@ -1,4 +1,6 @@
 <script lang="ts">
+	import * as m from '$lib/paraglide/messages';
+	
 	type FeedType = 'for-you' | 'following' | 'trending';
 
 	let { 
@@ -20,7 +22,7 @@
 			onclick={() => onFeedChange('for-you')}
 			disabled={isLoading}
 		>
-			For you
+			{m['feed.for_you']()}
 		</button>
 		
 		<div class="separator"></div>
@@ -30,7 +32,7 @@
 			onclick={() => onFeedChange('following')}
 			disabled={isLoading}
 		>
-			Following
+			{m['feed.following']()}
 		</button>
 		
 		<div class="separator"></div>
@@ -40,7 +42,7 @@
 			onclick={() => onFeedChange('trending')}
 			disabled={isLoading}
 		>
-			Trending
+			{m['feed.trending']()}
 		</button>
 	</div>
 </div>

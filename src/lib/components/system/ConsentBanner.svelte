@@ -27,10 +27,8 @@
 				.find(row => row.startsWith('consent='));
 			
 			if (!consentCookie) {
-				// Show banner after a short delay to not be intrusive
-				setTimeout(() => {
-					showBanner = true;
-				}, 1500);
+				// Show banner immediately for cookie consent compliance
+				showBanner = true;
 			} else {
 				// Parse existing consent
 				try {

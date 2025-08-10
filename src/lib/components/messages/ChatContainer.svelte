@@ -99,8 +99,6 @@
 				<MessageBubble 
 					{message} 
 					isFromCurrentUser={message.sender_id === currentUserId}
-					otherUser={conversation.other_user}
-					{currentUserId}
 				/>
 			{/each}
 		</div>

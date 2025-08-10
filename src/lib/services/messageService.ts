@@ -1,6 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 import type { Database } from '$lib/types/database.types';
-import type { RealtimeChannel } from '@supabase/realtime-js';
 
 export interface Message {
 	id: string;

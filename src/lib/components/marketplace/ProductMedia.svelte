@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Heart, MessageCircle } from '@lucide/svelte';
 	import type { LikeState } from '$lib/utils/likeLogic';
+	import * as m from '$lib/paraglide/messages';
 
 	interface Props {
 		product: any;
@@ -66,15 +67,21 @@
 	{#if product.condition}
 		<span class="condition-badge {product.condition}">
 			{#if product.condition === 'new_with_tags'}
-				NEW
+				{m['conditions.new_with_tags']().toUpperCase()}
 			{:else if product.condition === 'new_without_tags'}
-				NEW
+				{m['conditions.new_without_tags']().toUpperCase()}
 			{:else if product.condition === 'like_new'}
-				LIKE NEW
+				{m['conditions.like_new']().toUpperCase()}
 			{:else if product.condition === 'very_good'}
-				V.GOOD
+				{m['conditions.very_good']().toUpperCase()}
 			{:else if product.condition === 'good'}
-				GOOD
+				{m['conditions.good']().toUpperCase()}
+			{:else if product.condition === 'brand_new'}
+				{m['conditions.brand_new']().toUpperCase()}
+			{:else if product.condition === 'fair'}
+				{m['conditions.fair']().toUpperCase()}
+			{:else if product.condition === 'satisfactory'}
+				{m['conditions.satisfactory']().toUpperCase()}
 			{:else}
 				{product.condition.replace('_', ' ')}
 			{/if}

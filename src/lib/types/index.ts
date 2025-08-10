@@ -25,6 +25,8 @@ export interface Profile {
 	country?: string;
 	seller_rating?: number;
 	seller_rating_count?: number;
+	rating_average?: number;
+	rating_count?: number;
 	seller_verified?: boolean;
 	seller_verified_at?: string;
 	seller_badge?: string;

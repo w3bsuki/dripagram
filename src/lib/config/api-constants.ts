@@ -124,7 +124,7 @@ export function createErrorResponse(
 			message,
 			status,
 			timestamp: new Date().toISOString(),
-			...(details && { details }),
+			...(details && typeof details === 'object' ? { details } : {}),
 		},
 	};
 }

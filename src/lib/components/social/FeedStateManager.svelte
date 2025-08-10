@@ -2,9 +2,8 @@
 	import { browser } from '$app/environment';
 	import { onMount, onDestroy } from 'svelte';
 	import { analytics } from '$lib/services/analytics';
-	import type { PageData } from '../../../routes/$types';
+	import type { FeedProduct } from '$lib/types';
 
-	type Product = PageData['products'][0];
 	type FeedType = 'for-you' | 'following' | 'trending';
 
 	let { 
@@ -15,7 +14,7 @@
 		onLoadMore,
 		onResize
 	}: {
-		products: Product[];
+		products: FeedProduct[];
 		feedType: FeedType;
 		loadingMore: boolean;
 		nextCursor: string | null;

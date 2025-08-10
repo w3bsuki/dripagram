@@ -234,11 +234,7 @@
 								<span class="unread-badge">{conversation.unread_count}</span>
 							{:else if conversation.last_message?.sender_id === currentUserId}
 								<span class="status-icon">
-									{#if conversation.last_message.status === 'read'}
-										<CheckCheck size={16} class="read" />
-									{:else}
-										<Check size={16} />
-									{/if}
+									<Check size={16} />
 								</span>
 							{/if}
 						</div>

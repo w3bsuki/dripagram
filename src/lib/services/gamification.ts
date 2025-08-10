@@ -575,10 +575,10 @@ export class GamificationService {
 			`)
 			.eq('user_id', userId);
 
-		return data?.map(item => ({
-			...item.badges,
+		return (data?.map(item => ({
+			...(item.badges as Badge),
 			earned_at: item.earned_at
-		})) || [];
+		})) || []) as (Badge & { earned_at: any })[];
 	}
 
 	private async getLoyaltyPoints(userId: string): Promise<LoyaltyPoints> {
@@ -656,7 +656,7 @@ export class GamificationService {
 		return {
 			sales_count: salesData.total_sales,
 			review_rating: reviewsData.average_rating * 10, // Convert to 0-50 scale
-			social_shares: socialData?.length || 0,
+			social_shares: socialData?.data?.length || 0,
 			// Add more metrics as needed
 		};
 	}

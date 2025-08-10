@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Search, Camera, TrendingUp, MapPin } from '@lucide/svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/ui/button';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { goto } from '$app/navigation';

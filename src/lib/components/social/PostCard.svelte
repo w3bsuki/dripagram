@@ -156,7 +156,7 @@ Modular post card following Instagram design patterns with:
 							{post.seller.username}
 						</a>
 						{#if post.seller.verified}
-							<Badge variant="secondary" class="verified-badge">✓</Badge>
+							<Badge variant="secondary">✓</Badge>
 						{/if}
 					</div>
 					{#if !compact}
@@ -214,7 +214,7 @@ Modular post card following Instagram design patterns with:
 
 				<!-- Price overlay -->
 				<div class="price-overlay">
-					<Badge variant="outline" class="price-badge">
+					<Badge variant="outline" style="background: rgba(0, 0, 0, 0.75); color: white; backdrop-filter: blur(4px);">
 						€{post.price}
 					</Badge>
 				</div>
@@ -400,11 +400,6 @@ Modular post card following Instagram design patterns with:
 		text-decoration: underline;
 	}
 
-	.verified-badge {
-		font-size: 0.75rem;
-		padding: 0 0.25rem;
-	}
-
 	.post-header-actions {
 		display: flex;
 		align-items: center;
@@ -486,12 +481,6 @@ Modular post card following Instagram design patterns with:
 		position: absolute;
 		top: 0.75rem;
 		right: 0.75rem;
-	}
-
-	.price-badge {
-		background: rgba(0, 0, 0, 0.75);
-		color: white;
-		backdrop-filter: blur(4px);
 	}
 
 	.no-media {

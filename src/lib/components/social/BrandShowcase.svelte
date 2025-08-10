@@ -197,11 +197,27 @@
 {#if selectedBrand}
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+		role="dialog"
+		tabindex="0"
 		onclick={closeBrandModal}
+		onkeydown={(e) => {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				closeBrandModal();
+			}
+		}}
+		aria-label="Brand details modal"
 	>
 		<div
 			class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
+			role="document"
 			onclick={(e) => e.stopPropagation()}
+			onkeydown={(e) => {
+				if (e.key === 'Escape') {
+					e.preventDefault();
+					closeBrandModal();
+				}
+			}}
 		>
 			<div class="flex items-center gap-4 border-b border-gray-100 p-6">
 				<img

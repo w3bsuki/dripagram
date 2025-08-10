@@ -1,19 +1,19 @@
 <script lang="ts">
-	import { Bell, User, Plus, MessageCircle, Search } from '@lucide/svelte';
+	import { Bell, User, MessageCircle, Search } from '@lucide/svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	import AnimatedLogo from '$lib/components/branding/AnimatedLogo.svelte';
+	import { LocaleSwitcher } from '$lib/components/ui/locale-switcher';
+	import * as m from '$lib/paraglide/messages';
 	
 	interface Props {
-		showCreateButton?: boolean;
 		notificationCount?: number;
 		class?: string;
 	}
 	
 	let { 
-		showCreateButton = true,
 		notificationCount = 0,
 		class: className = ''
 	}: Props = $props();
@@ -41,10 +41,6 @@
 		}
 	});
 	
-	function handleCreatePost() {
-		goto('/sell');
-	}
-	
 	function handleNotifications() {
 		goto('/notifications');
 	}
@@ -53,8 +49,8 @@
 		goto('/messages');
 	}
 	
-	function handleProfile() {
-		goto('/profile');
+	function handleAccount() {
+		goto('/account');
 	}
 	
 	function handleSearch(e: Event) {
@@ -82,20 +78,15 @@
 		
 		<!-- Actions -->
 		<div class="header-actions">
-			{#if showCreateButton}
-				<button 
-					class="action-btn"
-					onclick={handleCreatePost}
-					aria-label="Create listing"
-				>
-					<Plus size={24} strokeWidth={1.5} />
-				</button>
-			{/if}
+			<!-- Locale Switcher - appears first on desktop -->
+			<div class="locale-switcher-container">
+				<LocaleSwitcher compact={true} />
+			</div>
 			
 			<button 
 				class="action-btn"
 				onclick={handleMessages}
-				aria-label="Messages"
+				aria-label={m['nav.messages']()}
 			>
 				<MessageCircle size={24} strokeWidth={1.5} />
 			</button>
@@ -114,9 +105,9 @@
 			</button>
 			
 			<button 
-				class="action-btn profile-btn"
-				onclick={handleProfile}
-				aria-label="Profile"
+				class="action-btn account-btn"
+				onclick={handleAccount}
+				aria-label="Account"
 			>
 				<User size={24} strokeWidth={1.5} />
 			</button>
@@ -133,7 +124,7 @@
 						bind:this={searchInputRef}
 						type="search"
 						bind:value={searchQuery}
-						placeholder="Search items..."
+						placeholder={m['homepage.search_placeholder']()}
 						class="search-input"
 						autocomplete="off"
 					/>
@@ -277,12 +268,7 @@
 		border: 2px solid var(--color-white);
 	}
 	
-	/* Mobile adjustments */
-	@media (max-width: 640px) {
-		.action-btn:nth-child(1) {
-			display: none; /* Hide create button on mobile - it's in bottom nav */
-		}
-	}
+	/* Mobile adjustments - no longer needed since we removed the create button */
 	
 	/* Mobile Search Bar - clean implementation */
 	.search-spacer {
@@ -349,5 +335,17 @@
 	.search-input::-webkit-search-cancel-button {
 		-webkit-appearance: none;
 		appearance: none;
+	}
+	
+	/* Locale Switcher Container */
+	.locale-switcher-container {
+		margin-right: 0.5rem;
+	}
+	
+	/* Hide locale switcher on very small mobile screens */
+	@media (max-width: 480px) {
+		.locale-switcher-container {
+			display: none;
+		}
 	}
 </style>
