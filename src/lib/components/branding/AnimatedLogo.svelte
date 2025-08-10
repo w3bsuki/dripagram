@@ -34,6 +34,11 @@
 </script>
 
 <div class="logo-container {className}" style="--text-size: {sizeMap[size].text}; --emoji-size: {sizeMap[size].emoji}; --spacing: {sizeMap[size].spacing}">
+	{#if showText}
+		<span class="logo-text">
+			driplo
+		</span>
+	{/if}
 	<div class="emoji-container">
 		{#each emojis as emoji, index}
 			<span 
@@ -45,11 +50,6 @@
 			</span>
 		{/each}
 	</div>
-	{#if showText}
-		<span class="logo-text">
-			driplo
-		</span>
-	{/if}
 </div>
 
 <style>

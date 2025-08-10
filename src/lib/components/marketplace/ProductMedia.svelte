@@ -176,37 +176,52 @@
 		position: absolute;
 		top: 8px;
 		left: 8px;
-		padding: 4px 8px;
+		padding: 3px 7px;
 		background: var(--color-background);
 		border: 1px solid var(--color-border);
 		border-radius: 4px;
-		font-size: var(--font-size-2xs);
+		font-size: 10px;
 		font-weight: 700;
 		text-transform: uppercase;
-		letter-spacing: 0.5px;
+		letter-spacing: 0.4px;
 		pointer-events: none;
 		backdrop-filter: blur(10px);
 		background: rgba(255, 255, 255, 0.9);
 	}
 	
-	.condition-badge.new_with_tags,
-	.condition-badge.new_without_tags {
-		background: var(--color-surface-success);
+	.condition-badge.new_with_tags {
+		background: #10b981; /* Bright emerald green for new with tags */
 		color: white;
-		border-color: var(--color-surface-success);
+		border-color: #10b981;
+		box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+	}
+	
+	.condition-badge.new_without_tags {
+		background: #059669; /* Slightly darker green for new without tags */
+		color: white;
+		border-color: #059669;
+		box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
 	}
 	
 	.condition-badge.like_new {
-		background: var(--color-interactive-primary);
+		background: #3b82f6; /* Blue for like new */
 		color: white;
-		border-color: var(--color-interactive-primary);
+		border-color: #3b82f6;
+		box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 	}
 	
-	.condition-badge.very_good,
-	.condition-badge.good {
-		background: var(--color-surface-warning);
+	.condition-badge.very_good {
+		background: #f59e0b; /* Amber for very good */
 		color: white;
-		border-color: var(--color-surface-warning);
+		border-color: #f59e0b;
+		box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+	}
+	
+	.condition-badge.good {
+		background: #ef4444; /* Red for good condition */
+		color: white;
+		border-color: #ef4444;
+		box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
 	}
 	
 	/* Animations */

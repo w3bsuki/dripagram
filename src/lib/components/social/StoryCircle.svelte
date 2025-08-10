@@ -108,18 +108,21 @@ Can be used for user stories, brand highlights, category collections, etc.
 		disabled={!onclick}
 	>
 		<!-- Gradient Ring -->
-		<div class="gradient-ring" style="background: {gradient}">
-			<div class="inner-ring">
-				<Avatar class="story-avatar" style="width: {avatarSizes[size]}px; height: {avatarSizes[size]}px;">
-					<AvatarImage 
+		<div class="gradient-ring" style="background: {gradient}; padding: 0.5px;" class:!p-[1px]={hasUnviewed}>
+			<div class="inner-ring" style="padding: 0px; margin: 0px;">
+				{#if thumbnailUrl || imageUrl}
+					<img 
 						src={thumbnailUrl || imageUrl} 
 						alt={title}
+						class="w-full h-full rounded-full object-cover"
 						loading="lazy"
+						style="margin: 0; padding: 0; border: none;"
 					/>
-					<AvatarFallback class="story-fallback">
+				{:else}
+					<div class="w-full h-full rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold" style="margin: 0; padding: 0;">
 						{variant === 'category' ? '📂' : initials}
-					</AvatarFallback>
-				</Avatar>
+					</div>
+				{/if}
 			</div>
 		</div>
 
@@ -203,17 +206,11 @@ Can be used for user stories, brand highlights, category collections, etc.
 		width: 100%;
 		height: 100%;
 		border-radius: 9999px;
-		padding: 0.125rem;
 		transition: all 0.2s ease;
-	}
-
-	.story-circle.has-unviewed .gradient-ring {
-		padding: 0.25rem;
 	}
 
 	.story-circle:not(.has-unviewed) .gradient-ring {
 		background: var(--color-border-primary);
-		padding: 0.125rem;
 	}
 
 	.inner-ring {
@@ -221,7 +218,6 @@ Can be used for user stories, brand highlights, category collections, etc.
 		height: 100%;
 		background: white;
 		border-radius: 9999px;
-		padding: 0.125rem;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -266,7 +262,8 @@ Can be used for user stories, brand highlights, category collections, etc.
 	.plus-circle {
 		width: 1.25rem;
 		height: 1.25rem;
-		background: var(--color-interactive-primary);
+		background: #1DA1F2; /* Perfect blue color */
+		border: 1px solid #1DA1F2; /* Tiny perfect blue border */
 		color: white;
 		border-radius: 9999px;
 		display: flex;

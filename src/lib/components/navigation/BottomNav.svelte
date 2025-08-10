@@ -88,7 +88,7 @@
 				<a
 					href={item.href}
 					class={cn(
-						"relative flex flex-1 flex-col items-center justify-center gap-1 px-2",
+						"relative flex flex-1 items-center justify-center px-2",
 						"transition-all duration-200",
 						"touch-manipulation"
 					)}
@@ -101,9 +101,6 @@
 					)}>
 						<PlusCircle size={20} strokeWidth={2} />
 					</div>
-					<span class="text-[10px] font-semibold text-gray-900">
-						{item.label}
-					</span>
 				</a>
 			{:else}
 				<!-- Regular Nav Items -->

@@ -106,11 +106,6 @@
 							alt={story.product.title}
 							loading="lazy"
 						/>
-						
-						<!-- Price Badge -->
-						<div class="price-badge">
-							{story.product.price}лв
-						</div>
 
 						<!-- Multiple Images Indicator -->
 						{#if story.hasMultipleImages}
@@ -121,6 +116,11 @@
 								</svg>
 							</div>
 						{/if}
+					</div>
+
+					<!-- Price Badge -->
+					<div class="price-badge">
+						{story.product.price}лв
 					</div>
 
 					<!-- Seller Avatar (small overlay) -->
@@ -162,6 +162,7 @@
 		gap: 0.75rem;
 		padding: 0 1rem;
 		overflow-x: auto;
+		overflow-y: visible;
 		scroll-behavior: smooth;
 		-webkit-overflow-scrolling: touch;
 		scrollbar-width: none;
@@ -198,30 +199,29 @@
 		width: 66px;
 		height: 66px;
 		border-radius: 50%;
-		background: #2563eb; /* Clean blue-600 */
+		background: transparent;
+		border: 1px solid #2563eb; /* Thin blue border only */
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		position: relative;
-		box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
 		transition: all 0.2s ease;
 	}
 
 	.add-story:hover .story-circle {
-		background: #1d4ed8; /* blue-700 on hover */
+		border-color: #1d4ed8;
 		transform: scale(1.05);
-		box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
 	}
 
 	.add-icon-wrapper {
 		width: 60px;
 		height: 60px;
 		border-radius: 50%;
-		background: white;
+		background: transparent;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: #2563eb; /* Match the blue */
+		color: #2563eb;
 	}
 
 	/* Product Story Circle */
@@ -267,7 +267,7 @@
 	/* Price Badge */
 	.price-badge {
 		position: absolute;
-		bottom: 2px;
+		bottom: -6px;
 		left: 50%;
 		transform: translateX(-50%);
 		background: rgba(0, 0, 0, 0.8);
@@ -295,8 +295,9 @@
 	/* Seller Avatar Overlay */
 	.seller-avatar {
 		position: absolute;
-		bottom: -4px;
-		right: -4px;
+		top: 25%;
+		right: -2px;
+		transform: translateY(-50%);
 		width: 24px;
 		height: 24px;
 		border-radius: 50%;
