@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Heart, ShoppingBag, X, ChevronLeft, ChevronRight } from '@lucide/svelte';
-	import { fade, fly } from 'svelte/transition';
+	import { Heart, MessageCircle, ShoppingBag, X } from '@lucide/svelte';
+	import { fade } from 'svelte/transition';
 	import { goto } from '$app/navigation';
 	import type { FeedProduct } from '$lib/types';
 
@@ -24,15 +24,31 @@
 		hasPrevious = false
 	}: Props = $props();
 
-	let currentImageIndex = $state(0);
-	let isLiked = $state(false);
 	let isWishlisted = $state(false);
 
 	$effect(() => {
 		if (product) {
-			currentImageIndex = 0;
-			isLiked = product.isLiked || false;
 			isWishlisted = product.isSaved || false;
+		}
+	});
+
+	// Lock body scroll when modal is open
+	$effect(() => {
+		if (isOpen && typeof document !== 'undefined') {
+			document.body.style.overflow = 'hidden';
+			document.body.style.position = 'fixed';
+			document.body.style.width = '100%';
+			document.body.style.top = `-${window.scrollY}px`;
+			
+			const scrollY = window.scrollY;
+			
+			return () => {
+				document.body.style.overflow = '';
+				document.body.style.position = '';
+				document.body.style.width = '';
+				document.body.style.top = '';
+				window.scrollTo(0, scrollY);
+			};
 		}
 	});
 
@@ -45,12 +61,16 @@
 	function handleBuyNow() {
 		if (product) {
 			goto(`/products/${product.id}`);
+			onClose();
 		}
 	}
 
-	function handleLike() {
-		isLiked = !isLiked;
-		// TODO: API call to like/unlike
+	function handleMessage() {
+		if (product) {
+			// TODO: Open message with seller
+			goto(`/messages?product=${product.id}`);
+			onClose();
+		}
 	}
 
 	function handleWishlist() {
@@ -58,31 +78,11 @@
 		// TODO: API call to add/remove from wishlist
 	}
 
-	function nextImage() {
-		if (product?.images && currentImageIndex < product.images.length - 1) {
-			currentImageIndex++;
-		}
-	}
-
-	function previousImage() {
-		if (currentImageIndex > 0) {
-			currentImageIndex--;
-		}
-	}
-
 	function handleKeydown(e: KeyboardEvent) {
 		if (!isOpen) return;
 		
-		switch(e.key) {
-			case 'Escape':
-				onClose();
-				break;
-			case 'ArrowLeft':
-				if (hasPrevious && onPrevious) onPrevious();
-				break;
-			case 'ArrowRight':
-				if (hasNext && onNext) onNext();
-				break;
+		if (e.key === 'Escape') {
+			onClose();
 		}
 	}
 </script>
@@ -91,170 +91,97 @@
 
 {#if isOpen && product}
 	<div 
-		class="modal-overlay"
-		onclick={handleOverlayClick}
-		transition:fade={{ duration: 200 }}
-		role="dialog"
-		aria-modal="true"
-		aria-labelledby="quick-view-title"
+		class="modal-wrapper"
+		transition:fade={{ duration: 150 }}
 	>
 		<div 
-			class="modal-content"
-			transition:fly={{ y: 20, duration: 300 }}
+			class="modal-overlay"
+			onclick={handleOverlayClick}
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="quick-view-title"
 		>
-			<!-- Close Button -->
-			<button 
-				class="close-btn"
-				onclick={onClose}
-				aria-label="Close modal"
-			>
-				<X size={24} />
-			</button>
-
-			<!-- Navigation Arrows -->
-			{#if hasPrevious && onPrevious}
+			<div class="modal-content">
+				<!-- Close Button -->
 				<button 
-					class="nav-btn prev"
-					onclick={onPrevious}
-					aria-label="Previous product"
+					class="close-btn"
+					onclick={onClose}
+					aria-label="Close"
 				>
-					<ChevronLeft size={24} />
+					<X size={20} />
 				</button>
-			{/if}
-			
-			{#if hasNext && onNext}
-				<button 
-					class="nav-btn next"
-					onclick={onNext}
-					aria-label="Next product"
-				>
-					<ChevronRight size={24} />
-				</button>
-			{/if}
 
-			<div class="modal-grid">
-				<!-- Left: Product Image -->
-				<div class="image-section">
-					<div class="image-container">
-						<img 
-							src={product.images?.[currentImageIndex] || product.thumbnail_url || '/placeholder.jpg'}
-							alt={product.title}
-							class="product-image"
-						/>
-						
-						<!-- Image Navigation Dots -->
-						{#if product.images && product.images.length > 1}
-							<div class="image-dots">
-								{#each product.images as _, index}
-									<button 
-										class="dot {currentImageIndex === index ? 'active' : ''}"
-										onclick={() => currentImageIndex = index}
-										aria-label="View image {index + 1}"
-									/>
-								{/each}
-							</div>
-						{/if}
-
-						<!-- Like Button Overlay -->
-						<button 
-							class="like-overlay {isLiked ? 'liked' : ''}"
-							onclick={handleLike}
-							aria-label={isLiked ? 'Unlike' : 'Like'}
-						>
-							<Heart size={24} fill={isLiked ? 'currentColor' : 'none'} />
-						</button>
-					</div>
+				<!-- Product Image -->
+				<div class="product-image-container">
+					<img 
+						src={product.thumbnail_url || product.images?.[0] || '/placeholder.jpg'}
+						alt={product.title}
+						class="product-image"
+					/>
 				</div>
 
-				<!-- Right: Product Info -->
-				<div class="info-section">
-					<!-- Seller Info -->
-					{#if product.seller}
+				<!-- Product Info -->
+				<div class="product-info">
+					<h3 id="quick-view-title" class="product-title">{product.title}</h3>
+					<div class="product-price">{product.price} лв</div>
+					
+					{#if product.size || product.condition}
+						<div class="product-meta">
+							{#if product.size}
+								<span class="meta-item">Size: {product.size}</span>
+							{/if}
+							{#if product.condition}
+								<span class="meta-item">{product.condition}</span>
+							{/if}
+						</div>
+					{/if}
+				</div>
+
+				<!-- Seller Info -->
+				{#if product.seller}
+					<div class="seller-section">
+						<img 
+							src={product.seller.avatar_url || '/default-avatar.png'}
+							alt={product.seller.username}
+							class="seller-avatar"
+						/>
 						<div class="seller-info">
-							<img 
-								src={product.seller.avatar_url || '/default-avatar.png'}
-								alt={product.seller.username}
-								class="seller-avatar"
-							/>
-							<div>
-								<div class="seller-name">
-									{product.seller.username}
-									{#if product.seller.verified}
-										<span class="verified-badge">✓</span>
-									{/if}
-								</div>
-								<div class="seller-subtitle">Premium Seller</div>
+							<div class="seller-name">
+								{product.seller.username}
+								{#if product.seller.verified}
+									<svg class="verified-icon" width="16" height="16" viewBox="0 0 16 16" fill="#1DA1F2">
+										<path d="M8 0L9.5 1.5L11.5 1L12 3L14 3.5L14 5.5L15.5 7L14 8.5L14 10.5L12 11L11.5 13L9.5 12.5L8 14L6.5 12.5L4.5 13L4 11L2 10.5L2 8.5L0.5 7L2 5.5L2 3.5L4 3L4.5 1L6.5 1.5L8 0Z"/>
+										<path d="M6.5 9.5L4.5 7.5L5.2 6.8L6.5 8.1L10.3 4.3L11 5L6.5 9.5Z" fill="white"/>
+									</svg>
+								{/if}
 							</div>
+							<div class="seller-rating">⭐ 4.8 (234 reviews)</div>
 						</div>
-					{/if}
-
-					<!-- Product Title & Price -->
-					<h2 id="quick-view-title" class="product-title">{product.title}</h2>
-					<div class="price-section">
-						<span class="price">{product.price} лв</span>
-						{#if product.original_price && product.original_price > product.price}
-							<span class="original-price">{product.original_price} лв</span>
-							<span class="discount">
-								-{Math.round((1 - product.price/product.original_price) * 100)}%
-							</span>
-						{/if}
 					</div>
+				{/if}
 
-					<!-- Product Details -->
-					<div class="product-details">
-						{#if product.condition}
-							<div class="detail-item">
-								<span class="detail-label">Condition:</span>
-								<span class="detail-value">{product.condition}</span>
-							</div>
-						{/if}
-						{#if product.size}
-							<div class="detail-item">
-								<span class="detail-label">Size:</span>
-								<span class="detail-value">{product.size}</span>
-							</div>
-						{/if}
-						{#if product.brand}
-							<div class="detail-item">
-								<span class="detail-label">Brand:</span>
-								<span class="detail-value">{product.brand}</span>
-							</div>
-						{/if}
-					</div>
-
-					<!-- Description -->
-					{#if product.description}
-						<div class="description">
-							<p>{product.description.slice(0, 150)}{product.description.length > 150 ? '...' : ''}</p>
-						</div>
-					{/if}
-
-					<!-- Action Buttons -->
-					<div class="action-buttons">
-						<button 
-							class="btn-primary"
-							onclick={handleBuyNow}
-						>
-							<ShoppingBag size={20} />
-							Buy Now
-						</button>
-						<button 
-							class="btn-secondary {isWishlisted ? 'wishlisted' : ''}"
-							onclick={handleWishlist}
-						>
-							<Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
-							{isWishlisted ? 'Saved' : 'Save'}
-						</button>
-					</div>
-
-					<!-- View Full Details Link -->
-					<a 
-						href="/products/{product.id}"
-						class="view-details"
-						onclick={onClose}
+				<!-- Action Buttons -->
+				<div class="action-buttons">
+					<button 
+						class="btn btn-message"
+						onclick={handleMessage}
 					>
-						View Full Details →
-					</a>
+						<MessageCircle size={18} />
+						Message
+					</button>
+					<button 
+						class="btn btn-wishlist {isWishlisted ? 'active' : ''}"
+						onclick={handleWishlist}
+					>
+						<Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
+					</button>
+					<button 
+						class="btn btn-buy"
+						onclick={handleBuyNow}
+					>
+						<ShoppingBag size={18} />
+						Buy Now
+					</button>
 				</div>
 			</div>
 		</div>
@@ -262,12 +189,23 @@
 {/if}
 
 <style>
-	.modal-overlay {
+	.modal-wrapper {
 		position: fixed;
-		inset: 0;
-		background: rgba(0, 0, 0, 0.75);
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 99999;
+	}
+
+	.modal-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.6);
 		backdrop-filter: blur(4px);
-		z-index: 9999;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -276,380 +214,248 @@
 
 	.modal-content {
 		background: white;
-		border-radius: 16px;
-		max-width: 900px;
+		border-radius: 20px;
+		max-width: 400px;
 		width: 100%;
-		max-height: 85vh;
-		overflow: hidden;
+		max-height: 90vh;
+		padding: 0;
 		position: relative;
 		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+		overflow-y: auto;
+		overflow-x: hidden;
 	}
 
 	.close-btn {
 		position: absolute;
-		top: 1rem;
-		right: 1rem;
-		background: rgba(255, 255, 255, 0.9);
+		top: 12px;
+		right: 12px;
+		background: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(10px);
+		color: white;
 		border: none;
 		border-radius: 50%;
-		width: 40px;
-		height: 40px;
+		width: 32px;
+		height: 32px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
 		z-index: 10;
 		transition: all 0.2s;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	}
 
 	.close-btn:hover {
-		background: white;
+		background: rgba(0, 0, 0, 0.7);
 		transform: scale(1.1);
 	}
 
-	.nav-btn {
-		position: absolute;
-		top: 50%;
-		transform: translateY(-50%);
-		background: rgba(255, 255, 255, 0.9);
-		border: none;
-		border-radius: 50%;
-		width: 40px;
-		height: 40px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		z-index: 10;
-		transition: all 0.2s;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-	}
-
-	.nav-btn.prev {
-		left: -20px;
-	}
-
-	.nav-btn.next {
-		right: -20px;
-	}
-
-	.nav-btn:hover {
-		background: white;
-		transform: translateY(-50%) scale(1.1);
-	}
-
-	.modal-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		height: 100%;
-		max-height: 85vh;
-	}
-
-	/* Image Section */
-	.image-section {
+	/* Product Image */
+	.product-image-container {
+		width: 100%;
+		height: 300px;
 		background: #f8f8f8;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		position: relative;
 		overflow: hidden;
 	}
 
-	.image-container {
-		position: relative;
+	.product-image {
 		width: 100%;
 		height: 100%;
+		object-fit: cover;
+	}
+
+	/* Product Info */
+	.product-info {
+		padding: 1.25rem 1.25rem 0.75rem;
+	}
+
+	.product-title {
+		font-size: 1.125rem;
+		font-weight: 600;
+		margin: 0 0 0.5rem;
+		line-height: 1.3;
+		color: #111;
+	}
+
+	.product-price {
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: #111;
+		margin-bottom: 0.5rem;
+	}
+
+	.product-meta {
 		display: flex;
-		align-items: center;
-		justify-content: center;
+		gap: 1rem;
+		font-size: 0.875rem;
+		color: #666;
 	}
 
-	.product-image {
-		max-width: 100%;
-		max-height: 100%;
-		object-fit: contain;
+	.meta-item {
+		padding: 0.25rem 0.75rem;
+		background: #f5f5f5;
+		border-radius: 12px;
+		font-size: 0.8125rem;
 	}
 
-	.image-dots {
-		position: absolute;
-		bottom: 1rem;
-		left: 50%;
-		transform: translateX(-50%);
-		display: flex;
-		gap: 0.5rem;
-		background: rgba(0, 0, 0, 0.5);
-		padding: 0.5rem;
-		border-radius: 20px;
-		backdrop-filter: blur(8px);
-	}
-
-	.dot {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		background: rgba(255, 255, 255, 0.5);
-		border: none;
-		cursor: pointer;
-		transition: all 0.2s;
-	}
-
-	.dot.active {
-		background: white;
-		width: 24px;
-		border-radius: 4px;
-	}
-
-	.like-overlay {
-		position: absolute;
-		top: 1rem;
-		right: 1rem;
-		background: rgba(255, 255, 255, 0.9);
-		border: none;
-		border-radius: 50%;
-		width: 44px;
-		height: 44px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		transition: all 0.2s;
-		color: #262626;
-	}
-
-	.like-overlay.liked {
-		color: #ed4956;
-	}
-
-	.like-overlay:hover {
-		transform: scale(1.1);
-		background: white;
-	}
-
-	/* Info Section */
-	.info-section {
-		padding: 2rem;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-	}
-
-	.seller-info {
+	/* Seller Section */
+	.seller-section {
 		display: flex;
 		align-items: center;
 		gap: 0.75rem;
-		padding-bottom: 1rem;
-		border-bottom: 1px solid #e5e7eb;
+		padding: 0.75rem 1.25rem;
+		border-top: 1px solid #eee;
+		border-bottom: 1px solid #eee;
 	}
 
 	.seller-avatar {
-		width: 48px;
-		height: 48px;
+		width: 40px;
+		height: 40px;
 		border-radius: 50%;
 		object-fit: cover;
 	}
 
+	.seller-info {
+		flex: 1;
+	}
+
 	.seller-name {
-		font-weight: 600;
-		font-size: 0.9375rem;
 		display: flex;
 		align-items: center;
 		gap: 0.25rem;
+		font-weight: 600;
+		font-size: 0.9375rem;
+		color: #111;
 	}
 
-	.verified-badge {
-		color: #1d9bf0;
-		font-size: 0.875rem;
+	.verified-icon {
+		width: 16px;
+		height: 16px;
 	}
 
-	.seller-subtitle {
+	.seller-rating {
 		font-size: 0.8125rem;
-		color: #6b7280;
+		color: #666;
+		margin-top: 0.125rem;
 	}
 
-	.product-title {
-		font-size: 1.5rem;
-		font-weight: 600;
-		line-height: 1.3;
-		margin: 0;
-	}
-
-	.price-section {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-	}
-
-	.price {
-		font-size: 1.75rem;
-		font-weight: 700;
-		color: #111827;
-	}
-
-	.original-price {
-		font-size: 1.25rem;
-		color: #9ca3af;
-		text-decoration: line-through;
-	}
-
-	.discount {
-		background: #fef2f2;
-		color: #dc2626;
-		padding: 0.25rem 0.5rem;
-		border-radius: 6px;
-		font-size: 0.875rem;
-		font-weight: 600;
-	}
-
-	.product-details {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-
-	.detail-item {
-		display: flex;
-		gap: 0.5rem;
-		font-size: 0.9375rem;
-	}
-
-	.detail-label {
-		color: #6b7280;
-		min-width: 80px;
-	}
-
-	.detail-value {
-		color: #111827;
-		font-weight: 500;
-	}
-
-	.description {
-		color: #4b5563;
-		font-size: 0.9375rem;
-		line-height: 1.5;
-	}
-
+	/* Action Buttons */
 	.action-buttons {
-		display: flex;
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
 		gap: 0.75rem;
-		margin-top: auto;
+		padding: 1.25rem;
 	}
 
-	.btn-primary,
-	.btn-secondary {
-		flex: 1;
-		padding: 0.875rem 1.5rem;
-		border-radius: 10px;
+	.btn {
+		border: none;
+		border-radius: 12px;
 		font-weight: 600;
 		font-size: 0.9375rem;
-		border: none;
 		cursor: pointer;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		gap: 0.5rem;
 		transition: all 0.2s;
+		padding: 0.875rem 1.25rem;
 	}
 
-	.btn-primary {
-		background: #2563eb;
+	.btn-message {
+		background: #f5f5f5;
+		color: #111;
+	}
+
+	.btn-message:hover {
+		background: #e8e8e8;
+		transform: translateY(-1px);
+	}
+
+	.btn-wishlist {
+		background: #f5f5f5;
+		color: #666;
+		padding: 0.875rem;
+		width: 48px;
+	}
+
+	.btn-wishlist:hover {
+		background: #ffe5e5;
+		color: #ff4458;
+	}
+
+	.btn-wishlist.active {
+		background: #ff4458;
 		color: white;
 	}
 
-	.btn-primary:hover {
-		background: #1d4ed8;
+	.btn-buy {
+		background: #111;
+		color: white;
+	}
+
+	.btn-buy:hover {
+		background: #000;
 		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-	}
-
-	.btn-secondary {
-		background: #f3f4f6;
-		color: #374151;
-		border: 1px solid #e5e7eb;
-	}
-
-	.btn-secondary:hover {
-		background: #e5e7eb;
-	}
-
-	.btn-secondary.wishlisted {
-		background: #fef2f2;
-		color: #dc2626;
-		border-color: #fecaca;
-	}
-
-	.view-details {
-		text-align: center;
-		color: #6b7280;
-		font-size: 0.875rem;
-		text-decoration: none;
-		transition: color 0.2s;
-	}
-
-	.view-details:hover {
-		color: #2563eb;
-		text-decoration: underline;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 	}
 
 	/* Mobile Responsive */
 	@media (max-width: 768px) {
+		.modal-overlay {
+			padding: 0.5rem;
+		}
+
 		.modal-content {
-			max-height: 90vh;
+			max-width: calc(100% - 2rem);
+			max-height: calc(100vh - 4rem);
+			margin: 1rem;
 		}
 
-		.modal-grid {
-			grid-template-columns: 1fr;
-			grid-template-rows: 60% 40%;
+		.product-image-container {
+			height: 250px;
 		}
 
-		.nav-btn {
-			display: none;
-		}
-
-		.info-section {
-			padding: 1.5rem;
-			gap: 1rem;
+		.product-info {
+			padding: 1rem;
 		}
 
 		.product-title {
+			font-size: 1rem;
+		}
+
+		.product-price {
 			font-size: 1.25rem;
 		}
 
-		.price {
-			font-size: 1.5rem;
+		.seller-section {
+			padding: 0.75rem 1rem;
 		}
 
 		.action-buttons {
-			position: sticky;
-			bottom: 0;
-			background: white;
-			padding: 1rem 0 0;
-			margin-top: 1rem;
-			border-top: 1px solid #e5e7eb;
+			padding: 1rem;
 		}
 	}
 
 	@media (max-width: 480px) {
-		.modal-overlay {
-			padding: 0;
-		}
-
 		.modal-content {
-			border-radius: 16px 16px 0 0;
-			max-height: 95vh;
-			position: fixed;
-			bottom: 0;
-			max-width: 100%;
+			max-width: calc(100% - 1rem);
+			margin: 0.5rem;
 		}
 
-		.close-btn {
-			background: rgba(0, 0, 0, 0.5);
-			color: white;
+		.product-image-container {
+			height: 200px;
 		}
 
-		.modal-grid {
-			grid-template-rows: 50% 50%;
+		.btn {
+			font-size: 0.875rem;
+			padding: 0.75rem 1rem;
+		}
+
+		.btn-wishlist {
+			width: 44px;
+			padding: 0.75rem;
 		}
 	}
 </style>

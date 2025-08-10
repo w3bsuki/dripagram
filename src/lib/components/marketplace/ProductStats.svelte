@@ -42,19 +42,19 @@
 </div>
 
 <style>
-	/* Stats & Price Row */
+	/* Stats & Price Row - Cleaner layout */
 	.stats-price-row {
 		display: flex;
 		justify-content: space-between;
-		align-items: flex-end;
-		margin-top: auto;
-		padding-top: 6px;
-		border-top: 1px solid var(--color-border);
+		align-items: center; /* Center align instead of flex-end */
+		margin-top: 4px;
+		padding-top: 4px;
+		border-top: 1px solid oklch(0.95 0 0 / 0.5); /* Subtle border */
 	}
 	
 	.stats {
 		display: flex;
-		gap: 12px;
+		gap: 10px; /* Tighter gap */
 	}
 	
 	.price-container {
@@ -65,9 +65,10 @@
 	}
 	
 	.price {
-		font-size: var(--font-size-15);
-		font-weight: 700;
-		color: var(--color-foreground);
+		font-size: 1rem; /* 16px - clear readable price */
+		font-weight: 600; /* Semibold, not bold */
+		color: oklch(0.15 0 0); /* Almost black */
+		letter-spacing: -0.02em; /* Tighter for numbers */
 	}
 	
 	.original-price {
@@ -79,10 +80,10 @@
 	.stat {
 		display: flex;
 		align-items: center;
-		gap: 4px;
-		font-size: var(--font-size-13);
-		color: var(--color-muted-foreground);
-		font-weight: 500;
+		gap: 3px;
+		font-size: 0.75rem; /* 12px - subtle stats */
+		color: oklch(0.6 0 0); /* Medium gray */
+		font-weight: 400; /* Regular weight */
 	}
 	
 	.stat :global(svg) {
@@ -92,7 +93,7 @@
 	/* Mobile Optimizations */
 	@media (max-width: 640px) {
 		.price {
-			font-size: var(--font-size-sm);
+			font-size: 0.9375rem; /* 15px on mobile */
 		}
 		
 		.stats {
@@ -101,7 +102,7 @@
 		}
 		
 		.stat {
-			font-size: var(--font-size-xs);
+			font-size: 0.6875rem; /* 11px on mobile */
 		}
 	}
 </style>

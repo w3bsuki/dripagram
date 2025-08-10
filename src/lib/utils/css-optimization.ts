@@ -130,21 +130,22 @@ export function inlineCriticalCSS(css: string) {
 export function optimizeFontLoading() {
 	if (!browser) return;
 
-	// Preload critical fonts
-	const criticalFonts = [
-		'/fonts/inter-variable.woff2',
-		'/fonts/inter-italic-variable.woff2'
-	];
+	// Skip font preloading since we're using system fonts
+	// Inter is loaded from Google Fonts if needed
+	// const criticalFonts = [
+	// 	'/fonts/inter-variable.woff2',
+	// 	'/fonts/inter-italic-variable.woff2'
+	// ];
 
-	criticalFonts.forEach(font => {
-		const link = document.createElement('link');
-		link.rel = 'preload';
-		link.as = 'font';
-		link.type = 'font/woff2';
-		link.crossOrigin = 'anonymous';
-		link.href = font;
-		document.head.appendChild(link);
-	});
+	// criticalFonts.forEach(font => {
+	// 	const link = document.createElement('link');
+	// 	link.rel = 'preload';
+	// 	link.as = 'font';
+	// 	link.type = 'font/woff2';
+	// 	link.crossOrigin = 'anonymous';
+	// 	link.href = font;
+	// 	document.head.appendChild(link);
+	// });
 
 	// Use font-display: swap for non-critical fonts
 	if ('fonts' in document) {

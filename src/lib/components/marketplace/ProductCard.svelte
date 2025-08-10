@@ -77,33 +77,33 @@
 <style>
 	.product-card {
 		background: #ffffff;
-		border-radius: 16px;
+		border-radius: 12px; /* Slightly less rounded for cleaner look */
 		overflow: hidden;
 		width: 100%;
 		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 		display: flex;
 		flex-direction: column;
-		border: 1px solid #e5e7eb;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+		border: 1px solid oklch(0.95 0 0); /* OKLCH gray */
+		box-shadow: 0 1px 2px oklch(0 0 0 / 0.04);
 		position: relative;
 	}
 	
 	.product-card:hover {
-		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.05);
-		transform: translateY(-2px);
-		border-color: #d1d5db;
+		box-shadow: 0 8px 20px oklch(0 0 0 / 0.08), 0 3px 8px oklch(0 0 0 / 0.04);
+		transform: translateY(-1px); /* Subtler lift */
+		border-color: oklch(0.88 0 0);
 	}
 	
 	.product-card:active {
 		transform: translateY(-1px);
 	}
 	
-	/* Product Info */
+	/* Product Info - Cleaner, more compact */
 	.product-info {
-		padding: 12px;
+		padding: 10px 12px; /* Less vertical padding */
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: 6px; /* Tighter gaps */
 		cursor: pointer;
 		min-height: 0;
 		background: #ffffff;
@@ -148,8 +148,8 @@
 		}
 		
 		.product-info {
-			padding: 10px;
-			gap: 6px;
+			padding: 8px 10px; /* Even more compact on mobile */
+			gap: 4px;
 		}
 		
 		.product-card:hover {

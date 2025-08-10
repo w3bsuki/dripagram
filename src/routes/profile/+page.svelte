@@ -56,15 +56,20 @@
 				</div>
 			{/if}
 			{#if profile.is_brand}
-				<span class="brand-badge">Brand</span>
+				<!-- Badge moved to username row -->
 			{/if}
 		</div>
 		
 		<!-- Right Section -->
 		<div class="profile-right">
-			<!-- Username and Settings Row -->
+			<!-- Username and Settings Row - Modern 2025 -->
 			<div class="username-row">
-				<h1 class="username">{profile.username}</h1>
+				<div class="username-section">
+					<h1 class="username">{profile.username}</h1>
+					{#if profile.is_brand}
+						<span class="brand-badge-inline">Brand</span>
+					{/if}
+				</div>
 				<div class="action-buttons">
 					<button 
 						onclick={() => goto('/profile/settings')}
@@ -72,7 +77,7 @@
 						aria-label="Settings"
 						title="Settings"
 					>
-						<Settings size={20} />
+						<Settings size={22} />
 					</button>
 					<button 
 						onclick={handleSignOut}
@@ -80,7 +85,7 @@
 						aria-label="Sign Out"
 						title="Sign Out"
 					>
-						<LogOut size={20} />
+						<LogOut size={22} />
 					</button>
 				</div>
 			</div>
@@ -113,13 +118,23 @@
 							<div class="bio">{profile.bio}</div>
 						{/if}
 					</div>
-					<button 
-						onclick={() => goto('/profile/edit')}
-						class="edit-profile-btn"
-					>
-						Edit profile
-					</button>
 				</div>
+			</div>
+			
+			<!-- Edit Profile Button - Modern style -->
+			<div class="profile-actions">
+				<button 
+					onclick={() => goto('/profile/edit')}
+					class="edit-profile-btn"
+				>
+					Edit profile
+				</button>
+				<button 
+					onclick={() => goto('/profile/insights')}
+					class="insights-btn"
+				>
+					Insights
+				</button>
 			</div>
 		</div>
 	</div>
@@ -131,22 +146,19 @@
 			class="tab {activeTab === 'listings' ? 'active' : ''}"
 			onclick={() => activeTab = 'listings'}
 		>
-			<Grid3x3 size={20} />
-			<span class="tab-label">LISTINGS</span>
+			<Grid3x3 size={24} />
 		</button>
 		<button 
 			class="tab {activeTab === 'sold' ? 'active' : ''}"
 			onclick={() => activeTab = 'sold'}
 		>
-			<Package size={20} />
-			<span class="tab-label">SOLD</span>
+			<Package size={24} />
 		</button>
 		<button 
 			class="tab {activeTab === 'liked' ? 'active' : ''}"
 			onclick={() => activeTab = 'liked'}
 		>
-			<Heart size={20} />
-			<span class="tab-label">LIKED</span>
+			<Heart size={24} />
 		</button>
 	</div>
 	
@@ -414,8 +426,17 @@
 	}
 	
 	.tab.active {
-		color: var(--color-foreground);
-		border-bottom-color: var(--color-foreground);
+		color: oklch(0.2 0 0);
+	}
+	
+	.tab.active::after {
+		content: '';
+		position: absolute;
+		top: -1px;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background: oklch(0.2 0 0);
 	}
 	
 	.tab-label {
@@ -538,14 +559,11 @@
 		}
 		
 		.username-row {
-			flex-wrap: wrap;
-			gap: 8px;
+			justify-content: space-between;
+			gap: 12px;
 		}
 		
-		.bio-header {
-			flex-direction: column;
-			gap: 8px;
-		}
+		/* Bio already in column layout */
 		
 		.edit-profile-btn {
 			width: 100%;
