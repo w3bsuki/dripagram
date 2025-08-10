@@ -214,7 +214,7 @@
 		
 		<!-- Seller Info -->
 		{#if product.seller}
-			<div class="seller-info">
+			<a href="/user/{product.seller.username}" class="seller-info">
 				<div class="seller-avatar">
 					<img 
 						src={product.seller.avatar_url || '/default-avatar.jpg'} 
@@ -226,7 +226,7 @@
 					<span class="seller-name">{product.seller.username || 'Anonymous'}</span>
 					<span class="seller-label">Seller</span>
 				</div>
-			</div>
+			</a>
 		{/if}
 	</div>
 </div>
@@ -414,6 +414,17 @@
 		gap: 12px;
 		padding: 16px 0;
 		border-top: 1px solid #efefef;
+		text-decoration: none;
+		color: inherit;
+		transition: background-color 0.2s ease;
+		cursor: pointer;
+	}
+	
+	.seller-info:hover {
+		background-color: #f9f9f9;
+		border-radius: 8px;
+		padding: 16px 12px;
+		margin: 0 -12px;
 	}
 	
 	.seller-avatar {
