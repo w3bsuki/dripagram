@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ShippingOptionsProps } from './types';
+	import * as m from '$lib/paraglide/messages';
 
 	let {
 		location,
@@ -29,20 +30,20 @@
 
 <div class="mb-8">
 	<div class="mb-8 text-center">
-		<h2 class="mb-2 text-2xl font-semibold text-gray-900">Shipping & Location</h2>
-		<p class="text-gray-600">Let buyers know how they can get the item</p>
+		<h2 class="mb-2 text-2xl font-semibold text-gray-900">{m['sell.shipping_location']()}</h2>
+		<p class="text-gray-600">{m['sell.let_buyers_know']()}</p>
 	</div>
 
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 		<!-- Location -->
 		<div class="md:col-span-2">
-			<label for="location" class="mb-2 block font-medium text-gray-900">Location</label>
+			<label for="location" class="mb-2 block font-medium text-gray-900">{m['sell.location_label']()}</label>
 			<input
 				id="location"
 				type="text"
 				value={location}
 				oninput={(e) => onLocationChange((e.target as HTMLInputElement).value)}
-				placeholder="Sofia, Bulgaria"
+				placeholder={m['sell.location_placeholder']()}
 				class="w-full rounded-lg border border-gray-300 px-3 py-2 transition-colors focus:border-blue-600 focus:outline-none"
 			/>
 		</div>
@@ -56,7 +57,7 @@
 					onchange={(e) => onShippingToggle((e.target as HTMLInputElement).checked)}
 					class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 				/>
-				<span class="font-medium text-gray-900">Offer shipping</span>
+				<span class="font-medium text-gray-900">{m['sell.offer_shipping']()}</span>
 			</label>
 		</div>
 
@@ -64,7 +65,7 @@
 		{#if shippingAvailable}
 			<div>
 				<label for="shipping_price" class="mb-2 block font-medium text-gray-900"
-					>Shipping Cost (BGN)</label
+					>{m['sell.shipping_cost_bgn']()}</label
 				>
 				<input
 					id="shipping_price"
@@ -82,13 +83,13 @@
 
 		<!-- Tags -->
 		<div class="md:col-span-2">
-			<label for="tags" class="mb-2 block font-medium text-gray-900">Tags (optional)</label>
+			<label for="tags" class="mb-2 block font-medium text-gray-900">{m['sell.tags_optional']()}</label>
 			<div class="space-y-4">
 				<input
 					id="tags"
 					type="text"
 					bind:value={tagInput}
-					placeholder="Add tags (press Enter)"
+					placeholder={m['sell.add_tags_enter']()}
 					class="w-full rounded-lg border border-gray-300 px-3 py-2 transition-colors focus:border-blue-600 focus:outline-none"
 					onkeydown={handleTagKeydown}
 				/>

@@ -4,6 +4,7 @@
 	import { page } from '$app/stores';
 	import { toast } from 'svelte-sonner';
 	import type { ProductImageUploaderProps } from './types';
+	import * as m from '$lib/paraglide/messages';
 
 	let { images, userId, onImagesChange }: ProductImageUploaderProps = $props();
 
@@ -88,8 +89,8 @@
 
 <div class="mb-6">
 	<div class="mb-4 text-center">
-		<h3 class="mb-1 text-lg md:text-xl font-semibold text-gray-900">Photos</h3>
-		<p class="text-xs md:text-sm text-gray-600">Add up to 10 photos to showcase your item</p>
+		<h3 class="mb-1 text-lg md:text-xl font-semibold text-gray-900">{m['sell.add_photos']()}</h3>
+		<p class="text-xs md:text-sm text-gray-600">{m['sell.add_photo_instruction']()}</p>
 	</div>
 
 	<!-- Image Grid -->
@@ -112,7 +113,7 @@
 						<div
 							class="absolute bottom-1 left-1 rounded bg-blue-600 px-1.5 py-0.5 text-xs font-medium text-white"
 						>
-							Main
+							{m['sell.main_photo']()}
 						</div>
 					{/if}
 				</div>
@@ -140,12 +141,12 @@
 					<div
 						class="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"
 					></div>
-					<p class="text-gray-600">Uploading images...</p>
+					<p class="text-gray-600">{m['sell.uploading_images']()}</p>
 				</div>
 			{:else}
 				<Upload size={32} class="mx-auto mb-4 text-blue-600" />
-				<h4 class="mb-2 font-medium text-gray-900">Drag photos here or click to browse</h4>
-				<p class="text-sm text-gray-600">JPG, PNG, WEBP up to 10MB each</p>
+				<h4 class="mb-2 font-medium text-gray-900">{m['sell.drag_photos_here']()}</h4>
+				<p class="text-sm text-gray-600">{m['sell.file_formats']()}</p>
 			{/if}
 		</div>
 
@@ -162,7 +163,7 @@
 	{#if images.length > 0}
 		<div class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3">
 			<p class="m-0 text-sm text-blue-700">
-				<strong>Tips:</strong> The first image will be your main photo. Drag to reorder.
+				<strong>{m['sell.tips_title']()}</strong> {m['sell.tips_text']()}
 			</p>
 		</div>
 	{/if}

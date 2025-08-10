@@ -1,14 +1,34 @@
 <script lang="ts">
 	import { CATEGORIES } from '$lib/data/categories';
 	import type { CategorySelectorProps } from './types';
+	import * as m from '$lib/paraglide/messages';
 
 	let { selectedCategory, onCategorySelect }: CategorySelectorProps = $props();
+
+	// Map category IDs to message keys
+	const getCategoryName = (categoryId: string) => {
+		// Map category IDs to translation keys
+		const categoryMap: Record<string, string> = {
+			'women-clothing': 'women_clothing',
+			'men-clothing': 'men_clothing',
+			'shoes': 'shoes',
+			'bags': 'bags_accessories',
+			'jewelry': 'jewelry',
+			'watches': 'watches',
+			'beauty': 'beauty',
+			'home': 'home_lifestyle'
+		};
+		
+		const messageKey = categoryMap[categoryId] || categoryId.replace('-', '_');
+		const translationKey = `categories.${messageKey}` as keyof typeof m;
+		return m[translationKey]?.() || categoryId;
+	};
 </script>
 
 <div class="w-full">
 	<div class="mb-4 text-center">
-		<h2 class="text-lg font-semibold text-gray-900">What are you selling?</h2>
-		<p class="text-sm text-gray-600 mt-1">Choose a category</p>
+		<h2 class="text-lg font-semibold text-gray-900">{m['sell.what_selling']()}</h2>
+		<p class="text-sm text-gray-600 mt-1">{m['sell.choose_category']()}</p>
 	</div>
 
 	<!-- Mobile-optimized 3-column grid -->
@@ -28,7 +48,7 @@
 					{category.emoji}
 				</span>
 				<span class="text-xs font-medium text-gray-900 text-center leading-tight">
-					{category.name}
+					{getCategoryName(category.id)}
 				</span>
 			</button>
 		{/each}

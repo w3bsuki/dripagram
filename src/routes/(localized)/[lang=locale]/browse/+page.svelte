@@ -9,6 +9,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import * as m from '$lib/paraglide/messages';
 
 	// Search state
 	let searchQuery = $state('');
@@ -39,12 +40,12 @@
 
 	// Fallback categories for when server doesn't return any
 	const fallbackCategories = [
-		{ id: 'women', name: 'Women', emoji: '👗' },
-		{ id: 'men', name: 'Men', emoji: '👔' },
-		{ id: 'shoes', name: 'Shoes', emoji: '👟' },
-		{ id: 'bags', name: 'Bags', emoji: '👜' },
-		{ id: 'accessories', name: 'Accessories', emoji: '💍' },
-		{ id: 'kids', name: 'Kids', emoji: '👶' }
+		{ id: 'women', name: m['browse.women'](), emoji: '👗' },
+		{ id: 'men', name: m['browse.men'](), emoji: '👔' },
+		{ id: 'shoes', name: m['categories.shoes'](), emoji: '👟' },
+		{ id: 'bags', name: m['categories.bags'](), emoji: '👜' },
+		{ id: 'accessories', name: m['categories.accessories'](), emoji: '💍' },
+		{ id: 'kids', name: m['browse.kids'](), emoji: '👶' }
 	];
 	const categories = $derived((data?.categories && data.categories.length) ? data.categories : fallbackCategories);
 
@@ -55,49 +56,49 @@
 	}
 
 	const collections = [
-		{ id: 'summer', name: 'Summer Sale', emoji: '🌞', color: 'bg-yellow-100' },
-		{ id: 'vintage', name: 'Vintage Finds', emoji: '📸', color: 'bg-orange-100' },
-		{ id: 'designer', name: 'Designer Deals', emoji: '💎', color: 'bg-blue-100' },
-		{ id: 'trending', name: 'Trending Now', emoji: '🔥', color: 'bg-red-100' },
-		{ id: 'eco', name: 'Eco Friendly', emoji: '🌿', color: 'bg-green-100' }
+		{ id: 'summer', name: m['browse.summer_sale'](), emoji: '🌞', color: 'bg-yellow-100' },
+		{ id: 'vintage', name: m['browse.vintage_finds'](), emoji: '📸', color: 'bg-orange-100' },
+		{ id: 'designer', name: m['browse.designer_deals'](), emoji: '💎', color: 'bg-blue-100' },
+		{ id: 'trending', name: m['browse.trending_now'](), emoji: '🔥', color: 'bg-red-100' },
+		{ id: 'eco', name: m['browse.eco_friendly'](), emoji: '🌿', color: 'bg-green-100' }
 	];
 
 	// Enhanced category system for search dropdown
 	const demographics = [
-		{ id: 'men', name: 'Men', emoji: '👨' },
-		{ id: 'women', name: 'Women', emoji: '👩' },
-		{ id: 'kids', name: 'Kids', emoji: '👶' },
-		{ id: 'pets', name: 'Pets', emoji: '🐾' }
+		{ id: 'men', name: m['browse.men'](), emoji: '👨' },
+		{ id: 'women', name: m['browse.women'](), emoji: '👩' },
+		{ id: 'kids', name: m['browse.kids'](), emoji: '👶' },
+		{ id: 'pets', name: m['browse.pets'](), emoji: '🐾' }
 	];
 
 	const subcategories = {
 		men: [
-			{ id: 'mens-shoes', name: 'Shoes', emoji: '👟' },
-			{ id: 'mens-tshirts', name: 'T-shirts', emoji: '👕' },
-			{ id: 'mens-jackets', name: 'Jackets', emoji: '🧥' },
-			{ id: 'mens-jeans', name: 'Jeans', emoji: '👖' },
-			{ id: 'mens-bags', name: 'Bags', emoji: '🎒' },
-			{ id: 'mens-accessories', name: 'Accessories', emoji: '🕶️' },
-			{ id: 'mens-suits', name: 'Suits', emoji: '🤵' },
-			{ id: 'mens-shirts', name: 'Shirts', emoji: '👔' }
+			{ id: 'mens-shoes', name: m['browse.mens_shoes'](), emoji: '👟' },
+			{ id: 'mens-tshirts', name: m['browse.mens_tshirts'](), emoji: '👕' },
+			{ id: 'mens-jackets', name: m['browse.mens_jackets'](), emoji: '🧥' },
+			{ id: 'mens-jeans', name: m['browse.mens_jeans'](), emoji: '👖' },
+			{ id: 'mens-bags', name: m['browse.mens_bags'](), emoji: '🎒' },
+			{ id: 'mens-accessories', name: m['browse.mens_accessories'](), emoji: '🕶️' },
+			{ id: 'mens-suits', name: m['browse.mens_suits'](), emoji: '🤵' },
+			{ id: 'mens-shirts', name: m['browse.mens_shirts'](), emoji: '👔' }
 		],
 		women: [
-			{ id: 'womens-shoes', name: 'Shoes', emoji: '👠' },
-			{ id: 'womens-dresses', name: 'Dresses', emoji: '👗' },
-			{ id: 'womens-tops', name: 'Tops', emoji: '👚' },
-			{ id: 'womens-jeans', name: 'Jeans', emoji: '👖' },
-			{ id: 'womens-bags', name: 'Bags', emoji: '👜' },
-			{ id: 'womens-accessories', name: 'Accessories', emoji: '💍' },
-			{ id: 'womens-jackets', name: 'Jackets', emoji: '🧥' },
-			{ id: 'womens-skirts', name: 'Skirts', emoji: '👗' }
+			{ id: 'womens-shoes', name: m['browse.womens_shoes'](), emoji: '👠' },
+			{ id: 'womens-dresses', name: m['browse.womens_dresses'](), emoji: '👗' },
+			{ id: 'womens-tops', name: m['browse.womens_tops'](), emoji: '👚' },
+			{ id: 'womens-jeans', name: m['browse.womens_jeans'](), emoji: '👖' },
+			{ id: 'womens-bags', name: m['browse.womens_bags'](), emoji: '👜' },
+			{ id: 'womens-accessories', name: m['browse.womens_accessories'](), emoji: '💍' },
+			{ id: 'womens-jackets', name: m['browse.womens_jackets'](), emoji: '🧥' },
+			{ id: 'womens-skirts', name: m['browse.womens_skirts'](), emoji: '👗' }
 		],
 		kids: [
-			{ id: 'kids-shoes', name: 'Shoes', emoji: '👟' },
-			{ id: 'kids-clothes', name: 'Clothes', emoji: '👕' },
-			{ id: 'kids-toys', name: 'Toys', emoji: '🧸' },
-			{ id: 'kids-accessories', name: 'Accessories', emoji: '🎒' },
-			{ id: 'baby-clothes', name: 'Baby Clothes', emoji: '👶' },
-			{ id: 'toddler-clothes', name: 'Toddler Clothes', emoji: '🧒' }
+			{ id: 'kids-shoes', name: m['browse.kids_shoes'](), emoji: '👟' },
+			{ id: 'kids-clothes', name: m['browse.kids_clothes'](), emoji: '👕' },
+			{ id: 'kids-toys', name: m['browse.kids_toys'](), emoji: '🧸' },
+			{ id: 'kids-accessories', name: m['browse.kids_accessories'](), emoji: '🎒' },
+			{ id: 'baby-clothes', name: m['browse.baby_clothes'](), emoji: '👶' },
+			{ id: 'toddler-clothes', name: m['browse.toddler_clothes'](), emoji: '🧒' }
 		],
 		pets: [
 			{ id: 'pet-clothes', name: 'Clothes', emoji: '🦺' },
@@ -409,8 +410,8 @@
 </script>
 
 <svelte:head>
-	<title>Browse - Driplo | Discover Fashion</title>
-	<meta name="description" content="Browse thousands of fashion items. Find your perfect style from vintage to designer pieces." />
+	<title>{m['browse.title']()}</title>
+	<meta name="description" content={m['browse.meta_description']()} />
 </svelte:head>
 
 <!-- Removed local <SearchHeader />; layout already renders mobile/desktop headers -->
@@ -424,7 +425,7 @@
 						<Search size={18} class="absolute left-3 text-gray-400 pointer-events-none z-10" />
 						<input
 							type="search"
-							placeholder="Search items or @sellers"
+							placeholder={m['browse.search_placeholder']()}
 							bind:value={searchQuery}
 							onkeydown={(e) => e.key === 'Enter' && handleSearch(e)}
 							onfocus={handleSearchFocus}
@@ -438,7 +439,7 @@
 							<div class="p-4" bind:this={searchDropdownEl}>
 								<!-- Demographics -->
 								<div class="mb-5">
-									<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Browse by Category</h3>
+									<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">{m['browse.browse_by_category']()}</h3>
 									<div class="flex gap-2 overflow-x-auto pb-2">
 										{#each demographics as demographic}
 											<button 
@@ -457,7 +458,7 @@
 								{#if selectedDemographic && currentDemographicSubcategories.length > 0}
 									<div class="mb-5 pt-4 border-t border-gray-100">
 										<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-											{demographics.find(d => d.id === selectedDemographic)?.name} Categories
+											{m[`browse.${selectedDemographic}_categories`]?.() || `${demographics.find(d => d.id === selectedDemographic)?.name} Categories`}
 										</h3>
 										<div class="flex gap-2 overflow-x-auto pb-2">
 											{#each currentDemographicSubcategories as subcategory}
@@ -475,23 +476,23 @@
 
 								<!-- Quick Actions -->
 								<div class="pt-4 border-t border-gray-100">
-									<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Popular Searches</h3>
+									<h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">{m['browse.popular_searches']()}</h3>
 									<div class="flex gap-2 overflow-x-auto pb-2">
 										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('new-tags')}>
 											<span>🏷️</span>
-											<span>New with tags</span>
+											<span>{m['browse.new_with_tags']()}</span>
 										</button>
 										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-green-500 hover:text-white hover:border-green-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('under-50')}>
 											<span>💰</span>
-											<span>Under 50лв</span>
+											<span>{m['browse.under_50']()}</span>
 										</button>
 										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-red-500 hover:text-white hover:border-red-500 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('trending')}>
 											<span>🔥</span>
-											<span>Trending</span>
+											<span>{m['browse.trending']()}</span>
 										</button>
 										<button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 whitespace-nowrap transition-all duration-150 hover:bg-blue-600 hover:text-white hover:border-blue-600 hover:-translate-y-0.5 hover:shadow-md" onclick={() => handleCategorySelect('verified')}>
 											<span>✅</span>
-											<span>Verified sellers</span>
+											<span>{m['browse.verified_sellers']()}</span>
 										</button>
 									</div>
 								</div>
@@ -519,11 +520,11 @@
 							updateURL();
 						}}
 					>
-						{#if sortBy === 'newest'}Newest{/if}
-						{#if sortBy === 'price-low'}Low Price{/if}
-						{#if sortBy === 'price-high'}High Price{/if}
-						{#if sortBy === 'most-liked'}Popular{/if}
-						{#if sortBy === 'trending'}Trending{/if}
+						{#if sortBy === 'newest'}{m['browse.newest']()}{/if}
+						{#if sortBy === 'price-low'}{m['browse.price_low_high']()}{/if}
+						{#if sortBy === 'price-high'}{m['browse.price_high_low']()}{/if}
+						{#if sortBy === 'most-liked'}{m['browse.most_liked']()}{/if}
+						{#if sortBy === 'trending'}{m['browse.trending']()}{/if}
 					</button>
 
 					<!-- Active Filter Pills -->
@@ -552,7 +553,7 @@
 							class="flex items-center gap-1 px-3 py-2 bg-gray-900 text-white border border-gray-900 rounded-full text-sm font-medium transition-all duration-150 whitespace-nowrap"
 							onclick={() => { filters.selectedSize = ''; updateURL(); }}
 						>
-							Size {filters.selectedSize}
+							{m['product.size']()} {filters.selectedSize}
 							<X size={12} class="ml-1" />
 						</button>
 					{/if}
@@ -564,7 +565,7 @@
 						aria-label="More filters"
 					>
 						<Filter size={12} />
-						<span>Filters</span>
+						<span>{m['browse.filter']()}</span>
 						{#if activeFiltersCount > 0}
 							<span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center border-2 border-white">
 								{activeFiltersCount}
@@ -583,7 +584,7 @@
 				<div class="filter-rail-content">
 					<!-- Category -->
 					<div class="filter-group">
-						<h3>Category</h3>
+						<h3>{m['search.categories']()}</h3>
 						<div class="filter-options vertical">
 							{#each categories as c}
 								<button
@@ -796,7 +797,7 @@
 			<div class="filter-content">
 				<!-- Category -->
 				<div class="filter-group">
-					<h3>Category</h3>
+					<h3>{m['search.categories']()}</h3>
 					<div class="row-wrap">
 						{#each categories as c}
 							<button

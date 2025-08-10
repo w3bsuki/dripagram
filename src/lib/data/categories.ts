@@ -1,3 +1,5 @@
+// Note: The 'name' field is kept in English as a fallback
+// Actual translations are handled via Paraglide messages
 export const CATEGORIES = [
 	{ id: 'women-clothing', name: "Women's Clothing", emoji: '👗' },
 	{ id: 'men-clothing', name: "Men's Clothing", emoji: '👔' },

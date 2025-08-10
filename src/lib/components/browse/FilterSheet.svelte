@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { X, SlidersHorizontal } from '@lucide/svelte';
 	import { tick } from 'svelte';
+	import * as m from '$lib/paraglide/messages';
 	
 	interface FilterState {
 		selectedCondition: string | null;
@@ -125,7 +126,7 @@
 			}
 		}} role="document">
 			<div class="filter-header">
-				<h2 id="filter-title">Filters</h2>
+				<h2 id="filter-title">{m['browse.filter']()}</h2>
 				<button class="close-filters" onclick={onClose} aria-label="Close filters">
 					<X size={20} />
 				</button>
@@ -134,7 +135,7 @@
 			<div class="filter-content">
 				<!-- Collections -->
 				<div class="filter-group">
-					<h3>Collections</h3>
+					<h3>{m['search.categories']()}</h3>
 					<div class="row-wrap">
 						{#each collections as collection}
 							<button 
@@ -150,7 +151,7 @@
 				
 				<!-- Condition -->
 				<div class="filter-group">
-					<h3>Condition</h3>
+					<h3>{m['product.condition']()}</h3>
 					<div class="row-wrap">
 						{#each conditions as condition}
 							<button 
@@ -166,7 +167,7 @@
 				
 				<!-- Brand -->
 				<div class="filter-group">
-					<h3>Brand</h3>
+					<h3>{m['product.brand']()}</h3>
 					<div class="row-wrap">
 						{#each brands as brand}
 							<button 
@@ -182,7 +183,7 @@
 				
 				<!-- Size -->
 				<div class="filter-group">
-					<h3>Size</h3>
+					<h3>{m['product.size']()}</h3>
 					<div class="row-wrap small-gap">
 						{#each sizes as size}
 							<button 
@@ -198,13 +199,13 @@
 				
 				<!-- Price Range -->
 				<div class="filter-group">
-					<h3>Price Range</h3>
+					<h3>{m['product.price']()}</h3>
 					<div class="price-inputs">
 						<label class="visually-hidden" for="price-min">Minimum price</label>
 						<input 
 							id="price-min"
 							type="number" 
-							placeholder="Min"
+							placeholder={m['common.min']?.() || 'Min'}
 							class="price-input"
 							value={filters.priceRange.min}
 							aria-label="Minimum price"
@@ -220,7 +221,7 @@
 						<input 
 							id="price-max"
 							type="number" 
-							placeholder="Max"
+							placeholder={m['common.max']?.() || 'Max'}
 							class="price-input"
 							value={filters.priceRange.max}
 							aria-label="Maximum price"
@@ -237,10 +238,10 @@
 			
 			<div class="filter-actions">
 				<button class="clear-button" onclick={handleClear}>
-					Clear All
+					{m['browse.clear_all']()}
 				</button>
 				<button class="apply-button" onclick={handleApply}>
-					Apply Filters
+					{m['search.apply_filters']()}
 				</button>
 			</div>
 		</div>
