@@ -191,10 +191,7 @@ Modular post card following Instagram design patterns with:
 					<img
 						src={post.images[currentImageIndex]}
 						alt={post.title}
-						class="post-image"
-						width="400"
-						height="400"
-						style="aspect-ratio: 1; object-fit: cover;"
+						class="post-image img-product"
 						loading="lazy"
 						decoding="async"
 						fetchpriority={currentImageIndex === 0 ? 'high' : 'low'}

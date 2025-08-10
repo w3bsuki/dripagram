@@ -54,10 +54,7 @@
 							<img 
 								src={product.thumbnail_url || product.images?.[0] || '/placeholder.jpg'} 
 								alt={product.title}
-								class="product-image"
-								width="150"
-								height="150"
-								style="aspect-ratio: 1; object-fit: cover;"
+								class="product-image img-thumbnail"
 								loading={index < 3 ? 'eager' : 'lazy'}
 							/>
 							

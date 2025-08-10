@@ -58,6 +58,23 @@
 	--z-high: 50;
 	--z-higher: 100;
 	--z-highest: 200;
+	
+	/* Image Dimensions System - Single source of truth */
+	--img-product-size: 400px;
+	--img-story-size: 70px;
+	--img-story-mobile: 64px;
+	--img-avatar-sm: 24px;
+	--img-avatar-md: 40px;
+	--img-avatar-lg: 60px;
+	--img-thumbnail: 150px;
+	
+	/* Layout Heights for CLS prevention */
+	--header-height: 56px;
+	--header-height-md: 60px;
+	--search-bar-height: 48px;
+	--bottom-nav-height: 56px;
+	--stories-height: 130px;
+	--stories-height-mobile: 120px;
 	--color-accent: oklch(0.967 0.003 264.542);
 	--color-accent-foreground: oklch(0.278 0.033 256.848);
 	--color-destructive: oklch(0.637 0.237 25.331);
@@ -469,5 +486,128 @@
 
 	.no-print {
 		display: none !important;
+	}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CLS PREVENTION UTILITIES - Zero Layout Shift Architecture
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Image CLS Prevention Classes - Use these instead of inline styles */
+.img-product {
+	width: var(--img-product-size);
+	height: var(--img-product-size);
+	aspect-ratio: 1;
+	object-fit: cover;
+	max-width: 100%;
+}
+
+.img-story {
+	width: var(--img-story-size);
+	height: var(--img-story-size);
+	aspect-ratio: 1;
+	object-fit: cover;
+}
+
+.img-avatar-sm {
+	width: var(--img-avatar-sm);
+	height: var(--img-avatar-sm);
+	aspect-ratio: 1;
+	object-fit: cover;
+	border-radius: 50%;
+}
+
+.img-avatar-md {
+	width: var(--img-avatar-md);
+	height: var(--img-avatar-md);
+	aspect-ratio: 1;
+	object-fit: cover;
+	border-radius: 50%;
+}
+
+.img-thumbnail {
+	width: var(--img-thumbnail);
+	height: var(--img-thumbnail);
+	aspect-ratio: 1;
+	object-fit: cover;
+}
+
+/* Responsive image containers */
+.img-container {
+	position: relative;
+	overflow: hidden;
+	background: var(--color-gray-100);
+}
+
+.img-container.square { aspect-ratio: 1; }
+.img-container.landscape { aspect-ratio: 4/3; }
+.img-container.portrait { aspect-ratio: 3/4; }
+
+.img-container img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* Skeleton Loading with proper dimensions */
+.skeleton {
+	background: linear-gradient(
+		90deg,
+		var(--color-gray-200) 25%,
+		var(--color-gray-100) 50%,
+		var(--color-gray-200) 75%
+	);
+	background-size: 200% 100%;
+	animation: skeleton-shimmer 1.5s infinite;
+}
+
+.skeleton-product {
+	width: var(--img-product-size);
+	height: var(--img-product-size);
+	aspect-ratio: 1;
+	max-width: 100%;
+}
+
+.skeleton-story {
+	width: var(--img-story-size);
+	height: var(--img-story-size);
+	border-radius: 50%;
+}
+
+@keyframes skeleton-shimmer {
+	0% { background-position: 200% 0; }
+	100% { background-position: -200% 0; }
+}
+
+/* Layout spacing utilities */
+.header-spacer {
+	height: var(--header-height);
+}
+
+.search-spacer {
+	height: 0;
+	overflow: hidden;
+	transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-spacer.active {
+	height: var(--search-bar-height);
+}
+
+/* Mobile-specific utilities */
+@media (max-width: 640px) {
+	.img-story {
+		width: var(--img-story-mobile);
+		height: var(--img-story-mobile);
+	}
+	
+	.header-spacer {
+		height: var(--header-height);
+	}
+}
+
+@media (min-width: 768px) {
+	.header-spacer {
+		height: var(--header-height-md);
 	}
 }

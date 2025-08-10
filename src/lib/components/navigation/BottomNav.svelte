@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Home, Search, PlusCircle, MessageCircle, User } from '@lucide/svelte';
+	import { Home, Search, Plus, MessageCircle, User } from '@lucide/svelte';
 	import { page } from '$app/stores';
 	import { getAuthContext } from '$lib/stores/auth.svelte';
 	import { cn } from '$lib/utils';
@@ -37,7 +37,7 @@
 	let navItems = $derived([
 		{ icon: Home, label: 'Home', href: '/' },
 		{ icon: Search, label: 'Discover', href: '/browse' },
-		{ icon: PlusCircle, label: 'Sell', href: auth?.isAuthenticated ? '/sell' : '/auth/login?redirectTo=/sell', accent: true, primary: true },
+		{ icon: Plus, label: 'Sell', href: auth?.isAuthenticated ? '/sell' : '/auth/login?redirectTo=/sell', accent: true, primary: true },
 		{ icon: MessageCircle, label: 'Inbox', href: '/messages' },
 		{ icon: User, label: 'Profile', href: auth?.isAuthenticated ? '/profile' : '/auth/login?redirectTo=/profile' },
 	]);
@@ -95,13 +95,13 @@
 					aria-label={item.label}
 				>
 					<div class={cn(
-						"flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200",
-						"bg-gradient-to-r from-blue-600 to-blue-500 text-white",
-						"shadow-lg shadow-blue-500/25",
-						"hover:scale-110 hover:shadow-xl hover:shadow-blue-500/30",
+						"flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200",
+						"bg-black text-white", // Clean black filled button
+						"shadow-md",
+						"hover:scale-110 hover:bg-gray-900",
 						"active:scale-95"
 					)}>
-						<PlusCircle size={26} strokeWidth={2.5} />
+						<Plus size={26} strokeWidth={2.5} />
 					</div>
 				</a>
 			{:else}

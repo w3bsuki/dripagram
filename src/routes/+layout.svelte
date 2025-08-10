@@ -59,6 +59,41 @@
 	// Navigation items moved to AppHeader and BottomNav components
 </script>
 
+<style>
+	.main-content {
+		transition: padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	
+	.main-content.default-layout {
+		padding-top: var(--header-height);
+		padding-bottom: var(--bottom-nav-height);
+	}
+	
+	.main-content.special-layout {
+		padding-top: var(--header-height);
+		padding-bottom: 0;
+	}
+	
+	.main-content.search-active:not(.special-layout) {
+		padding-top: calc(var(--header-height) + var(--search-bar-height));
+	}
+	
+	@media (min-width: 768px) {
+		.main-content.default-layout {
+			padding-top: var(--header-height-md);
+			padding-bottom: 0;
+		}
+		
+		.main-content.special-layout {
+			padding-top: var(--header-height-md);
+		}
+		
+		.main-content.search-active {
+			padding-top: var(--header-height-md);
+		}
+	}
+</style>
+
 <div class="min-h-screen bg-gray-50">
 	<!-- Mobile Header -->
 	<div class="md:hidden">
@@ -71,9 +106,7 @@
 	</div>
 
 	<!-- Main Content -->
-	<main 
-		class="main-content {$page.url.pathname.includes('/sell') || $page.url.pathname.includes('/onboarding') || $page.url.pathname.includes('/auth') || $page.url.pathname.includes('/messages') || $page.url.pathname.includes('/products') ? 'pt-14 pb-0 md:pt-15' : 'pt-14 pb-20 md:pt-15 md:pb-0'}"
-		style="padding-top: {hasScrolledPast100 && !$page.url.pathname.includes('/sell') && !$page.url.pathname.includes('/onboarding') && !$page.url.pathname.includes('/auth') && !$page.url.pathname.includes('/messages') && !$page.url.pathname.includes('/products') ? '6.5rem' : ''}; transition: padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+	<main class="main-content {$page.url.pathname.includes('/sell') || $page.url.pathname.includes('/onboarding') || $page.url.pathname.includes('/auth') || $page.url.pathname.includes('/messages') || $page.url.pathname.includes('/products') ? 'special-layout' : 'default-layout'} {hasScrolledPast100 ? 'search-active' : ''}">
 		{@render children?.()}
 	</main>
 

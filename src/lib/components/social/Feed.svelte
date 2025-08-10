@@ -143,10 +143,10 @@
 		{#if loading}
 			{#each Array(3) as _}
 				<div class="skeleton-card">
-					<div class="skeleton-image"></div>
+					<div class="skeleton skeleton-product"></div>
 					<div class="skeleton-content">
-						<div class="skeleton-line"></div>
-						<div class="skeleton-line short"></div>
+						<div class="skeleton-line skeleton"></div>
+						<div class="skeleton-line skeleton short"></div>
 					</div>
 				</div>
 			{/each}
@@ -238,12 +238,7 @@
 		background: var(--color-surface);
 	}
 
-	.skeleton-image {
-		aspect-ratio: 1;
-		background: linear-gradient(90deg, var(--color-surface-secondary) 25%, var(--color-surface-tertiary) 50%, var(--color-surface-secondary) 75%);
-		background-size: 200% 100%;
-		animation: shimmer 1.5s infinite;
-	}
+	/* Use skeleton classes from app.css - no duplication */
 
 	.skeleton-content {
 		padding: 1rem;

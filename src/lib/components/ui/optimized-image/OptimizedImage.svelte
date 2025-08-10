@@ -112,8 +112,8 @@
 	{:else}
 		<!-- Placeholder while not in viewport -->
 		<div 
-			class="image-placeholder"
-			style="width: 100%; height: 100%; aspect-ratio: {aspectRatio};"
+			class="image-placeholder skeleton"
+			style="aspect-ratio: {aspectRatio};"
 			aria-label="Loading {alt}"
 		>
 			<div class="placeholder-spinner"></div>

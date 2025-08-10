@@ -1,7 +1,17 @@
 <script lang="ts">
 	import type { MessageBubbleProps } from '$lib/types/messaging';
 
-	let { message, isFromCurrentUser, showTime = true }: MessageBubbleProps = $props();
+	let { 
+		message, 
+		isFromCurrentUser,
+		isOwn,
+		senderName,
+		senderAvatar,
+		showTime = true 
+	}: MessageBubbleProps = $props();
+	
+	// Support both isOwn and isFromCurrentUser props
+	const isCurrentUser = $derived(isOwn ?? isFromCurrentUser ?? false);
 
 	function formatTime(timestamp: string): string {
 		const date = new Date(timestamp);
@@ -13,8 +23,20 @@
 	}
 </script>
 
-<div class="message-wrapper {isFromCurrentUser ? 'outgoing' : 'incoming'}">
-	<div class="message-bubble">
+<div class="message-wrapper {isCurrentUser ? 'outgoing' : 'incoming'}">
+	{#if !isCurrentUser && senderAvatar}
+		<img 
+			src={senderAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(senderName || 'User')}&background=random`} 
+			alt={senderName || 'User'}
+			class="sender-avatar"
+		/>
+	{/if}
+	
+	<div class="message-content">
+		{#if !isCurrentUser && senderName}
+			<span class="sender-name">{senderName}</span>
+		{/if}
+		<div class="message-bubble">
 		{#if message.message_type === 'image'}
 			<img src={message.image_url} alt="" class="message-image" />
 		{:else if message.message_type === 'product'}
@@ -26,20 +48,23 @@
 		{#if showTime}
 			<div class="message-footer">
 				<span class="message-time">{formatTime(message.created_at)}</span>
-				{#if isFromCurrentUser}
+				{#if isCurrentUser}
 					<span class="read-status {message.is_read ? 'read' : 'sent'}">
 						{message.is_read ? '✓✓' : '✓'}
 					</span>
 				{/if}
 			</div>
 		{/if}
+		</div>
 	</div>
 </div>
 
 <style>
 	.message-wrapper {
 		display: flex;
-		margin-bottom: 0.25rem;
+		align-items: flex-end;
+		margin-bottom: 0.5rem;
+		gap: 0.5rem;
 	}
 
 	.message-wrapper.outgoing {
@@ -50,10 +75,32 @@
 		justify-content: flex-start;
 	}
 
-	.message-bubble {
+	.sender-avatar {
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		object-fit: cover;
+		flex-shrink: 0;
+	}
+
+	.message-content {
+		display: flex;
+		flex-direction: column;
 		max-width: 70%;
+	}
+
+	.sender-name {
+		font-size: 0.75rem;
+		color: var(--color-gray-500);
+		margin-bottom: 0.25rem;
+		margin-left: 0.5rem;
+		font-weight: 500;
+	}
+
+	.message-bubble {
 		min-width: 80px;
 		position: relative;
+		display: inline-block;
 	}
 
 	.outgoing .message-bubble {
@@ -112,8 +159,13 @@
 
 	/* Mobile Adjustments */
 	@media (max-width: 640px) {
-		.message-bubble {
+		.message-content {
 			max-width: 85%;
+		}
+		
+		.sender-avatar {
+			width: 28px;
+			height: 28px;
 		}
 	}
 </style>

@@ -123,8 +123,8 @@
 		</div>
 	</div>
 	
-	<!-- Mobile Compact Search Bar (reserve space to prevent CLS) -->
-	<div class="mobile-search-container md:hidden" style="height: {showMobileSearch ? '48px' : '0'}; overflow: hidden; transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+	<!-- Mobile Compact Search Bar (uses CSS classes for CLS prevention) -->
+	<div class="search-spacer {showMobileSearch ? 'active' : ''} md:hidden">
 		<div class="mobile-search-bar">
 			<form class="search-form" onsubmit={handleSearch}>
 				<div class="search-input-wrapper">
@@ -284,10 +284,10 @@
 		}
 	}
 	
-	/* Mobile Search Container - prevents CLS */
-	.mobile-search-container {
+	/* Mobile Search Bar - clean implementation */
+	.search-spacer {
 		position: fixed;
-		top: 56px;
+		top: var(--header-height);
 		left: 0;
 		right: 0;
 		z-index: calc(var(--z-higher) - 1);
@@ -298,7 +298,7 @@
 		border-bottom: 1px solid var(--color-gray-200);
 		padding: 0.5rem 1rem;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-		height: 48px;
+		height: var(--search-bar-height);
 		display: flex;
 		align-items: center;
 	}

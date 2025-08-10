@@ -131,9 +131,7 @@
 						<img 
 							src={story.product.thumbnail_url || story.product.images?.[0] || '/placeholder.jpg'} 
 							alt={story.product.title}
-							width="70"
-							height="70"
-							style="width: 100%; height: 100%; object-fit: cover;"
+							class="img-story"
 							loading="lazy"
 						/>
 
@@ -159,9 +157,7 @@
 							<img 
 								src={story.product.seller.avatar_url} 
 								alt={story.product.seller.username}
-								width="24"
-								height="24"
-								style="width: 100%; height: 100%; object-fit: cover;"
+								class="img-avatar-sm"
 							/>
 							{#if story.product.seller.verified}
 								<div class="verified-tick">✓</div>
@@ -238,73 +234,64 @@
 		transform: scale(0.95);
 	}
 
-	/* Add Story Button - FIXED for mobile */
+	/* Add Story Button - Black border */
 	.add-story .story-circle {
-		width: 74px;
-		height: 74px;
+		width: 76px;
+		height: 76px;
 		border-radius: 50%;
 		background: transparent;
-		border: 2px solid #2563eb;
+		border: 1.5px solid #000000; /* Black border */
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		position: relative;
 		transition: all 0.2s ease;
-		/* Force clean rendering on mobile */
-		transform: translateZ(0);
-		-webkit-transform: translateZ(0);
-		backface-visibility: hidden;
-		-webkit-backface-visibility: hidden;
 	}
 
 	.add-story:hover .story-circle {
-		border-color: #1d4ed8;
+		border-color: #333; /* Slightly lighter border on hover */
 		transform: scale(1.05);
 	}
 
 	.add-icon-wrapper {
-		width: 68px;
-		height: 68px;
+		width: 100%;
+		height: 100%;
 		border-radius: 50%;
 		background: transparent;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: #2563eb;
+		color: #000000; /* Black icon */
 	}
 
-	/* Product Story Circle */
+	/* Product Story Circle - Clean Instagram style */
 	.story-circle {
-		width: 74px;
-		height: 74px;
+		width: 72px;
+		height: 72px;
 		border-radius: 50%;
 		position: relative;
+		padding: 0; /* No padding */
+	}
+
+	/* Gradient ring for new stories - Instagram style */
+	.story-ring {
+		position: absolute;
+		inset: -2px;
+		border-radius: 50%;
+		background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4);
+		z-index: -1;
 		padding: 2px;
 	}
 
-	/* Gradient ring for new stories - FIXED for mobile */
-	.story-ring {
-		position: absolute;
-		inset: -2px; /* Increased for cleaner rendering */
-		border-radius: 50%;
-		background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
-		z-index: -1;
-		/* Removed animation for cleaner mobile appearance */
-	}
-
 	.story-image-wrapper {
-		width: 70px;
-		height: 70px;
+		width: 100%;
+		height: 100%;
 		border-radius: 50%;
 		overflow: hidden;
-		border: 3px solid white; /* Increased to 3px for cleaner rendering */
+		border: 3px solid white; /* White separator from gradient */
 		background: white;
 		position: relative;
-		/* Force clean rendering on mobile */
-		transform: translateZ(0);
-		-webkit-transform: translateZ(0);
-		backface-visibility: hidden;
-		-webkit-backface-visibility: hidden;
+		box-sizing: border-box;
 	}
 
 	.story-image-wrapper img {
@@ -449,28 +436,26 @@
 		}
 
 		.story-circle {
-			width: 66px;
-			height: 66px;
+			width: 64px; /* Smaller regular stories on mobile */
+			height: 64px;
 		}
 
 		.story-image-wrapper {
-			width: 62px;
-			height: 62px;
-			border: 2px solid white; /* Reduced border for mobile */
+			width: 100%;
+			height: 100%;
+			border: 2px solid white; /* Clean white separator */
 		}
 
 		.add-story .story-circle {
-			width: 66px;
-			height: 66px;
-			border: 2px solid #2563eb;
-			/* Ensure clean rendering */
-			border-style: solid;
-			box-sizing: border-box;
+			width: 68px;
+			height: 68px;
+			border: 1px solid #000000; /* Thin black border on mobile */
+			background: transparent;
 		}
 
 		.add-icon-wrapper {
-			width: 60px;
-			height: 60px;
+			width: 64px; /* Adjusted for bigger "Your Story" */
+			height: 64px;
 		}
 
 		.story-label {
@@ -478,11 +463,10 @@
 			height: 26px;
 		}
 
-		/* Disable gradient animation on mobile for performance */
+		/* Instagram gradient on mobile */
 		.story-ring {
-			animation: none !important;
-			/* Use solid gradient instead of animated */
-			background: linear-gradient(45deg, #d62976, #4f5bd5);
+			inset: -2px;
+			padding: 2px;
 		}
 	}
 </style>
