@@ -4,8 +4,6 @@
 	import { stepSchemas } from '$lib/schemas/listing';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
-	import { setLocale } from '$lib/paraglide/runtime.js';
-	
 	// UI Components
 	import Button from '$lib/components/ui/button';
 	import MobileStepper from './MobileStepper.svelte';
@@ -21,16 +19,10 @@
 			form: any;
 			user: any;
 			session: any;
-			lang?: 'bg' | 'en';
 		};
 	}
 
 	let { data }: Props = $props();
-	
-	// Set locale if provided
-	if (data.lang) {
-		setLocale(data.lang);
-	}
 	
 	// Publishing state
 	let isPublishing = $state(false);

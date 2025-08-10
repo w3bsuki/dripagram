@@ -126,6 +126,7 @@
 				<!-- Primary Sell Button (Instagram style) -->
 				<a
 					href={item.href}
+					data-sveltekit-reload
 					class={cn(
 						"relative flex flex-1 items-center justify-center px-2",
 						"transition-all duration-200",
@@ -147,6 +148,7 @@
 				<!-- Regular Nav Items -->
 				<a
 					href={item.href}
+					data-sveltekit-reload
 					class={cn(
 						"relative flex flex-1 flex-col items-center justify-center gap-0.5 px-2",
 						"text-gray-500 transition-all duration-200",
