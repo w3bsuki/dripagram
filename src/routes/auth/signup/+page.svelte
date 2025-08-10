@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { toast } from '$lib/utils/toast';
-	import { Eye, EyeOff, Mail, Lock, User, Building2, UserCircle } from '@lucide/svelte';
+	import { Eye, EyeOff, Mail, Lock, User, Building2, UserCircle, AtSign } from '@lucide/svelte';
 	import type { ActionData } from './$types';
 
 	let { form }: { form: ActionData } = $props();
 	let email = $state(form?.email || '');
 	let password = $state('');
+	let fullName = $state(form?.fullName || '');
 	let username = $state(form?.username || '');
 	let accountType = $state<'personal' | 'brand'>(form?.accountType || 'personal');
 	let brandName = $state('');
@@ -108,9 +109,27 @@
 			{/if}
 
 			<div class="form-group">
-				<label for="username">Username</label>
+				<label for="fullName">Full Name</label>
 				<div class="input-wrapper">
 					<User size={20} class="input-icon" />
+					<input
+						id="fullName"
+						type="text"
+						name="fullName"
+						value={fullName}
+						oninput={(e) => fullName = e.currentTarget.value}
+						placeholder="John Doe"
+						required
+						class="input-field"
+						disabled={loading}
+					/>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="username">Username</label>
+				<div class="input-wrapper">
+					<AtSign size={20} class="input-icon" />
 					<input
 						id="username"
 						type="text"

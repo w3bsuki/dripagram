@@ -17,16 +17,18 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const email = formData.get('email') as string;
 		const password = formData.get('password') as string;
+		const fullName = formData.get('fullName') as string;
 		const username = formData.get('username') as string;
 		const accountType = formData.get('accountType') as 'personal' | 'brand';
 		const brandName = formData.get('brandName') as string;
 		const acceptTerms = formData.get('acceptTerms') === 'on';
 
 		// Validation
-		if (!email || !password || !username) {
+		if (!email || !password || !fullName || !username) {
 			return fail(400, {
-				error: 'Email, username, and password are required',
+				error: 'Email, full name, username, and password are required',
 				email,
+				fullName,
 				username,
 				accountType
 			});
@@ -36,6 +38,7 @@ export const actions: Actions = {
 			return fail(400, {
 				error: 'Please accept the terms and conditions',
 				email,
+				fullName,
 				username,
 				accountType
 			});
@@ -45,13 +48,14 @@ export const actions: Actions = {
 			return fail(400, {
 				error: 'Brand name is required for brand accounts',
 				email,
+				fullName,
 				username,
 				accountType
 			});
 		}
 
 		// Create metadata
-		const metadata: any = { username };
+		const metadata: any = { username, full_name: fullName };
 		if (accountType) metadata.account_type = accountType;
 		if (brandName) metadata.brand_name = brandName;
 
@@ -69,6 +73,7 @@ export const actions: Actions = {
 			return fail(400, {
 				error: error.message,
 				email,
+				fullName,
 				username,
 				accountType
 			});
@@ -76,9 +81,10 @@ export const actions: Actions = {
 
 		if (authData.user) {
 			// Update profile with additional data
-			if (username || accountType || brandName) {
+			if (fullName || username || accountType || brandName) {
 				const profileUpdates: any = { 
 					id: authData.user.id,
+					full_name: fullName,
 					username,
 					account_type: accountType
 				};
