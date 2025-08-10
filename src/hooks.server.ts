@@ -8,6 +8,7 @@ import * as Sentry from '@sentry/sveltekit';
 const SENTRY_DSN = process.env.SENTRY_DSN;
 import { randomUUID } from 'crypto';
 import { checkRateLimit, generateRateLimitKey, RATE_LIMITS } from '$lib/utils/rate-limiter';
+import { setLocale } from '$lib/paraglide/runtime.js';
 
 // Initialize Sentry on the server
 if (SENTRY_DSN) {
@@ -81,40 +82,37 @@ const supabase: Handle = async ({ event, resolve }) => {
 	});
 };
 
-const localeDetection: Handle = async ({ event, resolve }) => {
-	// Detect locale from URL, cookie, or Accept-Language header
-	let locale: 'bg' | 'en' = 'bg'; // Default to Bulgarian
-	
-	// Check cookie first
-	const localeCookie = event.cookies.get('locale');
-	if (localeCookie && ['bg', 'en'].includes(localeCookie)) {
-		locale = localeCookie as 'bg' | 'en';
-	} else {
-		// Check Accept-Language header
-		const acceptLanguage = event.request.headers.get('accept-language');
-		if (acceptLanguage) {
-			// Simple check for English preference
-			if (acceptLanguage.toLowerCase().includes('en')) {
-				locale = 'en';
-			}
-		}
-	}
-	
-	// Set locale in locals and cookie
-	event.locals.lang = locale;
-	event.cookies.set('locale', locale, { 
-		path: '/',
-		maxAge: 60 * 60 * 24 * 365, // 1 year
-		sameSite: 'lax'
-	});
-	
-	return resolve(event);
-};
 
 const authGuard: Handle = async ({ event, resolve }) => {
 	const { session, user } = await event.locals.safeGetSession();
 	event.locals.session = session;
 	event.locals.user = user;
+
+	// Check if user needs to complete onboarding (Bulgarian-first flow)
+	if (session && user) {
+		// Check if email is verified and onboarding is incomplete
+		if (user.email_confirmed_at && !user.user_metadata?.onboarding_completed) {
+			// Get user profile to check onboarding status
+			const { data: profile } = await event.locals.supabase
+				.from('profiles')
+				.select('onboarding_completed')
+				.eq('id', user.id)
+				.single();
+
+			// Redirect to onboarding if not completed
+			if (profile && !profile.onboarding_completed) {
+				// Allow access to onboarding routes and auth routes
+				const allowedPaths = ['/onboarding', '/auth/', '/api/'];
+				const isAllowedPath = allowedPaths.some(path => 
+					event.url.pathname.startsWith(path)
+				);
+
+				if (!isAllowedPath) {
+					throw redirect(303, '/onboarding');
+				}
+			}
+		}
+	}
 
 	// Protect routes under /private, /dashboard, and /profile
 	const protectedPaths = ['/private', '/dashboard', '/admin', '/profile'];
@@ -148,6 +146,30 @@ const rateLimitingMiddleware: Handle = async ({ event, resolve }) => {
 	// Get client IP (considering proxies like Cloudflare)
 	const clientIP = event.getClientAddress();
 	const userId = event.locals.user?.id;
+	
+	// Skip rate limiting in development for localhost
+	if (import.meta.env.DEV && (clientIP === '::1' || clientIP === '127.0.0.1' || clientIP === 'localhost')) {
+		return resolve(event);
+	}
+	
+	// Skip rate limiting for specific users (development/testing bypass)
+	const user = event.locals.user;
+	if (user?.email === 'w3bsuki@gmail.com' || user?.user_metadata?.username === 'w3bsuki') {
+		return resolve(event);
+	}
+	
+	// Also check form data for w3bsuki email during auth flows
+	if (event.url.pathname.startsWith('/auth/') && event.request.method === 'POST') {
+		try {
+			const formData = await event.request.clone().formData();
+			const email = formData.get('email')?.toString();
+			if (email === 'w3bsuki@gmail.com') {
+				return resolve(event);
+			}
+		} catch (e) {
+			// Ignore form parsing errors, continue with rate limiting
+		}
+	}
 	
 	// Determine rate limit based on endpoint
 	let rateLimitConfig = RATE_LIMITS.api;
@@ -244,8 +266,29 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
+// Dynamic locale detection and setting
+const localeHandle: Handle = async ({ event, resolve }) => {
+	// Extract locale from URL path
+	const pathname = event.url.pathname;
+	let locale = 'bg'; // Default to Bulgarian
+	
+	// Check if path starts with a supported locale
+	if (pathname.startsWith('/en')) {
+		locale = 'en';
+	} else if (pathname.startsWith('/bg')) {
+		locale = 'bg';
+	}
+	
+	// Set the locale for Paraglide
+	setLocale(locale as 'bg' | 'en');
+	
+	return resolve(event, {
+		transformPageChunk: ({ html }) => html.replace('%paraglide.lang%', locale).replace('%paraglide.textDirection%', 'ltr')
+	});
+};
+
 // Create the handle sequence
-const baseHandle = sequence(securityHeaders, rateLimitingMiddleware, supabase, localeDetection, authGuard);
+const baseHandle = sequence(localeHandle, securityHeaders, rateLimitingMiddleware, supabase, authGuard);
 
 // Wrap the sequence with Sentry's handle for error tracking
 export const handle: Handle = SENTRY_DSN 
