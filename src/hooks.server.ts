@@ -4,7 +4,8 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 import type { Database } from '$lib/types/database.types';
 import * as Sentry from '@sentry/sveltekit';
-import { SENTRY_DSN } from '$env/static/private';
+// Optional Sentry DSN - can be undefined if not configured
+const SENTRY_DSN = process.env.SENTRY_DSN;
 import { randomUUID } from 'crypto';
 import { checkRateLimit, generateRateLimitKey, RATE_LIMITS } from '$lib/utils/rate-limiter';
 
