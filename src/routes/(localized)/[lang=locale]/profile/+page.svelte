@@ -19,6 +19,12 @@
 		brand_name: data.profile?.brand_name || ''
 	});
 	
+	// Helper function to build localized URLs
+	function buildLocalizedUrl(path: string): string {
+		const lang = data?.lang || 'bg';
+		return `/${lang}${path}`;
+	}
+	
 	function getInitials(name: string): string {
 		if (!name || name.trim() === '') return 'U';
 		const parts = name.trim().split(' ').filter(part => part.length > 0);
@@ -31,7 +37,7 @@
 		const { error } = await data.supabase.auth.signOut();
 		if (!error) {
 			await invalidateAll();
-			await goto('/');
+			await goto(buildLocalizedUrl('/'));
 		}
 	}
 </script>
@@ -79,13 +85,13 @@
 					</div>
 					<div class="profile-actions">
 						<button 
-							onclick={() => goto('/profile/edit')}
+							onclick={() => goto(buildLocalizedUrl('/profile/edit'))}
 							class="action-button primary"
 						>
 							Edit profile
 						</button>
 						<button 
-							onclick={() => goto('/profile/settings')}
+							onclick={() => goto(buildLocalizedUrl('/profile/settings'))}
 							class="action-button secondary"
 							aria-label="Settings"
 						>
@@ -172,7 +178,7 @@
 					<h3 class="empty-title">Share Your First Listing</h3>
 					<p class="empty-subtitle">When you list items for sale, they'll appear on your profile.</p>
 					<button 
-						onclick={() => goto('/sell')}
+						onclick={() => goto(buildLocalizedUrl('/sell'))}
 						class="empty-button"
 					>
 						Create Listing
@@ -181,7 +187,7 @@
 			{:else}
 				<div class="content-grid">
 					{#each data.listings as listing}
-						<a href="/products/{listing.id}" class="grid-item">
+						<a href={buildLocalizedUrl(`/products/${listing.id}`)} class="grid-item">
 							<div class="item-image">
 								<img 
 									src={listing.thumbnail_url || '/placeholder.jpg'} 
@@ -402,7 +408,7 @@
 		margin-bottom: 4px;
 	}
 	
-	
+
 	.bio-text {
 		margin-bottom: 8px;
 	}

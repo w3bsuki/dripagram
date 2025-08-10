@@ -2,11 +2,12 @@ import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 import { getUserListings } from '$lib/services/listingService';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
+	const { lang } = params;
 	const { session, user } = await locals.safeGetSession();
 	
 	if (!session || !user) {
-		throw redirect(303, '/auth/login');
+		throw redirect(303, `/${lang}/auth/login`);
 	}
 
 	try {
@@ -40,6 +41,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				followers: profile?.follower_count || 0,
 				following: profile?.following_count || 0,
 			},
+			lang
 		};
 	} catch (error) {
 
@@ -56,6 +58,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				followers: 0,
 				following: 0,
 			},
+			lang
 		};
 	}
 };

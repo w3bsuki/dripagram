@@ -10,9 +10,15 @@
 		"sell": "Sell",
 		"messages": "Messages",
 		"profile": "Profile",
+		"wishlist": "Wishlist",
 		"search": "Search",
 		"menu": "Menu",
 		"open_menu": "Open menu"
+	},
+	"feed": {
+		"for_you": "For you",
+		"following": "Following",
+		"trending": "Trending"
 	},
 	"auth": {
 		"login": "Login",
@@ -116,9 +122,9 @@
 		"typing": "typing..."
 	},
 	"sell": {
-		"title": "Sell an item",
+		"title": "Create Listing",
 		"upload_photos": "Upload photos",
-		"add_photos": "Add photos",
+		"add_photos": "Photos",
 		"title_label": "Title",
 		"title_placeholder": "e.g. Red Zara dress size M",
 		"description_label": "Description",
@@ -131,16 +137,98 @@
 		"price_label": "Price",
 		"shipping_price": "Shipping price",
 		"location_label": "Location",
-		"publish": "Publish",
+		"publish": "Publish Listing",
 		"save_draft": "Save draft",
-		"preview": "Preview"
+		"preview": "Review",
+		"details": "Details",
+		"shipping": "Shipping",
+		"publishing": "Publishing...",
+		"step_counter": "Step {current} of {total}",
+		"success_message": "Listing created successfully!",
+		"errors": {
+			"select_category": "Please select a category",
+			"add_photo": "Please add at least one photo",
+			"add_title": "Please add a title",
+			"add_description": "Please add a description",
+			"add_price": "Please add a valid price",
+			"select_size": "Please select a size",
+			"select_condition": "Please select item condition",
+			"add_location": "Please add your location",
+			"failed_to_create": "Failed to create listing. Please try again.",
+			"validation_error": "Validation error. Please check your input."
+		}
 	},
 	"conditions": {
 		"new_with_tags": "New with tags",
 		"new_without_tags": "New without tags",
 		"very_good": "Very good",
 		"good": "Good",
-		"satisfactory": "Satisfactory"
+		"satisfactory": "Satisfactory",
+		"brand_new": "Brand New",
+		"like_new": "Like New",
+		"fair": "Fair"
+	},
+	"stories": {
+		"your_story": "Sell now",
+		"add_story": "Add Story",
+		"view_story": "View Story",
+		"ago": "ago",
+		"just_now": "just now",
+		"minutes_ago": "{count}m ago",
+		"hours_ago": "{count}h ago",
+		"days_ago": "{count}d ago",
+		"weeks_ago": "{count}w ago",
+		"months_ago": "{count}mo ago"
+	},
+	"badges": {
+		"new_seller": "New Seller",
+		"verified_seller": "Verified Seller",
+		"top_seller": "Top Seller",
+		"trusted_seller": "Trusted Seller",
+		"featured": "Featured",
+		"hot": "Hot",
+		"sale": "Sale",
+		"limited": "Limited",
+		"exclusive": "Exclusive"
+	},
+	"feed_messages": {
+		"end_of_feed": "You've reached the end",
+		"no_more_posts": "No more posts",
+		"refresh_feed": "Refresh",
+		"loading_more": "Loading more...",
+		"no_posts": "No posts to show",
+		"follow_users": "Follow users to see their posts"
+	},
+	"quick_view": {
+		"title": "Quick View",
+		"close": "Close",
+		"size_label": "Size",
+		"condition_label": "Condition",
+		"seller_label": "Seller",
+		"view_full": "View Full Details",
+		"add_to_bag": "Add to Bag",
+		"contact_seller": "Contact Seller"
+	},
+	"time": {
+		"now": "now",
+		"today": "today",
+		"yesterday": "yesterday",
+		"this_week": "this week",
+		"last_week": "last week",
+		"this_month": "this month",
+		"last_month": "last month",
+		"minute": "minute",
+		"minutes": "minutes",
+		"hour": "hour",
+		"hours": "hours",
+		"day": "day",
+		"days": "days",
+		"week": "week",
+		"weeks": "weeks",
+		"month": "month",
+		"months": "months",
+		"year": "year",
+		"years": "years"
 	},
 	"common": {
 		"loading": "Loading...",
@@ -201,5 +289,103 @@
 		"copied": "Copied to clipboard",
 		"followed": "Successfully followed user",
 		"unfollowed": "Successfully unfollowed user"
+	},
+	"onboarding": {
+		"title": "Welcome to Driplo",
+		"step_counter": "Step {current} of {total}",
+		"username": {
+			"title": "Choose Your Username",
+			"subtitle": "How others will find you on Driplo",
+			"label": "Choose your username",
+			"placeholder": "yourname",
+			"tips_title": "Tips for a great username:",
+			"tip_1": "Keep it short and memorable",
+			"tip_2": "Use your name or brand",
+			"tip_3": "Avoid special characters",
+			"tip_4": "Make it easy to find and share",
+			"error_required": "Username is required",
+			"error_short": "Username must be at least 3 characters",
+			"error_invalid": "Username can only contain letters, numbers and underscores",
+			"error_taken": "Username already taken"
+		},
+		"account_type": {
+			"title": "Account Type",
+			"subtitle": "Tell us about your selling style",
+			"personal_title": "Personal",
+			"personal_subtitle": "Selling items from your wardrobe",
+			"personal_benefit_1": "Perfect for casual sellers",
+			"personal_benefit_2": "Declutter your closet",
+			"personal_benefit_3": "Easy listing tools",
+			"brand_title": "Brand / Business",
+			"brand_subtitle": "Professional seller or boutique",
+			"brand_benefit_1": "Advanced selling tools",
+			"brand_benefit_2": "Business analytics",
+			"brand_benefit_3": "Bulk listing options",
+			"error_required": "Please select an account type"
+		},
+		"payout": {
+			"title": "Payout Method",
+			"subtitle": "How you'll receive your earnings",
+			"revolut_title": "Revolut",
+			"revolut_subtitle": "Fast transfers via Revolut",
+			"paypal_title": "PayPal",
+			"paypal_subtitle": "International payments",
+			"card_title": "Bank Card",
+			"card_subtitle": "Direct to your card",
+			"revolut_label": "Revolut phone or email",
+			"paypal_label": "PayPal email",
+			"card_label": "IBAN number",
+			"revolut_placeholder": "+359 888 123456",
+			"paypal_placeholder": "your@email.com",
+			"card_placeholder": "BG80 BNBG 9661 1020 3456 78",
+			"error_method_required": "Please select a payout method",
+			"error_details_required": "Please enter payout details"
+		},
+		"social": {
+			"title": "Connect & Launch",
+			"subtitle": "Add social links and start selling",
+			"connect_title": "Connect Your Social Media",
+			"connect_subtitle": "Help buyers discover and trust your profile",
+			"optional": "Optional",
+			"instagram_placeholder": "Instagram username",
+			"facebook_placeholder": "Facebook profile",
+			"tiktok_placeholder": "TikTok username",
+			"benefits_title": "Why sellers love Driplo",
+			"benefit_protection_title": "Buyer Protection",
+			"benefit_protection_desc": "Safe payments with fraud protection",
+			"benefit_fees_title": "Low Fees",
+			"benefit_fees_desc": "Only 3% transaction fee, no listing fees",
+			"benefit_community_title": "Community",
+			"benefit_community_desc": "Join 50k+ fashion lovers in Bulgaria",
+			"benefit_growth_title": "Grow Your Business",
+			"benefit_growth_desc": "Built-in tools to boost your sales"
+		},
+		"success": {
+			"title": "🎉 All Set!",
+			"subtitle": "Your Driplo profile is ready",
+			"welcome_message": "Welcome to Bulgaria's largest fashion community! You're ready to start buying and selling.",
+			"what_next_title": "What's next?",
+			"next_step_1": "Discover trending fashion finds",
+			"next_step_2": "Follow your favorite sellers",
+			"next_step_3": "Start selling from your wardrobe",
+			"start_exploring": "Start Exploring",
+			"go_to_sell": "Start Selling"
+		},
+		"actions": {
+			"continue": "Continue",
+			"back": "Back",
+			"complete": "Complete Setup",
+			"setting_up": "Setting up..."
+		},
+		"welcome_toast": "Welcome to Driplo! 🎉 Your profile is ready."
+	},
+	"wishlist": {
+		"title": "Your Wishlist",
+		"empty_title": "Your wishlist is empty",
+		"empty_description": "Save items you love to buy them later",
+		"browse_products": "Browse Products",
+		"loading": "Loading your wishlist...",
+		"grid_view": "Grid view",
+		"list_view": "List view"
 	}
 }

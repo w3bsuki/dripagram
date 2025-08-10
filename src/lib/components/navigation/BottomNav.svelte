@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { Home, Search, Plus, MessageCircle, User } from '@lucide/svelte';
+	import { Home, Search, Plus, Heart, User } from '@lucide/svelte';
 	import { page } from '$app/stores';
 	import { getAuthContext } from '$lib/stores/auth.svelte';
+	import { getLocaleContext } from '$lib/stores/locale.svelte';
 	import { cn } from '$lib/utils';
+	import * as m from '$lib/paraglide/messages';
 	
 	interface NavItem {
 		icon: typeof Home;
@@ -30,24 +32,61 @@
 		auth = null;
 	}
 	
+	// Get locale context for building localized URLs
+	let locale: ReturnType<typeof getLocaleContext> | null = null;
+	try {
+		locale = getLocaleContext();
+	} catch {
+		// Context not available - fallback to current URL locale detection
+		locale = null;
+	}
+	
 	// Reactive state
 	let currentPath = $derived($page.url.pathname);
 	
+	// Helper function to build localized URLs
+	function buildLocalizedUrl(path: string): string {
+		// Extract current locale from URL path or use context
+		const currentLocale = locale?.locale || getCurrentLocaleFromPath();
+		
+		// If path is already localized, return as-is
+		if (path.match(/^\/(bg|en)/)) {
+			return path;
+		}
+		
+		// Build localized path
+		return `/${currentLocale}${path}`;
+	}
+	
+	// Helper function to get current locale from URL if context is not available
+	function getCurrentLocaleFromPath(): string {
+		const pathMatch = currentPath.match(/^\/(bg|en)/);
+		return pathMatch ? pathMatch[1] : 'bg'; // Default to Bulgarian
+	}
+	
 	// Navigation items configuration - Sell button is now central and prominent
 	let navItems = $derived([
-		{ icon: Home, label: 'Home', href: '/' },
-		{ icon: Search, label: 'Discover', href: '/browse' },
-		{ icon: Plus, label: 'Sell', href: auth?.isAuthenticated ? '/sell' : '/auth/login?redirectTo=/sell', accent: true, primary: true },
-		{ icon: MessageCircle, label: 'Inbox', href: '/messages' },
-		{ icon: User, label: 'Profile', href: auth?.isAuthenticated ? '/profile' : '/auth/login?redirectTo=/profile' },
+		{ icon: Home, label: m['nav.home'](), href: buildLocalizedUrl('/') },
+		{ icon: Search, label: m['nav.browse'](), href: buildLocalizedUrl('/browse') },
+		{ icon: Plus, label: m['nav.sell'](), href: auth?.isAuthenticated ? buildLocalizedUrl('/sell') : buildLocalizedUrl(`/auth/login?redirectTo=${encodeURIComponent(buildLocalizedUrl('/sell'))}`), accent: true, primary: true },
+		{ icon: Heart, label: m['nav.wishlist'](), href: buildLocalizedUrl('/wishlist') },
+		{ icon: User, label: m['nav.profile'](), href: auth?.isAuthenticated ? buildLocalizedUrl('/profile') : buildLocalizedUrl(`/auth/login?redirectTo=${encodeURIComponent(buildLocalizedUrl('/profile'))}`) },
 	]);
 	
 	// Check if a path is active
 	function isActive(itemHref: string): boolean {
-		if (itemHref === '/') {
-			return currentPath === '/';
+		// Remove locale prefix from both paths for comparison
+		const normalizePathForComparison = (path: string) => {
+			return path.replace(/^\/(bg|en)/, '') || '/';
+		};
+		
+		const normalizedCurrentPath = normalizePathForComparison(currentPath);
+		const normalizedItemPath = normalizePathForComparison(itemHref);
+		
+		if (normalizedItemPath === '/') {
+			return normalizedCurrentPath === '/';
 		}
-		return currentPath.startsWith(itemHref);
+		return normalizedCurrentPath.startsWith(normalizedItemPath);
 	}
 </script>
 

@@ -6,13 +6,14 @@
 	import { toast } from 'svelte-sonner';
 	
 	// UI Components
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/ui/button';
 	import MobileStepper from './MobileStepper.svelte';
 	import CategorySelector from './CategorySelector.svelte';
 	import ProductImageUploader from './ProductImageUploader.svelte';
 	import ProductDetailsForm from './ProductDetailsForm.svelte';
 	import ShippingOptions from './ShippingOptions.svelte';
 	import ListingPreview from './ListingPreview.svelte';
+	import * as m from '$lib/paraglide/messages';
 
 	interface Props {
 		data: {
@@ -38,11 +39,11 @@
 			if (result.type === 'redirect') {
 				// Successfully created listing - redirect to success page
 				isPublishing = true;
-				toast.success('Listing created successfully!');
+				toast.success(m.sell?.success_message?.() ?? 'Listing created successfully!');
 				window.location.href = result.location;
 			} else if (result.type === 'failure') {
 				isPublishing = false;
-				toast.error('Failed to create listing. Please try again.');
+				toast.error(m.sell?.errors?.failed_to_create?.() ?? 'Failed to create listing. Please try again.');
 			}
 		},
 		onSubmit: () => {
@@ -53,7 +54,13 @@
 	// Multi-step form state
 	let currentStep = $state(1);
 	const totalSteps = 5;
-	const stepLabels = ['Category', 'Photos', 'Details', 'Shipping', 'Review'];
+	const stepLabels = [
+		m.sell?.category?.() ?? 'Category',
+		m.sell?.add_photos?.() ?? 'Photos', 
+		m.sell?.details?.() ?? 'Details',
+		m.sell?.shipping?.() ?? 'Shipping',
+		m.sell?.preview?.() ?? 'Review'
+	];
 
 	// Step validation
 	async function validateStep(step: number): Promise<boolean> {
@@ -72,21 +79,21 @@
 				
 				// Show specific error messages
 				if (step === 1 && !$form.category) {
-					toast.error('Please select a category');
+					toast.error(m.sell?.errors?.select_category?.() ?? 'Please select a category');
 				} else if (step === 2 && (!$form.images || $form.images.length === 0)) {
-					toast.error('Please add at least one photo');
+					toast.error(m.sell?.errors?.add_photo?.() ?? 'Please add at least one photo');
 				} else if (step === 3) {
 					// Check for specific missing fields
 					if (!$form.title) {
-						toast.error('Please add a title');
+						toast.error(m.sell?.errors?.add_title?.() ?? 'Please add a title');
 					} else if (!$form.description) {
-						toast.error('Please add a description');
+						toast.error(m.sell?.errors?.add_description?.() ?? 'Please add a description');
 					} else if (!$form.price || $form.price <= 0) {
-						toast.error('Please add a valid price');
+						toast.error(m.sell?.errors?.add_price?.() ?? 'Please add a valid price');
 					} else if (!$form.size) {
-						toast.error('Please select a size');
+						toast.error(m.sell?.errors?.select_size?.() ?? 'Please select a size');
 					} else if (!$form.condition) {
-						toast.error('Please select item condition');
+						toast.error(m.sell?.errors?.select_condition?.() ?? 'Please select item condition');
 					} else {
 						// Show first error if we don't have a specific message
 						const firstError = errors[0]?.message;
@@ -96,7 +103,7 @@
 					}
 				} else if (step === 4) {
 					if (!$form.location) {
-						toast.error('Please add your location');
+						toast.error(m.sell?.errors?.add_location?.() ?? 'Please add your location');
 					}
 				} else {
 					// Generic error for other cases
@@ -111,7 +118,7 @@
 			
 			return true;
 		} catch (e) {
-			toast.error('Validation error. Please check your input.');
+			toast.error(m.sell?.errors?.validation_error?.() ?? 'Validation error. Please check your input.');
 			return false;
 		}
 	}
@@ -195,13 +202,13 @@
 	<div class="mx-auto max-w-2xl px-4 py-6">
 		<!-- Mobile-optimized header -->
 		<div class="mb-6 flex items-center justify-between">
-			<h1 class="text-xl font-semibold">Create Listing</h1>
+			<h1 class="text-xl font-semibold">{m.sell?.title?.() ?? 'Create Listing'}</h1>
 			<button
 				type="button"
 				onclick={() => goto('/')}
 				class="text-gray-600 hover:text-gray-900"
 			>
-				Cancel
+				{m.common?.cancel?.() ?? 'Cancel'}
 			</button>
 		</div>
 
@@ -320,7 +327,7 @@
 						onclick={handlePrev}
 						class="flex-1"
 					>
-						Back
+						{m.common?.back?.() ?? 'Back'}
 					</Button>
 				{/if}
 
@@ -331,7 +338,7 @@
 						disabled={!canProceed}
 						class="flex-1"
 					>
-						Next
+						{m.common?.next?.() ?? 'Next'}
 					</Button>
 				{:else}
 					<Button
@@ -339,7 +346,7 @@
 						disabled={$submitting || isPublishing}
 						class="flex-1"
 					>
-						{$submitting || isPublishing ? 'Publishing...' : 'Publish Listing'}
+						{$submitting || isPublishing ? (m.sell?.publishing?.() ?? 'Publishing...') : (m.sell?.publish?.() ?? 'Publish Listing')}
 					</Button>
 				{/if}
 			</div>
