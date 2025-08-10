@@ -15,16 +15,12 @@
 	let { data }: { data: PageData } = $props();
 	const supabase = getContext<SupabaseClient<Database>>('supabase');
 
-	// Check if we have required data
-	let hasRequiredData = $state(!!data.user && !!data.conversation && !!data.conversationId);
-	
-	// Redirect if missing data
-	$effect(() => {
-		if (!hasRequiredData) {
-			goto('/messages');
-		}
-	});
+	// Log what we received
+	console.log('Messages page data:', data);
+	console.log('Conversation object:', data.conversation);
+	console.log('Other user:', data.conversation?.other_user);
 
+	// Don't check for required data yet - let's see what we get
 	let messages = $state(data.messages || []);
 	let newMessage = $state('');
 	let typingUsers = $state<string[]>([]);
@@ -34,7 +30,7 @@
 	let messagesContainer = $state<HTMLDivElement>();
 	
 	const conversation = data.conversation;
-	const messageService = data.user && data.conversationId ? createMessageService({
+	const messageService = data.user && data.conversationId && conversation ? createMessageService({
 		supabase,
 		conversationId: data.conversationId,
 		userId: data.user.id
@@ -47,6 +43,7 @@
 	let unsubscribePresence: (() => void) | null = null;
 
 	onMount(() => {
+		console.log('Component mounted, messageService:', !!messageService);
 		if (messageService) {
 			setupRealtime();
 			messageService.markAllAsRead();
@@ -64,20 +61,22 @@
 	});
 
 	function setupRealtime() {
+		if (!messageService || !data.user) return;
+		
 		// Subscribe to new messages
 		unsubscribeMessages = messageService.subscribeToMessages((message) => {
 			messages = [...messages, message];
 			scrollToBottom();
 			
 			// Mark as read if from other user
-			if (message.sender_id !== data.user.id) {
-				messageService.markAsRead([message.id]);
+			if (message.sender_id !== data.user!.id) {
+				messageService!.markAsRead([message.id]);
 			}
 		});
 
 		// Subscribe to message status updates
 		unsubscribeStatus = messageService.subscribeToStatusUpdates((updatedMessage) => {
-			messages = messages.map(msg => 
+			messages = messages.map((msg: any) => 
 				msg.id === updatedMessage.id ? updatedMessage : msg
 			);
 		});
@@ -110,16 +109,26 @@
 	}
 
 	async function handleSend() {
-		if (!newMessage.trim() || sending) return;
+		console.log('handleSend called');
+		console.log('newMessage:', newMessage);
+		console.log('sending:', sending);
+		console.log('messageService:', !!messageService);
+		console.log('data.user:', !!data.user);
+		
+		if (!newMessage.trim() || sending || !messageService || !data.user) {
+			console.log('Early return from handleSend');
+			return;
+		}
 
 		const messageContent = newMessage.trim();
+		console.log('Sending message:', messageContent);
 		newMessage = '';
 		sending = true;
 
 		// Optimistic update
 		const tempMessage = {
 			id: crypto.randomUUID(),
-			conversation_id: data.conversationId,
+			conversation_id: data.conversationId!,
 			sender_id: data.user.id,
 			content: messageContent,
 			message_type: 'text',
@@ -132,23 +141,30 @@
 		scrollToBottom();
 
 		// Send message
+		console.log('Calling messageService.sendMessage...');
 		const sentMessage = await messageService.sendMessage(messageContent);
+		console.log('sendMessage result:', sentMessage);
 		
 		if (sentMessage) {
 			// Replace temp message with real one
-			messages = messages.map(msg => 
+			console.log('Message sent successfully, replacing temp message');
+			messages = messages.map((msg: any) => 
 				msg.id === tempMessage.id ? sentMessage : msg
 			);
 		} else {
 			// Remove temp message on error
-			messages = messages.filter(msg => msg.id !== tempMessage.id);
+			console.log('Message sending failed, removing temp message');
+			messages = messages.filter((msg: any) => msg.id !== tempMessage.id);
 		}
 		
 		sending = false;
+		console.log('handleSend completed');
 	}
 
 	function handleTyping(isTyping: boolean) {
-		messageService.setTyping(isTyping);
+		if (messageService) {
+			messageService.setTyping(isTyping);
+		}
 	}
 
 	function scrollToBottom() {
@@ -203,49 +219,57 @@
 	<title>{conversation?.other_user?.username || 'Messages'} - Driplo</title>
 </svelte:head>
 
-{#if hasRequiredData && conversation}
-	<div class="conversation-view">
-		{#if conversation.other_user}
-			<ChatHeader
-				user={conversation.other_user}
-				{isOnline}
-				product={conversation.product}
-				onBack={handleBack}
-			/>
-		{/if}
-
-		<div class="messages-container" bind:this={messagesContainer}>
-			{#if messages.length === 0}
-				<EmptyMessages />
-			{:else}
-				{#each messagesByDate as [date, dateMessages]}
-					<DateSeparator date={formatDate(date)} />
-					{#each dateMessages as message (message.id)}
-						<MessageBubble
-							{message}
-							isOwn={message.sender_id === data.user?.id}
-							senderName={message.sender_id === data.user?.id 
-								? data.user?.user_metadata?.username || 'You'
-								: conversation?.other_user?.username || 'User'}
-							senderAvatar={message.sender_id === data.user?.id 
-								? data.user?.user_metadata?.avatar_url
-								: conversation?.other_user?.avatar_url}
-						/>
-					{/each}
-				{/each}
-			{/if}
-			
-			{#if typingUsers.length > 0}
-				<div class="typing-bubble">
-					<span class="typing-dots">
-						<span></span>
-						<span></span>
-						<span></span>
-					</span>
-				</div>
-			{/if}
+<!-- Modern conversation view with proper viewport handling -->
+<div class="conversation-view">
+	{#if conversation?.other_user}
+		<ChatHeader
+			otherUser={conversation.other_user}
+			{isOnline}
+			product={conversation.product}
+			onBack={handleBack}
+			onProfileClick={() => goto(`/user/${conversation.other_user?.username}`)}
+		/>
+	{:else}
+		<!-- Fallback header -->
+		<div class="fallback-header">
+			<button onclick={handleBack}>← Back</button>
+			<h2>Loading conversation...</h2>
 		</div>
+	{/if}
 
+	<div class="messages-container" bind:this={messagesContainer}>
+		{#if messages.length === 0}
+			<EmptyMessages />
+		{:else}
+			{#each messagesByDate as [date, dateMessages]}
+				<DateSeparator date={formatDate(date)} />
+				{#each dateMessages as message (message.id)}
+					<MessageBubble
+						{message}
+						isOwn={message.sender_id === data.user?.id}
+						senderName={message.sender_id === data.user?.id 
+							? data.user?.user_metadata?.username || 'You'
+							: conversation?.other_user?.username || 'User'}
+						senderAvatar={message.sender_id === data.user?.id 
+							? data.user?.user_metadata?.avatar_url
+							: conversation?.other_user?.avatar_url}
+					/>
+				{/each}
+			{/each}
+		{/if}
+		
+		{#if typingUsers.length > 0}
+			<div class="typing-bubble">
+				<span class="typing-dots">
+					<span></span>
+					<span></span>
+					<span></span>
+				</span>
+			</div>
+		{/if}
+	</div>
+
+	<div class="input-area">
 		<MessageInput
 			bind:value={newMessage}
 			onSend={handleSend}
@@ -257,33 +281,61 @@
 				: 'Type a message...'}
 		/>
 	</div>
-{:else}
-	<div class="loading-container">
-		<p>Loading conversation...</p>
-	</div>
-{/if}
+</div>
 
 <style>
 	.conversation-view {
 		display: flex;
 		flex-direction: column;
-		height: 100vh;
-		background: var(--color-background);
+		height: calc(100vh - 56px); /* Account for header */
+		background: #ffffff;
+		position: relative;
+	}
+
+	.fallback-header {
+		display: flex;
+		align-items: center;
+		padding: 1rem;
+		border-bottom: 1px solid #e5e7eb;
+		gap: 1rem;
+		background: #ffffff;
+		position: sticky;
+		top: 0;
+		z-index: 10;
+	}
+
+	.fallback-header button {
+		background: none;
+		border: none;
+		font-size: 1.5rem;
+		cursor: pointer;
+		color: #374151;
 	}
 
 	.messages-container {
 		flex: 1;
 		overflow-y: auto;
-		padding: 1rem;
-		padding-bottom: 80px;
+		overflow-x: hidden;
+		padding: 1rem 1rem 0.5rem;
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
+		background: #ffffff;
+		min-height: 0; /* Allow flex item to shrink */
 	}
 
-	/* Custom scrollbar */
+	.input-area {
+		position: sticky;
+		bottom: 0;
+		background: #ffffff;
+		border-top: 1px solid #e5e7eb;
+		z-index: 20;
+		flex-shrink: 0;
+	}
+
+	/* Modern scrollbar styling */
 	.messages-container::-webkit-scrollbar {
-		width: 6px;
+		width: 4px;
 	}
 
 	.messages-container::-webkit-scrollbar-track {
@@ -291,58 +343,63 @@
 	}
 
 	.messages-container::-webkit-scrollbar-thumb {
-		background: var(--color-gray-300);
-		border-radius: 3px;
+		background: #d1d5db;
+		border-radius: 2px;
 	}
 
 	.messages-container::-webkit-scrollbar-thumb:hover {
-		background: var(--color-gray-400);
+		background: #9ca3af;
 	}
 
 	/* Typing indicator bubble */
 	.typing-bubble {
 		align-self: flex-start;
-		background: var(--color-gray-100);
-		border-radius: 18px;
-		padding: 0.75rem 1rem;
-		margin-left: 2.5rem;
-		animation: fadeIn 0.3s ease;
+		background: #f3f4f6;
+		border-radius: 20px;
+		padding: 12px 16px;
+		margin: 8px 0 8px 48px;
+		animation: fadeInUp 0.3s ease-out;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 	}
 
 	.typing-dots {
 		display: flex;
-		gap: 0.25rem;
+		gap: 4px;
 		align-items: center;
 	}
 
 	.typing-dots span {
 		width: 8px;
 		height: 8px;
-		background: var(--color-text-secondary);
+		background: #9ca3af;
 		border-radius: 50%;
-		animation: typingBounce 1.4s infinite ease-in-out;
+		animation: typingPulse 1.4s infinite ease-in-out;
 	}
 
 	.typing-dots span:nth-child(1) {
-		animation-delay: -0.32s;
+		animation-delay: 0s;
 	}
 
 	.typing-dots span:nth-child(2) {
-		animation-delay: -0.16s;
+		animation-delay: 0.2s;
 	}
 
-	@keyframes typingBounce {
-		0%, 80%, 100% {
+	.typing-dots span:nth-child(3) {
+		animation-delay: 0.4s;
+	}
+
+	@keyframes typingPulse {
+		0%, 60%, 100% {
 			transform: scale(0.8);
-			opacity: 0.5;
+			opacity: 0.4;
 		}
-		40% {
-			transform: scale(1);
+		30% {
+			transform: scale(1.1);
 			opacity: 1;
 		}
 	}
 
-	@keyframes fadeIn {
+	@keyframes fadeInUp {
 		from {
 			opacity: 0;
 			transform: translateY(10px);
@@ -353,11 +410,39 @@
 		}
 	}
 
-	.loading-container {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		height: 100vh;
-		color: var(--color-text-secondary);
+	/* Responsive adjustments */
+	@media (max-width: 768px) {
+		.conversation-view {
+			height: calc(100vh - 56px);
+		}
+		
+		.messages-container {
+			padding: 0.75rem 0.75rem 0.5rem;
+		}
+	}
+
+	/* Dark mode support (optional) */
+	@media (prefers-color-scheme: dark) {
+		.conversation-view {
+			background: #1f2937;
+		}
+		
+		.fallback-header {
+			background: #1f2937;
+			border-bottom-color: #374151;
+		}
+		
+		.messages-container {
+			background: #1f2937;
+		}
+		
+		.input-area {
+			background: #1f2937;
+			border-top-color: #374151;
+		}
+		
+		.typing-bubble {
+			background: #374151;
+		}
 	}
 </style>

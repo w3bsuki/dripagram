@@ -125,18 +125,27 @@
 
 <style>
 	.message-input-container {
-		padding: 1rem;
-		background: var(--color-background);
-		border-top: 1px solid var(--color-border);
+		padding: 16px;
+		background: #ffffff;
+		border-top: 1px solid #e5e7eb;
 	}
 
 	.input-wrapper {
 		display: flex;
 		align-items: flex-end;
-		gap: 0.5rem;
-		background: var(--color-gray-50);
-		border-radius: 20px;
-		padding: 0.5rem;
+		gap: 8px;
+		background: #f9fafb;
+		border: 1px solid #e5e7eb;
+		border-radius: 24px;
+		padding: 8px 12px;
+		transition: all 0.2s ease;
+		min-height: 44px;
+	}
+
+	.input-wrapper:focus-within {
+		border-color: #3b82f6;
+		background: #ffffff;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 
 	.attachment-btn,
@@ -146,49 +155,64 @@
 		background: none;
 		border: none;
 		cursor: pointer;
-		padding: 0.5rem;
+		padding: 8px;
 		border-radius: 50%;
-		color: var(--color-text-primary);
-		transition: all 0.2s;
+		color: #6b7280;
+		transition: all 0.2s ease;
 		flex-shrink: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
 	}
 
 	.attachment-btn:hover,
 	.emoji-btn:hover {
-		background: var(--color-gray-200);
+		background: #f3f4f6;
+		color: #374151;
 	}
 
 	.send-btn {
-		color: var(--color-primary);
+		background: #3b82f6;
+		color: #ffffff;
+		transform: scale(1);
 	}
 
 	.send-btn:hover {
-		background: var(--color-primary-light);
+		background: #2563eb;
+		transform: scale(1.05);
+	}
+
+	.send-btn:active {
+		transform: scale(0.95);
 	}
 
 	.like-btn {
-		color: var(--color-text-error);
+		color: #ef4444;
 	}
 
 	.like-btn:hover {
-		background: var(--color-surface-error) / 10;
+		background: #fef2f2;
+		color: #dc2626;
 	}
 
 	.message-input {
 		flex: 1;
 		background: none;
 		border: none;
-		padding: 0.5rem;
-		font-size: 0.875rem;
-		color: var(--color-text-primary);
+		padding: 8px 4px;
+		font-size: 15px;
+		color: #111827;
 		outline: none;
 		resize: none;
 		max-height: 120px;
-		line-height: 1.4;
+		line-height: 1.5;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	}
 
 	.message-input::placeholder {
-		color: var(--color-text-secondary);
+		color: #9ca3af;
 	}
 
 	.message-input:disabled,
@@ -201,53 +225,110 @@
 	.typing-indicator {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
-		padding: 0.5rem 1rem;
-		color: var(--color-text-secondary);
-		font-size: 0.875rem;
-		animation: fadeIn 0.3s ease;
+		gap: 8px;
+		padding: 8px 16px;
+		color: #6b7280;
+		font-size: 14px;
+		animation: slideUp 0.2s ease-out;
 	}
 
 	.typing-dots {
 		display: flex;
-		gap: 0.25rem;
+		gap: 3px;
 	}
 
 	.dot {
-		width: 8px;
-		height: 8px;
-		background: var(--color-text-secondary);
+		width: 6px;
+		height: 6px;
+		background: #9ca3af;
 		border-radius: 50%;
-		animation: bounce 1.4s infinite ease-in-out;
+		animation: pulse 1.4s infinite ease-in-out;
 	}
 
 	.dot:nth-child(1) {
-		animation-delay: -0.32s;
+		animation-delay: 0s;
 	}
 
 	.dot:nth-child(2) {
-		animation-delay: -0.16s;
+		animation-delay: 0.2s;
 	}
 
-	@keyframes bounce {
-		0%, 80%, 100% {
+	.dot:nth-child(3) {
+		animation-delay: 0.4s;
+	}
+
+	@keyframes pulse {
+		0%, 60%, 100% {
 			transform: scale(0.8);
-			opacity: 0.5;
+			opacity: 0.4;
 		}
-		40% {
-			transform: scale(1);
+		30% {
+			transform: scale(1.2);
 			opacity: 1;
 		}
 	}
 
-	@keyframes fadeIn {
+	@keyframes slideUp {
 		from {
 			opacity: 0;
-			transform: translateY(5px);
+			transform: translateY(8px);
 		}
 		to {
 			opacity: 1;
 			transform: translateY(0);
+		}
+	}
+
+	/* Mobile optimizations */
+	@media (max-width: 768px) {
+		.message-input-container {
+			padding: 12px;
+		}
+		
+		.input-wrapper {
+			border-radius: 20px;
+			padding: 6px 10px;
+		}
+		
+		.message-input {
+			font-size: 16px; /* Prevent zoom on iOS */
+		}
+	}
+
+	/* Dark mode support */
+	@media (prefers-color-scheme: dark) {
+		.message-input-container {
+			background: #1f2937;
+			border-top-color: #374151;
+		}
+		
+		.input-wrapper {
+			background: #374151;
+			border-color: #4b5563;
+		}
+		
+		.input-wrapper:focus-within {
+			background: #1f2937;
+			border-color: #3b82f6;
+		}
+		
+		.message-input {
+			color: #f9fafb;
+		}
+		
+		.message-input::placeholder {
+			color: #9ca3af;
+		}
+		
+		.attachment-btn,
+		.emoji-btn {
+			color: #d1d5db;
+		}
+		
+		.attachment-btn:hover,
+		.emoji-btn:hover {
+			background: #4b5563;
+			color: #f9fafb;
 		}
 	}
 </style>

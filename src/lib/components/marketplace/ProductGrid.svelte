@@ -106,11 +106,11 @@
 	.product-feed.grid {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		gap: 12px; /* Proper spacing between items */
-		padding: 12px;
+		gap: 16px; /* Increased spacing to match modern ProductCard */
+		padding: 16px;
 		width: 100%;
 		margin: 0 auto;
-		background: transparent;
+		background: #f9fafb; /* Light background for better card contrast */
 	}
 
 	.feed-item {
@@ -170,27 +170,27 @@
 
 	@media (min-width: 768px) {
 		.product-feed.grid {
-			grid-template-columns: repeat(4, 1fr);
-			gap: 16px;
-			padding: 16px;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 20px;
+			padding: 20px;
 			max-width: 1200px;
 		}
 	}
 
 	@media (min-width: 1024px) {
 		.product-feed.grid {
-			grid-template-columns: repeat(5, 1fr);
-			gap: 20px;
-			padding: 20px;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 24px;
+			padding: 24px;
 			max-width: 1400px;
 		}
 	}
 
 	@media (min-width: 1400px) {
 		.product-feed.grid {
-			grid-template-columns: repeat(6, 1fr);
-			gap: 24px;
-			padding: 24px;
+			grid-template-columns: repeat(5, 1fr);
+			gap: 28px;
+			padding: 28px;
 			max-width: 1600px;
 		}
 	}

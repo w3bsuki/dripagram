@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ProductDetail, ProductGrid } from '$lib/components/marketplace';
+	import { ProductDetail, ProductGrid, ProductHorizontalScroll } from '$lib/components/marketplace';
 	import type { PageData } from './$types';
 	
 	let { data }: { data: PageData } = $props();
@@ -24,15 +24,19 @@
 	
 	{#if relatedProducts.length > 0}
 		<section class="related-section">
-			<h2 class="section-title">More from this seller</h2>
-			<ProductGrid products={relatedProducts.slice(0, 4)} />
+			<ProductHorizontalScroll 
+				products={relatedProducts.slice(0, 8)} 
+				title="More from this seller" 
+			/>
 		</section>
 	{/if}
 	
 	{#if similarProducts.length > 0}
 		<section class="similar-section">
-			<h2 class="section-title">Similar products</h2>
-			<ProductGrid products={similarProducts.slice(0, 4)} />
+			<ProductHorizontalScroll 
+				products={similarProducts.slice(0, 8)} 
+				title="Similar products" 
+			/>
 		</section>
 	{/if}
 {:else}
@@ -46,18 +50,10 @@
 <style>
 	.related-section,
 	.similar-section {
-		max-width: 768px;
-		margin: 0 auto;
-		padding: 24px 0;
-		border-top: 1px solid var(--color-border);
-	}
-	
-	.section-title {
-		font-size: var(--font-size-lg);
-		font-weight: 600;
-		color: var(--color-foreground);
-		margin: 0 0 16px 0;
-		padding: 0 16px;
+		width: 100%;
+		padding: 32px 0;
+		border-top: 1px solid #efefef;
+		background: #ffffff;
 	}
 	
 	.not-found {

@@ -42,6 +42,8 @@
 			return;
 		}
 		
+		console.log('Starting conversation with:', profile.id, profile.username);
+		
 		try {
 			// First, check if a conversation already exists or create one
 			const response = await fetch('/api/messages/conversation', {
@@ -54,16 +56,24 @@
 				}),
 			});
 			
+			const data = await response.json();
+			
 			if (!response.ok) {
-				throw new Error('Failed to create conversation');
+				console.error('Failed to create conversation:', data);
+				throw new Error(data.error || 'Failed to create conversation');
 			}
 			
-			const { conversationId } = await response.json();
-			goto(`/messages/${conversationId}`);
-		} catch (error) {
+			if (!data.conversationId) {
+				console.error('No conversation ID returned:', data);
+				throw new Error('No conversation ID returned');
+			}
+			
+			console.log('Navigating to conversation:', data.conversationId);
+			goto(`/messages/${data.conversationId}`);
+		} catch (error: any) {
 			console.error('Error creating conversation:', error);
-			// Fallback to messages list
-			goto('/messages');
+			alert(`Failed to start conversation: ${error?.message || 'Unknown error'}`);
+			// Don't redirect on error so user can see what happened
 		}
 	}
 	
