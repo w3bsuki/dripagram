@@ -123,9 +123,9 @@
 		</div>
 	</div>
 	
-	<!-- Mobile Compact Search Bar (shown on scroll) -->
-	{#if showMobileSearch}
-		<div class="mobile-search-bar md:hidden">
+	<!-- Mobile Compact Search Bar (reserve space to prevent CLS) -->
+	<div class="mobile-search-container md:hidden" style="height: {showMobileSearch ? '48px' : '0'}; overflow: hidden; transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+		<div class="mobile-search-bar">
 			<form class="search-form" onsubmit={handleSearch}>
 				<div class="search-input-wrapper">
 					<Search size={18} class="search-icon" />
@@ -140,7 +140,7 @@
 				</div>
 			</form>
 		</div>
-	{/if}
+	</div>
 </header>
 
 <style>
@@ -284,30 +284,25 @@
 		}
 	}
 	
-	/* Mobile Search Bar */
-	.mobile-search-bar {
+	/* Mobile Search Container - prevents CLS */
+	.mobile-search-container {
 		position: fixed;
 		top: 56px;
 		left: 0;
 		right: 0;
+		z-index: calc(var(--z-higher) - 1);
+	}
+	
+	.mobile-search-bar {
 		background: var(--color-white);
 		border-bottom: 1px solid var(--color-gray-200);
 		padding: 0.5rem 1rem;
-		z-index: calc(var(--z-higher) - 1);
-		animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+		height: 48px;
+		display: flex;
+		align-items: center;
 	}
 	
-	@keyframes slideDown {
-		from {
-			opacity: 0;
-			transform: translateY(-100%);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
 	
 	.search-form {
 		width: 100%;

@@ -113,8 +113,7 @@
 		<!-- Placeholder while not in viewport -->
 		<div 
 			class="image-placeholder"
-			style:width="{width}px"
-			style:height="{calculatedHeight}px"
+			style="width: 100%; height: 100%; aspect-ratio: {aspectRatio};"
 			aria-label="Loading {alt}"
 		>
 			<div class="placeholder-spinner"></div>

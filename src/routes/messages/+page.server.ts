@@ -10,88 +10,92 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 
 	const user = session.user;
 
-	// Fetch conversations with participant details and last message
+	// Fetch conversations directly from conversations table
 	const { data: conversations, error: conversationsError } = await supabase
-		.from('conversation_participants')
+		.from('conversations')
 		.select('*')
 		.or(`participant1_id.eq.${user.id},participant2_id.eq.${user.id}`)
-		.order('last_message_at', { ascending: false });
+		.order('created_at', { ascending: false });
 
 	if (conversationsError) {
 		console.error('Error fetching conversations:', conversationsError);
-		throw error(500, 'Failed to load conversations');
 	}
 
-	// Fetch last messages for each conversation
-	const conversationIds = conversations?.map(c => c.conversation_id) || [];
+	// Get participant IDs
+	const participantIds = new Set<string>();
+	conversations?.forEach(conv => {
+		if (conv.participant1_id !== user.id) participantIds.add(conv.participant1_id);
+		if (conv.participant2_id !== user.id) participantIds.add(conv.participant2_id);
+	});
+
+	// Fetch profiles for all participants
+	const { data: profiles } = await supabase
+		.from('profiles')
+		.select('id, username, avatar_url, verified')
+		.in('id', Array.from(participantIds));
+
+	const profileMap = new Map();
+	profiles?.forEach(profile => {
+		profileMap.set(profile.id, profile);
+	});
+
+	// Fetch messages for all conversations
+	const conversationIds = conversations?.map(c => c.id) || [];
 	
 	let messages: any[] = [];
 	if (conversationIds.length > 0) {
-		const { data: messagesData, error: messagesError } = await supabase
+		const { data: messagesData } = await supabase
 			.from('messages')
 			.select('*')
 			.in('conversation_id', conversationIds)
 			.order('created_at', { ascending: false });
 
-		if (messagesError) {
-			console.error('Error fetching messages:', messagesError);
-		} else {
-			messages = messagesData || [];
-		}
+		messages = messagesData || [];
 	}
 
 	// Group messages by conversation and get the latest one
 	const lastMessages = new Map();
+	const unreadCounts = new Map();
+	
 	messages.forEach(msg => {
+		// Get last message
 		if (!lastMessages.has(msg.conversation_id)) {
 			lastMessages.set(msg.conversation_id, msg);
 		}
+		
+		// Count unread messages
+		if (msg.status === 'sent' && msg.sender_id !== user.id) {
+			const currentCount = unreadCounts.get(msg.conversation_id) || 0;
+			unreadCounts.set(msg.conversation_id, currentCount + 1);
+		}
 	});
-
-	// Get unread counts for each conversation
-	const unreadCounts = new Map();
-	for (const conv of conversations || []) {
-		const { count } = await supabase
-			.from('messages')
-			.select('*', { count: 'exact', head: true })
-			.eq('conversation_id', conv.conversation_id)
-			.eq('status', 'sent')
-			.neq('sender_id', user.id);
-
-		unreadCounts.set(conv.conversation_id, count || 0);
-	}
 
 	// Process conversations with additional data
 	const processedConversations = (conversations || []).map(conv => {
-		const isParticipant1 = conv.participant1_id === user.id;
-		const otherUser = isParticipant1 
-			? {
-				id: conv.participant2_id,
-				username: conv.participant2_username,
-				avatar_url: conv.participant2_avatar,
-				verified: conv.participant2_verified
-			}
-			: {
-				id: conv.participant1_id,
-				username: conv.participant1_username,
-				avatar_url: conv.participant1_avatar,
-				verified: conv.participant1_verified
-			};
+		const otherUserId = conv.participant1_id === user.id ? conv.participant2_id : conv.participant1_id;
+		const otherProfile = profileMap.get(otherUserId) || {};
+		
+		const lastMessage = lastMessages.get(conv.id);
 
 		return {
-			id: conv.conversation_id,
+			id: conv.id,
 			participant1_id: conv.participant1_id,
 			participant2_id: conv.participant2_id,
-			other_user: otherUser,
+			other_user: {
+				id: otherUserId,
+				username: otherProfile.username || 'User',
+				avatar_url: otherProfile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(otherProfile.username || 'U')}&background=random`,
+				verified: otherProfile.verified || false
+			},
 			product: conv.product_id ? {
 				id: conv.product_id,
-				title: conv.product_title,
-				price: conv.product_price,
-				images: conv.product_images
+				title: 'Product',
+				price: 0,
+				images: []
 			} : null,
-			last_message: lastMessages.get(conv.conversation_id) || null,
-			unread_count: unreadCounts.get(conv.conversation_id) || 0,
-			last_message_at: conv.last_message_at,
+			last_message: lastMessage || null,
+			unread_count: unreadCounts.get(conv.id) || 0,
+			last_message_at: lastMessage?.created_at || conv.created_at,
 			created_at: conv.created_at
 		};
 	});

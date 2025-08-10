@@ -71,7 +71,9 @@
 	</div>
 
 	<!-- Main Content -->
-	<main class="{$page.url.pathname.includes('/sell') || $page.url.pathname.includes('/onboarding') || $page.url.pathname.includes('/auth') || $page.url.pathname.includes('/messages') || $page.url.pathname.includes('/products') ? 'pt-14 pb-0 md:pt-15' : hasScrolledPast100 ? 'pt-24 pb-20 md:pt-15 md:pb-0' : 'pt-14 pb-20 md:pt-15 md:pb-0'}">
+	<main 
+		class="main-content {$page.url.pathname.includes('/sell') || $page.url.pathname.includes('/onboarding') || $page.url.pathname.includes('/auth') || $page.url.pathname.includes('/messages') || $page.url.pathname.includes('/products') ? 'pt-14 pb-0 md:pt-15' : 'pt-14 pb-20 md:pt-15 md:pb-0'}"
+		style="padding-top: {hasScrolledPast100 && !$page.url.pathname.includes('/sell') && !$page.url.pathname.includes('/onboarding') && !$page.url.pathname.includes('/auth') && !$page.url.pathname.includes('/messages') && !$page.url.pathname.includes('/products') ? '6.5rem' : ''}; transition: padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
 		{@render children?.()}
 	</main>
 

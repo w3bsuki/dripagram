@@ -131,6 +131,9 @@
 						<img 
 							src={story.product.thumbnail_url || story.product.images?.[0] || '/placeholder.jpg'} 
 							alt={story.product.title}
+							width="70"
+							height="70"
+							style="width: 100%; height: 100%; object-fit: cover;"
 							loading="lazy"
 						/>
 
@@ -156,6 +159,9 @@
 							<img 
 								src={story.product.seller.avatar_url} 
 								alt={story.product.seller.username}
+								width="24"
+								height="24"
+								style="width: 100%; height: 100%; object-fit: cover;"
 							/>
 							{#if story.product.seller.verified}
 								<div class="verified-tick">✓</div>
@@ -232,18 +238,23 @@
 		transform: scale(0.95);
 	}
 
-	/* Add Story Button */
+	/* Add Story Button - FIXED for mobile */
 	.add-story .story-circle {
 		width: 74px;
 		height: 74px;
 		border-radius: 50%;
 		background: transparent;
-		border: 2px solid #2563eb; /* Slightly thicker for visibility */
+		border: 2px solid #2563eb;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		position: relative;
 		transition: all 0.2s ease;
+		/* Force clean rendering on mobile */
+		transform: translateZ(0);
+		-webkit-transform: translateZ(0);
+		backface-visibility: hidden;
+		-webkit-backface-visibility: hidden;
 	}
 
 	.add-story:hover .story-circle {
@@ -271,19 +282,14 @@
 		padding: 2px;
 	}
 
-	/* Gradient ring for new stories */
+	/* Gradient ring for new stories - FIXED for mobile */
 	.story-ring {
 		position: absolute;
-		inset: -1px;
+		inset: -2px; /* Increased for cleaner rendering */
 		border-radius: 50%;
 		background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
 		z-index: -1;
-		animation: rotate 3s linear infinite;
-	}
-
-	@keyframes rotate {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
+		/* Removed animation for cleaner mobile appearance */
 	}
 
 	.story-image-wrapper {
@@ -291,9 +297,14 @@
 		height: 70px;
 		border-radius: 50%;
 		overflow: hidden;
-		border: 2px solid white;
+		border: 3px solid white; /* Increased to 3px for cleaner rendering */
 		background: white;
 		position: relative;
+		/* Force clean rendering on mobile */
+		transform: translateZ(0);
+		-webkit-transform: translateZ(0);
+		backface-visibility: hidden;
+		-webkit-backface-visibility: hidden;
 	}
 
 	.story-image-wrapper img {
@@ -418,10 +429,13 @@
 		}
 	}
 
-	/* Mobile optimizations */
+	/* Mobile optimizations - FIXED borders */
 	@media (max-width: 640px) {
 		.stories-bar {
-			height: 120px; /* Bigger for premium visibility */
+			height: 120px;
+			/* Force GPU acceleration for smooth rendering */
+			transform: translateZ(0);
+			-webkit-transform: translateZ(0);
 		}
 
 		.stories-container {
@@ -442,6 +456,16 @@
 		.story-image-wrapper {
 			width: 62px;
 			height: 62px;
+			border: 2px solid white; /* Reduced border for mobile */
+		}
+
+		.add-story .story-circle {
+			width: 66px;
+			height: 66px;
+			border: 2px solid #2563eb;
+			/* Ensure clean rendering */
+			border-style: solid;
+			box-sizing: border-box;
 		}
 
 		.add-icon-wrapper {
@@ -452,6 +476,13 @@
 		.story-label {
 			width: 66px;
 			height: 26px;
+		}
+
+		/* Disable gradient animation on mobile for performance */
+		.story-ring {
+			animation: none !important;
+			/* Use solid gradient instead of animated */
+			background: linear-gradient(45deg, #d62976, #4f5bd5);
 		}
 	}
 </style>

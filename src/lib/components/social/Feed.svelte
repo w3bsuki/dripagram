@@ -239,7 +239,7 @@
 	}
 
 	.skeleton-image {
-		aspect-ratio: 4/5;
+		aspect-ratio: 1;
 		background: linear-gradient(90deg, var(--color-surface-secondary) 25%, var(--color-surface-tertiary) 50%, var(--color-surface-secondary) 75%);
 		background-size: 200% 100%;
 		animation: shimmer 1.5s infinite;

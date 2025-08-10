@@ -36,6 +36,7 @@
 		fetchpriority={priority ? 'high' : 'auto'}
 		width="400"
 		height="400"
+		style="aspect-ratio: 1; object-fit: cover; width: 100%; height: 100%;"
 		class="product-image"
 	/>
 	

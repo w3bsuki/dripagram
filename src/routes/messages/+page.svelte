@@ -4,7 +4,7 @@
 	import { getContext } from 'svelte';
 	import type { SupabaseClient } from '@supabase/supabase-js';
 	import type { Database } from '$lib/types/database.types';
-	import ConversationList from '$lib/components/messages/ConversationList.svelte';
+	import InboxUI from '$lib/components/messages/InboxUI.svelte';
 	import type { Conversation } from '$lib/types/messaging';
 	import { getAuthContext } from '$lib/stores/auth.svelte';
 	import type { PageData } from './$types';
@@ -13,9 +13,17 @@
 	const supabase = getContext<SupabaseClient<Database>>('supabase');
 	const auth = getAuthContext();
 
-	let conversations = $state<Conversation[]>([]);
+	// Use the conversations from the server
+	let conversations = $state<Conversation[]>(data.conversations || []);
 	let loading = $state(false);
 	let searchQuery = $state('');
+
+	// Update conversations when data changes
+	$effect(() => {
+		if (data.conversations) {
+			conversations = data.conversations;
+		}
+	});
 
 	onMount(() => {
 		const cleanup = setupRealtime();
@@ -61,6 +69,8 @@
 	}
 
 	function handleCompose() {
+		// TODO: Implement compose functionality
+		goto('/browse');
 	}
 
 	function handleSearchChange(query: string) {
@@ -70,9 +80,10 @@
 
 <svelte:head>
 	<title>Messages - Driplo</title>
+	<meta name="description" content="Your conversations and messages on Driplo" />
 </svelte:head>
 
-<ConversationList
+<InboxUI
 	{conversations}
 	{loading}
 	{searchQuery}
