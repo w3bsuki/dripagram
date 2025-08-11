@@ -1,13 +1,23 @@
 <script lang="ts">
 	import { ChevronLeft, ChevronRight, Heart, Eye, MapPin, Star, Verified } from '@lucide/svelte';
 	import { onMount } from 'svelte';
+	import type { FeedProduct } from '$lib/types';
 
-	// Props
+	interface Props {
+		title?: string;
+		description?: string;
+		viewAllLink?: string;
+		products?: FeedProduct[];
+		onLikeToggle?: (productId: string) => Promise<void>;
+	}
+
 	let {
 		title = 'Препоръчани продукти',
 		description = 'Специално подбрани за теб',
 		viewAllLink = '/products',
-	} = $props();
+		products = [],
+		onLikeToggle
+	}: Props = $props();
 
 	// Carousel state
 	let carousel: HTMLElement;
@@ -16,123 +26,6 @@
 	let canScrollRight = $state(true);
 	let isAutoPlaying = $state(true);
 
-	// Sample products data
-	let products = [
-		{
-			id: 1,
-			title: 'Елегантна рокля Zara',
-			price: 45,
-			originalPrice: 89,
-			condition: 'Много добро',
-			location: 'София',
-			image: 'https://picsum.photos/300/400?random=1',
-			seller: {
-				name: 'Мария К.',
-				verified: true,
-				rating: 4.9,
-				responseTime: '< 1ч',
-			},
-			likes: 23,
-			views: 156,
-			isLiked: false,
-			tags: ['Популярно', 'Дизайнер'],
-		},
-		{
-			id: 2,
-			title: 'iPhone 13 Pro 128GB',
-			price: 899,
-			originalPrice: 1299,
-			condition: 'Отлично',
-			location: 'Пловдив',
-			image: 'https://picsum.photos/300/400?random=2',
-			seller: {
-				name: 'Георги М.',
-				verified: true,
-				rating: 5.0,
-				responseTime: '< 30мин',
-			},
-			likes: 67,
-			views: 342,
-			isLiked: true,
-			tags: ['Топ продавач'],
-		},
-		{
-			id: 3,
-			title: 'Nike Air Max 270',
-			price: 89,
-			originalPrice: 159,
-			condition: 'Добро',
-			location: 'Варна',
-			image: 'https://picsum.photos/300/400?random=3',
-			seller: {
-				name: 'Стефан П.',
-				verified: false,
-				rating: 4.7,
-				responseTime: '< 2ч',
-			},
-			likes: 34,
-			views: 98,
-			isLiked: false,
-			tags: ['Спорт'],
-		},
-		{
-			id: 4,
-			title: 'Винтидж кожено яке',
-			price: 125,
-			originalPrice: 299,
-			condition: 'Много добро',
-			location: 'София',
-			image: 'https://picsum.photos/300/400?random=4',
-			seller: {
-				name: 'Ани Д.',
-				verified: true,
-				rating: 4.8,
-				responseTime: '< 1ч',
-			},
-			likes: 45,
-			views: 203,
-			isLiked: false,
-			tags: ['Винтидж', 'Популярно'],
-		},
-		{
-			id: 5,
-			title: 'Samsung Galaxy Watch',
-			price: 189,
-			originalPrice: 329,
-			condition: 'Отлично',
-			location: 'Бургас',
-			image: 'https://picsum.photos/300/400?random=5',
-			seller: {
-				name: 'Иван С.',
-				verified: true,
-				rating: 4.9,
-				responseTime: '< 45мин',
-			},
-			likes: 28,
-			views: 167,
-			isLiked: false,
-			tags: ['Технологии'],
-		},
-		{
-			id: 6,
-			title: 'Дизайнерска чанта',
-			price: 79,
-			originalPrice: 159,
-			condition: 'Добро',
-			location: 'София',
-			image: 'https://picsum.photos/300/400?random=6',
-			seller: {
-				name: 'Елена В.',
-				verified: false,
-				rating: 4.6,
-				responseTime: '< 3ч',
-			},
-			likes: 19,
-			views: 87,
-			isLiked: true,
-			tags: ['Мода'],
-		},
-	];
 
 	// Scroll functions
 	function scrollLeft() {
@@ -185,12 +78,10 @@
 	}
 
 	// Toggle like
-	function toggleLike(productId: number) {
-		products = products.map((p) =>
-			p.id === productId
-				? { ...p, isLiked: !p.isLiked, likes: p.isLiked ? p.likes - 1 : p.likes + 1 }
-				: p
-		);
+	async function toggleLike(productId: string) {
+		if (onLikeToggle) {
+			await onLikeToggle(productId);
+		}
 	}
 
 	onMount(() => {
@@ -254,8 +145,13 @@
 		</div>
 
 		<!-- Product Carousel -->
-		<div class="relative">
-			<div
+		{#if products.length === 0}
+			<div class="text-center py-12 text-gray-500">
+				<p>Няма налични продукти в момента.</p>
+			</div>
+		{:else}
+			<div class="relative">
+				<div
 				bind:this={carousel}
 				onscroll={updateScrollButtons}
 				onmouseenter={stopAutoPlay}
@@ -275,7 +171,7 @@
 							<!-- Product Image -->
 							<div class="relative aspect-[4/3] overflow-hidden">
 								<img
-									src={product.image}
+									src={product.thumbnail_url || product.images?.[0] || '/placeholder.jpg'}
 									alt={product.title}
 									class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 									loading="lazy"
@@ -288,14 +184,14 @@
 								>
 									<Heart
 										size={16}
-										class="{product.isLiked
+										class="{product.isSaved
 											? 'fill-red-500 text-red-500'
 											: 'text-gray-600'} transition-colors"
 									/>
 								</button>
 
 								<!-- Tags -->
-								{#if product.tags.length > 0}
+								{#if product.tags && product.tags.length > 0}
 									<div class="absolute top-3 left-3 flex gap-1">
 										{#each product.tags.slice(0, 2) as tag}
 											<span
@@ -308,14 +204,16 @@
 								{/if}
 
 								<!-- Views -->
-								<div class="absolute bottom-3 left-3">
-									<div
-										class="flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 text-xs text-white backdrop-blur-sm"
-									>
-										<Eye size={12} />
-										<span>{product.views}</span>
+								{#if product.views}
+									<div class="absolute bottom-3 left-3">
+										<div
+											class="flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 text-xs text-white backdrop-blur-sm"
+										>
+											<Eye size={12} />
+											<span>{product.views}</span>
+										</div>
 									</div>
-								</div>
+								{/if}
 							</div>
 
 							<!-- Product Info -->
@@ -330,57 +228,65 @@
 								<!-- Price -->
 								<div class="mb-3 flex items-center gap-2">
 									<span class="text-xl font-bold text-gray-900">{product.price} лв</span>
-									{#if product.originalPrice}
+									{#if product.original_price}
 										<span class="text-sm text-gray-500 line-through"
-											>{product.originalPrice} лв</span
+											>{product.original_price} лв</span
 										>
 										<span
 											class="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700"
 										>
-											-{Math.round((1 - product.price / product.originalPrice) * 100)}%
+											-{Math.round((1 - product.price / product.original_price) * 100)}%
 										</span>
 									{/if}
 								</div>
 
 								<!-- Condition & Location -->
 								<div class="mb-3 flex items-center justify-between text-sm text-gray-600">
-									<span class="font-medium">{product.condition}</span>
-									<div class="flex items-center gap-1">
-										<MapPin size={12} />
-										<span>{product.location}</span>
-									</div>
+									{#if product.condition}
+										<span class="font-medium">{product.condition}</span>
+									{/if}
+									{#if product.location}
+										<div class="flex items-center gap-1">
+											<MapPin size={12} />
+											<span>{product.location}</span>
+										</div>
+									{/if}
 								</div>
 
 								<!-- Seller Info -->
-								<div class="flex items-center justify-between border-t border-gray-100 pt-3">
-									<div class="flex items-center gap-2">
-										<div
-											class="from-primary flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br to-blue-600 text-sm font-semibold text-white"
-										>
-											{product.seller.name.charAt(0)}
-										</div>
-										<div>
-											<div class="flex items-center gap-1">
-												<span class="text-sm font-medium text-gray-900">{product.seller.name}</span>
-												{#if product.seller.verified}
-													<Verified size={12} class="text-blue-500" />
+								{#if product.seller}
+									<div class="flex items-center justify-between border-t border-gray-100 pt-3">
+										<div class="flex items-center gap-2">
+											<div
+												class="from-primary flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br to-blue-600 text-sm font-semibold text-white"
+											>
+												{product.seller.username?.charAt(0) || 'U'}
+											</div>
+											<div>
+												<div class="flex items-center gap-1">
+													<span class="text-sm font-medium text-gray-900">{product.seller.username || 'User'}</span>
+													{#if product.seller.verified}
+														<Verified size={12} class="text-blue-500" />
+													{/if}
+												</div>
+												{#if product.seller.rating}
+													<div class="flex items-center gap-1 text-xs text-gray-500">
+														<Star size={10} class="fill-yellow-400 text-yellow-400" />
+														<span>{product.seller.rating.toFixed(1)}</span>
+													</div>
 												{/if}
 											</div>
-											<div class="flex items-center gap-1 text-xs text-gray-500">
-												<Star size={10} class="fill-yellow-400 text-yellow-400" />
-												<span>{product.seller.rating}</span>
-												<span>•</span>
-												<span>{product.seller.responseTime}</span>
-											</div>
 										</div>
-									</div>
 
-									<!-- Likes -->
-									<div class="flex items-center gap-1 text-xs text-gray-500">
-										<Heart size={12} />
-										<span>{product.likes}</span>
+										<!-- Likes -->
+										{#if product.likes_count}
+											<div class="flex items-center gap-1 text-xs text-gray-500">
+												<Heart size={12} />
+												<span>{product.likes_count}</span>
+											</div>
+										{/if}
 									</div>
-								</div>
+								{/if}
 							</div>
 						</div>
 					</div>
@@ -409,6 +315,7 @@
 				<a href={viewAllLink} class="text-primary font-medium hover:underline"> Виж всички → </a>
 			</div>
 		</div>
+		{/if}
 	</div>
 </section>
 
@@ -433,7 +340,7 @@
 
 	/* Smooth focus outline */
 	[tabindex='0']:focus {
-		outline: 2px solid hsl(var(--primary));
-		outline-offset: 2px;
+		outline: var(--border-width-2) solid hsl(var(--primary));
+		outline-offset: var(--space-0-5);
 	}
 </style>

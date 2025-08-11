@@ -101,7 +101,7 @@ export async function getProducts(filters: ProductFilters = {}) {
 				...item,
 				seller: {
 					name: 'Seller',
-					rating: 4.5,
+					rating: 0,
 					verified: true,
 				},
 				images: Array.isArray(item.images) ? item.images : [],

@@ -161,17 +161,14 @@
 		font-size: var(--font-size-sm);
 		font-weight: 500;
 		color: var(--color-text-secondary);
-		transition: color var(--duration-fast) var(--ease-out);
+		/* transition removed for performance */
 	}
 	
 	.theme-toggle:hover .theme-text {
 		color: var(--color-text-primary);
 	}
 	
-	/* Icon transition effects */
-	.theme-toggle :global(svg) {
-		transition: all var(--duration-fast) var(--ease-out);
-	}
+	/* Icon transition effects removed for performance */
 	
 	.theme-toggle:hover :global(svg) {
 		transform: rotate(15deg);

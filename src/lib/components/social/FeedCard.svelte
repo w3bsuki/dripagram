@@ -109,14 +109,47 @@
 		}
 	}
 
-	function quickMessage() {
+	async function quickMessage() {
 		if (!currentUser) {
 			goto('/auth/login');
 			return;
 		}
-		// Quick message to seller
-		goto(`/messages?listing=${item.id}`);
+		
 		showQuickShop = false;
+		
+		// Ensure we have seller information
+		if (!item.seller?.id) {
+			console.error('No seller information available');
+			return;
+		}
+		
+		try {
+			// Create or find existing conversation with seller
+			const response = await fetch('/api/messages/conversation', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					otherUserId: item.seller.id,
+					productId: item.id
+				})
+			});
+			
+			if (!response.ok) {
+				throw new Error('Failed to create conversation');
+			}
+			
+			const { conversationId } = await response.json();
+			
+			// Navigate to the specific conversation
+			goto(`/messages/${conversationId}`);
+			
+		} catch (error) {
+			console.error('Failed to start conversation:', error);
+			// Fallback to general messages page
+			goto('/messages');
+		}
 	}
 
 	function handleImageSwipe(direction: 'left' | 'right') {

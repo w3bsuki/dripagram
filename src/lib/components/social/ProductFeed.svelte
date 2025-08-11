@@ -95,18 +95,12 @@
 		border: 3px solid var(--color-border);
 		border-top: 3px solid var(--color-primary);
 		border-radius: 50%;
-		animation: spin 1s linear infinite;
 	}
 	
 	.loading-spinner.small {
 		width: 20px;
 		height: 20px;
 		border-width: 2px;
-	}
-	
-	@keyframes spin {
-		0% { transform: rotate(0deg); }
-		100% { transform: rotate(360deg); }
 	}
 	
 	/* Empty State */
@@ -135,7 +129,6 @@
 		text-decoration: none;
 		border-radius: 8px;
 		font-weight: 600;
-		transition: background-color 0.2s;
 	}
 	
 	.cta-button:hover {

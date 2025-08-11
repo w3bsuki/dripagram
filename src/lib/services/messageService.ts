@@ -49,13 +49,6 @@ export class MessageService {
 	 */
 	async sendMessage(content: string, messageType: 'text' | 'image' | 'product' | 'system' = 'text', productId?: string): Promise<Message | null> {
 		try {
-			console.log('MessageService.sendMessage called with:', {
-				content,
-				messageType,
-				productId,
-				conversationId: this.conversationId,
-				userId: this.userId
-			});
 
 			const insertData = {
 				conversation_id: this.conversationId,
@@ -65,7 +58,6 @@ export class MessageService {
 				product_id: productId,
 				status: 'sent'
 			};
-			console.log('Inserting message with data:', insertData);
 
 			const { data, error } = await this.supabase
 				.from('messages')
@@ -73,7 +65,6 @@ export class MessageService {
 				.select()
 				.single();
 
-			console.log('Insert result:', { data, error });
 
 			if (error) {
 				console.error('Error sending message:', error);
@@ -83,7 +74,6 @@ export class MessageService {
 			// Stop typing indicator after sending
 			await this.setTyping(false);
 
-			console.log('Message sent successfully:', data);
 			return data as Message;
 		} catch (error) {
 			console.error('Error sending message:', error);

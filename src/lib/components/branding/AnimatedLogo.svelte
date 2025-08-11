@@ -17,13 +17,9 @@
 	const emojis = ['👕', '👗', '👔', '👖', '🧥', '👟', '💵', '💰'];
 	let currentEmojiIndex = $state(0);
 	
-	// Smoother animation with CSS transitions
+	// Remove animation - just show first emoji
 	onMount(() => {
-		const interval = setInterval(() => {
-			currentEmojiIndex = (currentEmojiIndex + 1) % emojis.length;
-		}, 3000);
-		
-		return () => clearInterval(interval);
+		// Static logo, no animation
 	});
 	
 	const sizeMap = {
@@ -40,15 +36,12 @@
 		</span>
 	{/if}
 	<div class="emoji-container">
-		{#each emojis as emoji, index}
-			<span 
-				class="emoji"
-				class:active={index === currentEmojiIndex}
-				aria-hidden="true"
-			>
-				{emoji}
-			</span>
-		{/each}
+		<span 
+			class="emoji active"
+			aria-hidden="true"
+		>
+			{emojis[0]}
+		</span>
 	</div>
 </div>
 
@@ -59,15 +52,6 @@
 		gap: var(--spacing);
 		user-select: none;
 		cursor: pointer;
-		transition: transform 0.2s ease;
-	}
-	
-	.logo-container:hover {
-		transform: scale(1.02);
-	}
-	
-	.logo-container:active {
-		transform: scale(0.98);
 	}
 	
 	.logo-text {
@@ -94,43 +78,8 @@
 		position: absolute;
 		font-size: var(--emoji-size);
 		line-height: 1;
-		opacity: 0;
-		transform: scale(0) rotate(-180deg);
-		transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+		opacity: 1;
 		filter: grayscale(0%);
 	}
 	
-	.emoji.active {
-		opacity: 1;
-		transform: scale(1) rotate(0deg);
-		animation: float 3s ease-in-out infinite;
-	}
-	
-	@keyframes float {
-		0%, 100% {
-			transform: translateY(0) scale(1) rotate(0deg);
-		}
-		25% {
-			transform: translateY(-2px) scale(1.05) rotate(5deg);
-		}
-		75% {
-			transform: translateY(1px) scale(0.98) rotate(-5deg);
-		}
-	}
-	
-	/* Reduce motion for accessibility */
-	@media (prefers-reduced-motion: reduce) {
-		.emoji {
-			transition: opacity 0.3s ease;
-			transform: none;
-		}
-		
-		.emoji.active {
-			animation: none;
-		}
-		
-		.logo-container:hover {
-			transform: none;
-		}
-	}
 </style>

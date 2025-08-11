@@ -12,11 +12,6 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, safeGe
 	try {
 		const { otherUserId, productId } = await request.json();
 		
-		console.log('Creating conversation:', { 
-			currentUserId: session.user.id, 
-			otherUserId, 
-			productId 
-		});
 		
 		if (!otherUserId) {
 			return json({ error: 'Other user ID is required' }, { status: 400 });
@@ -46,7 +41,6 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, safeGe
 		}
 		
 		if (existingConversations && existingConversations.length > 0) {
-			console.log('Found existing conversation:', existingConversations[0].id);
 			return json({ conversationId: existingConversations[0].id });
 		}
 		
@@ -69,7 +63,6 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, safeGe
 			}, { status: 500 });
 		}
 		
-		console.log('Created new conversation:', newConversation.id);
 		return json({ conversationId: newConversation.id });
 	} catch (error) {
 		console.error('Error in conversation endpoint:', error);

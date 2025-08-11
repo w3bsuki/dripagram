@@ -114,19 +114,16 @@
 	function handleLike(productId: string, event: Event) {
 		event.stopPropagation();
 		// TODO: Implement like functionality
-		console.log('Like product:', productId);
 	}
 
 	function handleSave(productId: string, event: Event) {
 		event.stopPropagation();
 		// TODO: Implement save functionality
-		console.log('Save product:', productId);
 	}
 
 	function handleShare(productId: string, event: Event) {
 		event.stopPropagation();
 		// TODO: Implement share functionality
-		console.log('Share product:', productId);
 	}
 
 	// Focus management

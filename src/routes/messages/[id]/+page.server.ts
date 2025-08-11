@@ -12,7 +12,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 	const conversationId = params.id;
 	const userId = session.user.id;
 	
-	console.log('Loading conversation:', { conversationId, userId });
 
 	// Fetch the conversation
 	const { data: conversation, error: convError } = await supabase
@@ -79,7 +78,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		created_at: conversation.created_at
 	};
 
-	console.log('Returning conversation data:', conversationData);
 
 	return {
 		conversationId,

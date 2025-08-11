@@ -1,6 +1,6 @@
 <script lang="ts">
 	const { data } = $props() as { data: any };
-	import { ChevronDown, Filter, Grid3x3, Search, SlidersHorizontal, X } from '@lucide/svelte';
+	import { ChevronDown, Filter, Grid3x3, Grid, List, Search, SlidersHorizontal, X } from '@lucide/svelte';
 	import { ProductGrid } from '$lib/components/marketplace';
 	import BrowseSearchBar from '$lib/components/browse/BrowseSearchBar.svelte';
 	import CategorySelector from '$lib/components/browse/CategorySelector.svelte';
@@ -14,6 +14,9 @@
 	let searchQuery = $state('');
 	let showSearchDropdown = $state(false);
 	
+	// View mode state
+	let viewMode = $state<'grid' | 'list'>('grid');
+	
 	// Category state
 	let selectedDemographic = $state<string | null>(null);
 	let selectedCategory = $state<string | null>(null);
@@ -22,6 +25,7 @@
 	// Filter state
 	let isMobile = $state(false);
 	let showFilters = $state(false);
+	let showSizeDropdown = $state(false);
 	let selectedSubcategory = $state<string | null>(null);
 	let filters = $state({
 		selectedCondition: null as string | null,
@@ -55,11 +59,11 @@
 	}
 
 	const collections = [
-		{ id: 'summer', name: 'Summer Sale', emoji: '🌞', color: 'bg-yellow-100' },
+		{ id: 'summer', name: 'Summer Sale', emoji: '🌞', color: 'bg-warning/10' },
 		{ id: 'vintage', name: 'Vintage Finds', emoji: '📸', color: 'bg-orange-100' },
-		{ id: 'designer', name: 'Designer Deals', emoji: '💎', color: 'bg-blue-100' },
-		{ id: 'trending', name: 'Trending Now', emoji: '🔥', color: 'bg-red-100' },
-		{ id: 'eco', name: 'Eco Friendly', emoji: '🌿', color: 'bg-green-100' }
+		{ id: 'designer', name: 'Designer Deals', emoji: '💎', color: 'bg-primary/10' },
+		{ id: 'trending', name: 'Trending Now', emoji: '🔥', color: 'bg-destructive/10' },
+		{ id: 'eco', name: 'Eco Friendly', emoji: '🌿', color: 'bg-success/10' }
 	];
 
 	// Enhanced category system for search dropdown
@@ -234,12 +238,20 @@
 					showSearchDropdown = false;
 					selectedDemographic = null;
 				}
+				
+				// Handle size dropdown
+				if (showSizeDropdown) {
+					if (sizeDropdownEl && sizeDropdownEl.contains(t)) return;
+					if (sizeBtnEl && sizeBtnEl.contains(t)) return;
+					showSizeDropdown = false;
+				}
 			};
 			const handleEsc = (e: KeyboardEvent) => {
 				if (e.key === 'Escape') { 
 					showCategoryMenu = false; 
 					showFilters = false; 
 					showSearchDropdown = false;
+					showSizeDropdown = false;
 					selectedDemographic = null;
 				}
 			};
@@ -348,6 +360,8 @@
 	let loadingMore = $state(false);
 	let filterSheetEl = $state<HTMLDivElement | null>(null);
 	let lastFocusedElement: HTMLElement | null = null;
+	let sizeBtnEl = $state<HTMLButtonElement | null>(null);
+	let sizeDropdownEl = $state<HTMLDivElement | null>(null);
 
 	async function loadMore() {
 		if (!nextCursor || loadingMore) return;
@@ -506,25 +520,26 @@
 		<!-- Filter Pills Section -->
 		<div class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 py-3">
 			<div class="max-w-7xl mx-auto px-4">
-				<div class="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-					<!-- Sort Pill -->
-					<button 
-						class="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-full border transition-all duration-150 whitespace-nowrap {sortBy !== 'newest' ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-900 dark:border-gray-100' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500'}"
-						onclick={() => {
-							if (sortBy === 'newest') sortBy = 'price-low';
-							else if (sortBy === 'price-low') sortBy = 'price-high';
-							else if (sortBy === 'price-high') sortBy = 'most-liked';
-							else if (sortBy === 'most-liked') sortBy = 'trending';
-							else sortBy = 'newest';
-							updateURL();
-						}}
-					>
-						{#if sortBy === 'newest'}Newest{/if}
-						{#if sortBy === 'price-low'}Low Price{/if}
-						{#if sortBy === 'price-high'}High Price{/if}
-						{#if sortBy === 'most-liked'}Popular{/if}
-						{#if sortBy === 'trending'}Trending{/if}
-					</button>
+				<div class="flex items-center gap-3">
+					<div class="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1">
+						<!-- Sort Pill -->
+						<button 
+							class="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-full border transition-all duration-150 whitespace-nowrap {sortBy !== 'newest' ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-900 dark:border-gray-100' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500'}"
+							onclick={() => {
+								if (sortBy === 'newest') sortBy = 'price-low';
+								else if (sortBy === 'price-low') sortBy = 'price-high';
+								else if (sortBy === 'price-high') sortBy = 'most-liked';
+								else if (sortBy === 'most-liked') sortBy = 'trending';
+								else sortBy = 'newest';
+								updateURL();
+							}}
+						>
+							{#if sortBy === 'newest'}Newest{/if}
+							{#if sortBy === 'price-low'}Low Price{/if}
+							{#if sortBy === 'price-high'}High Price{/if}
+							{#if sortBy === 'most-liked'}Popular{/if}
+							{#if sortBy === 'trending'}Trending{/if}
+						</button>
 
 					<!-- Active Filter Pills -->
 					{#if filters.selectedCondition}
@@ -557,20 +572,109 @@
 						</button>
 					{/if}
 
-					<!-- More Filters Button -->
-					<button 
-						class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border transition-all duration-150 whitespace-nowrap relative {activeFiltersCount > 0 ? 'bg-blue-500 dark:bg-blue-600 text-white border-blue-500 dark:border-blue-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'}"
-						onclick={() => showFilters = true}
-						aria-label="More filters"
-					>
-						<Filter size={12} />
-						<span>Filters</span>
-						{#if activeFiltersCount > 0}
-							<span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center border-2 border-white dark:border-gray-900">
-								{activeFiltersCount}
-							</span>
-						{/if}
-					</button>
+					</div>
+					
+					<!-- Filter Controls Row -->
+					<div class="flex items-center gap-2 flex-shrink-0">
+						<!-- Size Dropdown Button -->
+						<div class="relative">
+							<button 
+								bind:this={sizeBtnEl}
+								class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border whitespace-nowrap relative {filters.selectedSize ? 'bg-blue-500 dark:bg-blue-600 text-white border-blue-500 dark:border-blue-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'}"
+								onclick={() => showSizeDropdown = !showSizeDropdown}
+								aria-label="Size dropdown"
+							>
+								<span>Размер</span>
+								{#if filters.selectedSize}
+									<span class="text-xs">({filters.selectedSize})</span>
+								{/if}
+								<ChevronDown size={12} class="transition-transform {showSizeDropdown ? 'rotate-180' : ''}" />
+							</button>
+							
+							<!-- Size Dropdown -->
+							{#if showSizeDropdown}
+								<div class="absolute top-full left-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-lg dark:shadow-gray-900/50 z-50 min-w-48" bind:this={sizeDropdownEl}>
+									<div class="p-3">
+										<h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Clothing Sizes</h3>
+										<div class="grid grid-cols-3 gap-2 mb-3">
+											{#each ['XS','S','M','L','XL','XXL'] as size}
+												<button 
+													class="px-2 py-1 text-xs font-medium rounded border text-center {filters.selectedSize === size ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-border hover:bg-accent'}"
+													onclick={() => {
+														filters.selectedSize = filters.selectedSize === size ? null : size;
+														updateURL();
+														showSizeDropdown = false;
+													}}
+												>
+													{size}
+												</button>
+											{/each}
+										</div>
+										<h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Shoe Sizes</h3>
+										<div class="grid grid-cols-4 gap-2 mb-3">
+											{#each ['36','37','38','39','40','41','42','43'] as size}
+												<button 
+													class="px-2 py-1 text-xs font-medium rounded border text-center {filters.selectedSize === size ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-border hover:bg-accent'}"
+													onclick={() => {
+														filters.selectedSize = filters.selectedSize === size ? null : size;
+														updateURL();
+														showSizeDropdown = false;
+													}}
+												>
+													{size}
+												</button>
+											{/each}
+										</div>
+										{#if filters.selectedSize}
+											<button 
+												class="w-full px-2 py-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 border-t border-gray-200 dark:border-gray-600 pt-2"
+												onclick={() => {
+													filters.selectedSize = null;
+													updateURL();
+													showSizeDropdown = false;
+												}}
+											>
+												Clear Size
+											</button>
+										{/if}
+									</div>
+								</div>
+							{/if}
+						</div>
+
+						<!-- More Filters Button -->
+						<button 
+							class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border whitespace-nowrap relative {activeFiltersCount > 1 ? 'bg-blue-500 dark:bg-blue-600 text-white border-blue-500 dark:border-blue-600' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600'}"
+							onclick={() => showFilters = true}
+							aria-label="More filters"
+						>
+							<Filter size={12} />
+							<span>Филтри</span>
+							{#if activeFiltersCount > 1}
+								<span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center border-2 border-white dark:border-gray-900">
+									{activeFiltersCount - 1}
+								</span>
+							{/if}
+						</button>
+
+						<!-- View Toggle (Grid/List) -->
+						<div class="view-toggle">
+							<button 
+								class="toggle-btn {viewMode === 'grid' ? 'active' : ''}"
+								onclick={() => viewMode = 'grid'}
+								aria-label="Grid view"
+							>
+								<Grid size={16} />
+							</button>
+							<button 
+								class="toggle-btn {viewMode === 'list' ? 'active' : ''}"
+								onclick={() => viewMode = 'list'}
+								aria-label="List view"
+							>
+								<List size={16} />
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -730,14 +834,16 @@
 			<!-- Product Grid -->
 			<div class="products-area">
 				{#if products?.length > 0}
-					<ProductGrid 
-						{products} 
-						variant="grid"
-						onLike={handleProductLike}
-						onSave={handleProductSave}
-						onShare={handleProductShare}
-						onComment={handleProductComment}
-					/>
+					<div class="products-grid-container {viewMode}">
+						<ProductGrid 
+							{products} 
+							variant={viewMode === 'list' ? 'feed' : 'grid'}
+							onLike={handleProductLike}
+							onSave={handleProductSave}
+							onShare={handleProductShare}
+							onComment={handleProductComment}
+						/>
+					</div>
 					
 					{#if nextCursor}
 						<div class="flex justify-center py-8 px-4">
@@ -1384,6 +1490,112 @@
 			padding-top: 4rem;
 			padding-bottom: 0;
 		}
+	}
+
+	/* View Toggle Styles - Consistent with Wishlist */
+	.view-toggle {
+		display: flex;
+		background: var(--color-surface-tertiary);
+		border-radius: var(--border-radius-lg);
+		padding: 3px;
+		gap: 2px;
+		box-shadow: var(--shadow-xs);
+		border: 1px solid var(--color-border-primary);
+		flex-shrink: 0;
+	}
+
+	.toggle-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: var(--space-2) var(--space-3);
+		border-radius: var(--border-radius-md);
+		background: transparent;
+		color: var(--color-text-secondary);
+		cursor: pointer;
+		transition: all var(--duration-fast) var(--ease-out);
+		border: none;
+		min-width: 36px;
+		height: 32px;
+		outline: none;
+		-webkit-tap-highlight-color: transparent;
+		position: relative;
+	}
+
+	.toggle-btn:hover:not(.active) {
+		color: var(--color-text-primary);
+		background: var(--color-surface-secondary);
+	}
+
+	.toggle-btn:focus-visible {
+		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+	}
+
+	.toggle-btn:active:not(.active) {
+		transform: scale(0.95);
+	}
+
+	.toggle-btn.active {
+		background: var(--color-surface-primary);
+		color: var(--color-interactive-primary);
+		box-shadow: var(--shadow-sm);
+		font-weight: 500;
+	}
+
+	.toggle-btn.active::after {
+		content: '';
+		position: absolute;
+		inset: -1px;
+		border-radius: var(--border-radius-md);
+		border: 2px solid var(--color-interactive-primary);
+		opacity: 0.1;
+	}
+
+	/* Product Grid Container Styles */
+	.products-grid-container {
+		width: 100%;
+	}
+
+	.products-grid-container.list :global(.product-grid) {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-4);
+	}
+
+	.products-grid-container.list :global(.product-card) {
+		display: flex;
+		flex-direction: row;
+		gap: var(--space-4);
+		max-width: 100%;
+		height: auto;
+	}
+
+	.products-grid-container.list :global(.product-card img) {
+		width: 120px;
+		height: 120px;
+		flex-shrink: 0;
+	}
+
+	/* Mobile adjustments */
+	@media (max-width: 640px) {
+		.view-toggle {
+			display: none; /* Hide on mobile to save space */
+		}
+	}
+
+	/* Dark mode support */
+	:global(.dark) .view-toggle {
+		background: var(--color-surface-tertiary);
+		border-color: var(--color-border-secondary);
+	}
+
+	:global(.dark) .toggle-btn:hover:not(.active) {
+		background: var(--color-surface-secondary);
+	}
+
+	:global(.dark) .toggle-btn.active {
+		background: var(--color-surface-primary);
+		color: var(--color-interactive-primary);
 	}
 </style>
 

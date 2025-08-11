@@ -1,6 +1,6 @@
 <script lang="ts">
 	const { data } = $props() as { data: any };
-	import { ChevronDown, Filter, Grid3x3, Search, SlidersHorizontal, X } from '@lucide/svelte';
+	import { ChevronDown, Filter, Grid3x3, Grid, List, Search, SlidersHorizontal, X } from '@lucide/svelte';
 	import { ProductGrid } from '$lib/components/marketplace';
 	import BrowseSearchBar from '$lib/components/browse/BrowseSearchBar.svelte';
 	import CategorySelector from '$lib/components/browse/CategorySelector.svelte';
@@ -15,6 +15,13 @@
 	let searchQuery = $state('');
 	let showSearchDropdown = $state(false);
 	
+	// View mode state
+	let viewMode = $state<'grid' | 'list'>('grid');
+	
+	// Dropdown states
+	let showSortDropdown = $state(false);
+	let showConditionDropdown = $state(false);
+	
 	// Category state
 	let selectedDemographic = $state<string | null>(null);
 	let selectedCategory = $state<string | null>(null);
@@ -23,6 +30,7 @@
 	// Filter state
 	let isMobile = $state(false);
 	let showFilters = $state(false);
+	let showSizeDropdown = $state(false);
 	let selectedSubcategory = $state<string | null>(null);
 	let filters = $state({
 		selectedCondition: null as string | null,
@@ -239,14 +247,32 @@
 				// Handle filter dropdown
 				if (showFilters) {
 					if (filterContainerEl && filterContainerEl.contains(t)) return;
+					if (filterSheetEl && filterSheetEl.contains(t)) return;
 					showFilters = false;
+				}
+				
+				// Handle sort dropdown
+				if (showSortDropdown) {
+					if (sortDropdownEl && sortDropdownEl.contains(t)) return;
+					if (sortButtonEl && sortButtonEl.contains(t)) return;
+					showSortDropdown = false;
+				}
+				
+				// Handle condition dropdown
+				if (showConditionDropdown) {
+					if (conditionDropdownEl && conditionDropdownEl.contains(t)) return;
+					if (conditionButtonEl && conditionButtonEl.contains(t)) return;
+					showConditionDropdown = false;
 				}
 			};
 			const handleEsc = (e: KeyboardEvent) => {
 				if (e.key === 'Escape') { 
 					showCategoryMenu = false; 
-					showFilters = false; 
+					showFilters = false;
+					showSizeDropdown = false; 
 					showSearchDropdown = false;
+					showSortDropdown = false;
+					showConditionDropdown = false;
 					selectedDemographic = null;
 				}
 			};
@@ -307,6 +333,10 @@
 	let loadingMore = $state(false);
 	let filterSheetEl = $state<HTMLDivElement | null>(null);
 	let filterContainerEl = $state<HTMLDivElement | null>(null);
+	let sortDropdownEl = $state<HTMLDivElement | null>(null);
+	let conditionDropdownEl = $state<HTMLDivElement | null>(null);
+	let sortButtonEl = $state<HTMLButtonElement | null>(null);
+	let conditionButtonEl = $state<HTMLButtonElement | null>(null);
 
 	async function loadMore() {
 		if (!nextCursor || loadingMore) return;
@@ -416,7 +446,10 @@
 								{#if selectedDemographic && currentDemographicSubcategories.length > 0}
 									<div class="dropdown-section">
 										<h3>
-											{m[`browse.${selectedDemographic}_categories`]?.() || `${demographics.find(d => d.id === selectedDemographic)?.name} Categories`}
+											{selectedDemographic === 'men' ? m['browse.men_categories']?.() : 
+											 selectedDemographic === 'women' ? m['browse.women_categories']?.() :
+											 selectedDemographic === 'kids' ? m['browse.kids_categories']?.() :
+											 `${demographics.find(d => d.id === selectedDemographic)?.name} Categories`}
 										</h3>
 										<div class="button-group">
 											{#each currentDemographicSubcategories as subcategory}
@@ -618,36 +651,117 @@
 				<!-- Compact Filter Pills Above Products -->
 				<div class="compact-filters">
 					<div class="compact-filters-scroll">
-						<!-- Sort Pill -->
-						<button 
-							class="compact-pill {sortBy !== 'newest' ? 'active' : ''}"
-							onclick={() => {
-								if (sortBy === 'newest') sortBy = 'price-low';
-								else if (sortBy === 'price-low') sortBy = 'price-high';
-								else if (sortBy === 'price-high') sortBy = 'most-liked';
-								else if (sortBy === 'most-liked') sortBy = 'trending';
-								else sortBy = 'newest';
-								updateURL();
-							}}
-						>
-							{#if sortBy === 'newest'}{m['browse.newest']()}{/if}
-							{#if sortBy === 'price-low'}{m['browse.price_low_high']()}{/if}
-							{#if sortBy === 'price-high'}{m['browse.price_high_low']()}{/if}
-							{#if sortBy === 'most-liked'}{m['browse.most_liked']()}{/if}
-							{#if sortBy === 'trending'}{m['browse.trending']()}{/if}
-						</button>
+						<!-- Sort Dropdown -->
+						<div class="dropdown-trigger">
+							<button 
+								bind:this={sortButtonEl}
+								class="compact-pill {sortBy !== 'newest' ? 'active' : ''}"
+								onclick={(e) => {
+									e.stopPropagation();
+									e.preventDefault();
+									showSortDropdown = !showSortDropdown;
+									showConditionDropdown = false;
+									showFilters = false;
+								}}
+							>
+								<span>
+									{#if sortBy === 'newest'}{m['browse.newest']()}{/if}
+									{#if sortBy === 'price-low'}{m['browse.price_low_high']()}{/if}
+									{#if sortBy === 'price-high'}{m['browse.price_high_low']()}{/if}
+									{#if sortBy === 'most-liked'}{m['browse.most_liked']()}{/if}
+									{#if sortBy === 'trending'}{m['browse.trending']()}{/if}
+								</span>
+								<ChevronDown size={10} class="ml-1" />
+							</button>
+							
+							{#if showSortDropdown}
+								<div class="compact-dropdown" bind:this={sortDropdownEl} onclick={(e) => e.stopPropagation()}>
+									<button 
+										class="dropdown-item {sortBy === 'newest' ? 'active' : ''}"
+										onclick={() => { sortBy = 'newest'; showSortDropdown = false; updateURL(); }}
+									>
+										{m['browse.newest']()}
+									</button>
+									<button 
+										class="dropdown-item {sortBy === 'price-low' ? 'active' : ''}"
+										onclick={() => { sortBy = 'price-low'; showSortDropdown = false; updateURL(); }}
+									>
+										{m['browse.price_low_high']()}
+									</button>
+									<button 
+										class="dropdown-item {sortBy === 'price-high' ? 'active' : ''}"
+										onclick={() => { sortBy = 'price-high'; showSortDropdown = false; updateURL(); }}
+									>
+										{m['browse.price_high_low']()}
+									</button>
+									<button 
+										class="dropdown-item {sortBy === 'most-liked' ? 'active' : ''}"
+										onclick={() => { sortBy = 'most-liked'; showSortDropdown = false; updateURL(); }}
+									>
+										{m['browse.most_liked']()}
+									</button>
+									<button 
+										class="dropdown-item {sortBy === 'trending' ? 'active' : ''}"
+										onclick={() => { sortBy = 'trending'; showSortDropdown = false; updateURL(); }}
+									>
+										{m['browse.trending']()}
+									</button>
+								</div>
+							{/if}
+						</div>
+
+						<!-- Condition Dropdown -->
+						<div class="dropdown-trigger">
+							<button 
+								bind:this={conditionButtonEl}
+								class="compact-pill {filters.selectedCondition ? 'active' : ''}"
+								onclick={(e) => {
+									e.stopPropagation();
+									e.preventDefault();
+									showConditionDropdown = !showConditionDropdown;
+									showSortDropdown = false;
+									showFilters = false;
+								}}
+							>
+								<span>
+									{filters.selectedCondition ? conditions.find(c => c.id === filters.selectedCondition)?.name : 'Condition'}
+								</span>
+								<ChevronDown size={10} class="ml-1" />
+							</button>
+							
+							{#if showConditionDropdown}
+								<div class="compact-dropdown" bind:this={conditionDropdownEl} onclick={(e) => e.stopPropagation()}>
+									{#each conditions as condition}
+										<button 
+											class="dropdown-item {filters.selectedCondition === condition.id ? 'active' : ''}"
+											onclick={() => { 
+												filters.selectedCondition = filters.selectedCondition === condition.id ? null : condition.id;
+												showConditionDropdown = false;
+												updateURL();
+											}}
+										>
+											<span>{condition.emoji}</span>
+											<span>{condition.name}</span>
+										</button>
+									{/each}
+									{#if filters.selectedCondition}
+										<div class="dropdown-divider"></div>
+										<button 
+											class="dropdown-item clear"
+											onclick={() => { 
+												filters.selectedCondition = null;
+												showConditionDropdown = false;
+												updateURL();
+											}}
+										>
+											Clear
+										</button>
+									{/if}
+								</div>
+							{/if}
+						</div>
 
 						<!-- Active Filter Pills -->
-						{#if filters.selectedCondition}
-							<button 
-								class="compact-pill active"
-								onclick={() => { filters.selectedCondition = null; updateURL(); }}
-							>
-								{conditions.find(c => c.id === filters.selectedCondition)?.name || 'Condition'}
-								<X size={10} />
-							</button>
-						{/if}
-
 						{#if filters.selectedBrand}
 							<button 
 								class="compact-pill active"
@@ -668,30 +782,120 @@
 							</button>
 						{/if}
 
-						<!-- More Filters Button -->
-						<div style="position: relative;" bind:this={filterContainerEl}>
+						<!-- Size and More Filters Button and View Toggle -->
+						<div class="filter-actions" bind:this={filterContainerEl}>
+							<!-- Size Dropdown -->
+							<div class="relative">
+								<button 
+									class="compact-pill {filters.selectedSize ? 'active' : ''}"
+									onclick={(e) => {
+										e.stopPropagation();
+										e.preventDefault();
+										showSizeDropdown = !showSizeDropdown;
+									}}
+									aria-label="Size filter"
+								>
+									<span>Размер</span>
+									{#if filters.selectedSize}
+										<span class="text-xs">({filters.selectedSize})</span>
+									{/if}
+									<ChevronDown size={8} class="transition-transform {showSizeDropdown ? 'rotate-180' : ''}" />
+								</button>
+								
+								{#if showSizeDropdown}
+									<div class="compact-dropdown">
+										<div style="padding: 8px;">
+											<div style="font-size: 11px; font-weight: 600; color: #6b7280; margin-bottom: 6px; text-transform: uppercase;">Clothing</div>
+											<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 8px;">
+												{#each ['XS','S','M','L','XL','XXL'] as size}
+													<button 
+														class="dropdown-item {filters.selectedSize === size ? 'active' : ''}"
+														style="padding: 4px 8px; font-size: 12px; min-height: auto; justify-content: center;"
+														onclick={() => {
+															filters.selectedSize = filters.selectedSize === size ? null : size;
+															updateURL();
+															showSizeDropdown = false;
+														}}
+													>
+														{size}
+													</button>
+												{/each}
+											</div>
+											<div style="font-size: 11px; font-weight: 600; color: #6b7280; margin-bottom: 6px; text-transform: uppercase;">Shoes</div>
+											<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;">
+												{#each ['36','37','38','39','40','41','42','43'] as size}
+													<button 
+														class="dropdown-item {filters.selectedSize === size ? 'active' : ''}"
+														style="padding: 4px 8px; font-size: 12px; min-height: auto; justify-content: center;"
+														onclick={() => {
+															filters.selectedSize = filters.selectedSize === size ? null : size;
+															updateURL();
+															showSizeDropdown = false;
+														}}
+													>
+														{size}
+													</button>
+												{/each}
+											</div>
+											{#if filters.selectedSize}
+												<button 
+													class="dropdown-item clear"
+													style="margin-top: 8px; padding: 6px 8px; border-top: 1px solid #e5e7eb; justify-content: center;"
+													onclick={() => {
+														filters.selectedSize = null;
+														updateURL();
+														showSizeDropdown = false;
+													}}
+												>
+													Clear Size
+												</button>
+											{/if}
+										</div>
+									</div>
+								{/if}
+							</div>
+							
 							<button 
-								class="compact-pill {activeFiltersCount > 0 ? 'active' : ''}"
+								class="compact-pill {activeFiltersCount > 1 ? 'active' : ''}"
 								onclick={(e) => {
 									e.stopPropagation();
 									e.preventDefault();
 									showFilters = !showFilters;
-									console.log('Filter button clicked, showFilters:', showFilters);
-								}}
+												}}
 								aria-label="More filters"
 							>
 								<Filter size={10} />
-								<span>{m['browse.filter']()}</span>
-								{#if activeFiltersCount > 0}
+								<span>Филтри</span>
+								{#if activeFiltersCount > 1}
 									<span class="compact-badge">
-										{activeFiltersCount}
+										{activeFiltersCount - 1}
 									</span>
 								{/if}
 							</button>
-							
-							<!-- Filter Dropdown -->
-							{#if showFilters}
-								<div class="filter-dropdown" bind:this={filterSheetEl} onclick={(e) => e.stopPropagation()}>
+
+							<!-- View Toggle (Grid/List) -->
+							<div class="view-toggle">
+								<button 
+									class="toggle-btn {viewMode === 'grid' ? 'active' : ''}"
+									onclick={() => viewMode = 'grid'}
+									aria-label="Grid view"
+								>
+									<Grid size={14} />
+								</button>
+								<button 
+									class="toggle-btn {viewMode === 'list' ? 'active' : ''}"
+									onclick={() => viewMode = 'list'}
+									aria-label="List view"
+								>
+									<List size={14} />
+								</button>
+							</div>
+						</div>
+						
+						<!-- Filter Dropdown (outside of filter-actions) -->
+						{#if showFilters}
+							<div class="filter-dropdown-container" bind:this={filterSheetEl}>
+								<div class="filter-dropdown" onclick={(e) => e.stopPropagation()}>
 									<div class="dropdown-content">
 										<!-- Category Filter -->
 										<div class="dropdown-section">
@@ -760,20 +964,22 @@
 										{/if}
 									</div>
 								</div>
-							{/if}
-						</div>
+							</div>
+						{/if}
 					</div>
 				</div>
 
 				{#if products?.length > 0}
-					<ProductGrid 
-						{products} 
-						variant="grid"
-						onLike={handleProductLike}
-						onSave={handleProductSave}
-						onShare={handleProductShare}
-						onComment={handleProductComment}
-					/>
+					<div class="products-grid-container {viewMode}">
+						<ProductGrid 
+							{products} 
+							variant={viewMode === 'list' ? 'feed' : 'grid'}
+							onLike={handleProductLike}
+							onSave={handleProductSave}
+							onShare={handleProductShare}
+							onComment={handleProductComment}
+						/>
+					</div>
 					
 					{#if nextCursor}
 						<div class="flex justify-center py-8 px-4">
@@ -895,7 +1101,7 @@
 		border: 1px solid #e5e7eb;
 		border-radius: 12px;
 		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-		z-index: 50;
+		z-index: 1001; /* Higher than filter dropdown */
 		max-height: 384px;
 		overflow-y: auto;
 	}
@@ -985,8 +1191,7 @@
 		background: #fafbfc;
 		border-bottom: 1px solid #f1f3f4;
 		position: relative;
-		overflow: visible;
-		z-index: 999;
+		z-index: 10;
 	}
 
 	.compact-filters-scroll {
@@ -994,9 +1199,10 @@
 		align-items: center;
 		gap: 6px;
 		overflow-x: auto;
-		scrollbar-width: none;
-		-ms-overflow-style: none;
+		overflow-y: visible;
 		padding-bottom: 2px;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
 	}
 
 	.compact-filters-scroll::-webkit-scrollbar {
@@ -1048,20 +1254,138 @@
 		border: 2px solid white;
 	}
 
+	/* Dropdown Trigger for Sort/Condition */
+	.dropdown-trigger {
+		position: relative;
+		display: inline-block;
+	}
+
+	/* Compact Dropdown for Sort and Condition */
+	.compact-dropdown {
+		position: absolute;
+		top: calc(100% + 4px);
+		left: 0;
+		background: white;
+		border: 1px solid #e5e7eb;
+		border-radius: 8px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		z-index: 1002; /* Higher than filter dropdown (1000) and search dropdown (1001) */
+		min-width: 180px;
+		padding: 4px;
+		animation: fadeInScale 0.15s ease-out;
+	}
+	
+	/* Mobile adjustments for dropdowns */
+	@media (max-width: 480px) {
+		.compact-dropdown {
+			left: -20px;
+			right: -20px;
+			min-width: auto;
+			max-width: 240px;
+		}
+		
+		.compact-filters {
+			padding: 12px 8px 16px 8px;
+		}
+		
+		.compact-filters-scroll {
+			gap: 4px;
+		}
+		
+		.filter-actions {
+			gap: 4px;
+		}
+		
+		.compact-pill {
+			padding: 4px 8px;
+			font-size: 11px;
+			flex-shrink: 0;
+		}
+	}
+
+	.dropdown-item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		width: 100%;
+		padding: 8px 12px;
+		background: transparent;
+		border: none;
+		border-radius: 6px;
+		color: #4a5568;
+		font-size: 13px;
+		font-weight: 500;
+		text-align: left;
+		cursor: pointer;
+		transition: all 0.15s ease;
+	}
+
+	.dropdown-item:hover {
+		background: #f7f8fa;
+		color: #2d3748;
+	}
+
+	.dropdown-item.active {
+		background: #e6f2ff;
+		color: #2563eb;
+	}
+
+	.dropdown-item.clear {
+		color: #ef4444;
+		font-weight: 600;
+	}
+
+	.dropdown-divider {
+		height: 1px;
+		background: #e5e7eb;
+		margin: 4px 0;
+	}
+
+	/* Filter Dropdown Container */
+	.filter-dropdown-container {
+		position: absolute;
+		top: calc(100% + 8px);
+		right: 0;
+		z-index: 1000;
+	}
+
 	/* Filter Dropdown - Same styling as search dropdown */
 	.filter-dropdown {
-		position: absolute;
-		top: 100%;
-		right: 0;
-		margin-top: 8px;
 		background: white;
 		border: 1px solid #e5e7eb;
 		border-radius: 12px;
 		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-		z-index: 1000;
 		max-height: 400px;
 		overflow-y: auto;
 		min-width: 320px;
+	}
+	
+	/* Mobile specific filter dropdown */
+	@media (max-width: 768px) {
+		.filter-dropdown-container {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			right: auto;
+			width: 90%;
+			max-width: 400px;
+		}
+		
+		.filter-dropdown-container::before {
+			content: '';
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: rgba(0, 0, 0, 0.5);
+			z-index: -1;
+		}
+		
+		.filter-dropdown {
+			max-height: 70vh;
+		}
 	}
 
 
@@ -1284,6 +1608,17 @@
 		0% { transform: rotate(0deg); }
 		100% { transform: rotate(360deg); }
 	}
+	
+	@keyframes fadeInScale {
+		0% { 
+			opacity: 0; 
+			transform: scale(0.95) translateY(-4px); 
+		}
+		100% { 
+			opacity: 1; 
+			transform: scale(1) translateY(0); 
+		}
+	}
 
 	/* Page Layout */
 	.browse-page {
@@ -1296,6 +1631,113 @@
 		.browse-page {
 			padding-top: 4rem;
 			padding-bottom: 0;
+		}
+	}
+
+	/* View Toggle Styles - Matching Wishlist */
+	.filter-actions {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-left: auto;
+		position: relative;
+		flex-shrink: 0;
+	}
+
+	.view-toggle {
+		display: inline-flex;
+		background: var(--color-surface-tertiary);
+		border-radius: var(--border-radius-lg);
+		padding: 3px;
+		gap: 2px;
+		box-shadow: var(--shadow-xs);
+		border: 1px solid var(--color-border-primary);
+	}
+
+	.toggle-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: var(--space-2) var(--space-3);
+		border-radius: var(--border-radius-md);
+		background: transparent;
+		color: var(--color-text-secondary);
+		cursor: pointer;
+		transition: all var(--duration-fast) var(--ease-out);
+		border: none;
+		min-width: 36px;
+		height: 32px;
+		outline: none;
+		-webkit-tap-highlight-color: transparent;
+		position: relative;
+	}
+
+	.toggle-btn:hover:not(.active) {
+		color: var(--color-text-primary);
+		background: var(--color-surface-secondary);
+	}
+
+	.toggle-btn:focus-visible {
+		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+	}
+
+	.toggle-btn:active:not(.active) {
+		transform: scale(0.95);
+	}
+
+	.toggle-btn.active {
+		background: var(--color-surface-primary);
+		color: var(--color-interactive-primary);
+		box-shadow: var(--shadow-sm);
+		font-weight: 500;
+	}
+
+	.toggle-btn.active::after {
+		content: '';
+		position: absolute;
+		inset: -1px;
+		border-radius: var(--border-radius-md);
+		border: 2px solid var(--color-interactive-primary);
+		opacity: 0.1;
+	}
+
+	/* Product Grid Container Styles */
+	.products-grid-container {
+		width: 100%;
+	}
+
+	.products-grid-container.list :global(.product-grid) {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.products-grid-container.list :global(.product-card) {
+		display: flex;
+		flex-direction: row;
+		gap: 16px;
+		max-width: 100%;
+		height: auto;
+	}
+
+	.products-grid-container.list :global(.product-card img) {
+		width: 120px;
+		height: 120px;
+		flex-shrink: 0;
+	}
+
+	/* Mobile adjustments - maintain consistency */
+	@media (max-width: 640px) {
+		.view-toggle {
+			display: inline-flex;
+			margin-left: 6px;
+			padding: 2px;
+		}
+		
+		.toggle-btn {
+			min-width: 30px;
+			height: 28px;
+			padding: var(--space-1-5) var(--space-2);
 		}
 	}
 </style>

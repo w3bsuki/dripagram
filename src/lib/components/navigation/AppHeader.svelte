@@ -24,14 +24,22 @@
 	let searchQuery = $state('');
 	let searchInputRef = $state<HTMLInputElement | null>(null);
 	
+	// Check if current page should show sticky search
+	const shouldShowStickySearch = $derived(() => {
+		const pathname = $page.url.pathname;
+		// Don't show on browse pages since they have their own search
+		if (pathname.includes('/browse')) return false;
+		return pathname === '/' || pathname === '/bg' || pathname === '/bg/';
+	});
+
 	// Handle scroll for subtle shadow and search bar appearance
 	onMount(() => {
 		if (browser) {
 			const handleScroll = () => {
 				const scrollY = window.scrollY;
 				isScrolled = scrollY > 10;
-				// Show mobile search after scrolling past 100px
-				showMobileSearch = scrollY > 100;
+				// Show mobile search after scrolling past 100px - only on allowed pages
+				showMobileSearch = scrollY > 100 && shouldShowStickySearch();
 			};
 			
 			window.addEventListener('scroll', handleScroll, { passive: true });
@@ -120,24 +128,26 @@
 		</div>
 	</div>
 	
-	<!-- Mobile Compact Search Bar (uses CSS classes for CLS prevention) -->
-	<div class="search-spacer {showMobileSearch ? 'active' : ''} md:hidden">
-		<div class="mobile-search-bar">
-			<form class="search-form" onsubmit={handleSearch}>
-				<div class="search-input-wrapper">
-					<Search size={18} class="search-icon" />
-					<input
-						bind:this={searchInputRef}
-						type="search"
-						bind:value={searchQuery}
-						placeholder={m['homepage.search_placeholder']()}
-						class="search-input"
-						autocomplete="off"
-					/>
-				</div>
-			</form>
+	<!-- Mobile Compact Search Bar (only show on main/browse pages) -->
+	{#if shouldShowStickySearch()}
+		<div class="search-spacer {showMobileSearch ? 'active' : ''} md:hidden">
+			<div class="mobile-search-bar">
+				<form class="search-form" onsubmit={handleSearch}>
+					<div class="search-input-wrapper">
+						<Search size={18} class="search-icon" />
+						<input
+							bind:this={searchInputRef}
+							type="search"
+							bind:value={searchQuery}
+							placeholder={m['homepage.search_placeholder']()}
+							class="search-input"
+							autocomplete="off"
+						/>
+					</div>
+				</form>
+			</div>
 		</div>
-	</div>
+	{/if}
 </header>
 
 <style>
@@ -149,7 +159,6 @@
 		background: var(--color-white);
 		border-bottom: 1px solid var(--color-gray-300);
 		z-index: var(--z-higher);
-		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 	
 	.app-header.scrolled {
@@ -181,15 +190,10 @@
 		display: flex;
 		align-items: center;
 		text-decoration: none;
-		transition: opacity 0.2s ease;
 	}
 	
 	.logo:hover {
 		opacity: 0.7;
-	}
-	
-	.logo:active {
-		transform: scale(0.98);
 	}
 	
 	.logo-text {
@@ -232,7 +236,6 @@
 		border-radius: 50%;
 		width: 40px;
 		height: 40px;
-		transition: all 0.15s ease;
 	}
 	
 	@media (min-width: 768px) {
@@ -244,11 +247,10 @@
 	
 	.action-btn:hover {
 		background: var(--color-gray-50);
-		transform: scale(1.05);
 	}
 	
 	.action-btn:active {
-		transform: scale(0.95);
+		background: var(--color-gray-100);
 	}
 	
 	/* Notification Badge */
@@ -307,7 +309,6 @@
 		border: 1px solid var(--color-gray-200);
 		border-radius: 999px;
 		padding: 0 0.75rem;
-		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 		height: 36px;
 	}
 	

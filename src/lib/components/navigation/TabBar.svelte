@@ -93,7 +93,7 @@
 				"absolute -top-1 -right-1 flex items-center justify-center rounded-full font-bold text-white",
 				currentSize.badge,
 				typeof item.badge === 'string' && item.badge.length > 2 ? 'px-1' : '',
-				item.accent ? 'bg-blue-500' : 'bg-red-500'
+				item.accent ? 'bg-primary' : 'bg-destructive'
 			)}>
 				{item.badge}
 			</span>
@@ -130,7 +130,7 @@
 						"text-gray-500",
 						"active:scale-95 active:bg-gray-50",
 						isActive && "text-gray-900",
-						item.accent && !isActive && "text-blue-500"
+						item.accent && !isActive && "text-primary"
 					],
 					
 					// Floating variant
@@ -138,7 +138,7 @@
 						"text-gray-500",
 						"active:scale-95",
 						isActive && "text-gray-900",
-						item.accent && !isActive && "text-blue-500"
+						item.accent && !isActive && "text-primary"
 					],
 					
 					// Pills variant
@@ -147,7 +147,7 @@
 						"text-gray-600",
 						"active:scale-95",
 						isActive ? "bg-white text-gray-900 shadow-sm" : "hover:bg-gray-50",
-						item.accent && !isActive && "text-blue-500"
+						item.accent && !isActive && "text-primary"
 					]
 				)}
 				aria-label={item.label}

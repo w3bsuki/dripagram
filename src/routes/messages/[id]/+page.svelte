@@ -15,10 +15,6 @@
 	let { data }: { data: PageData } = $props();
 	const supabase = getContext<SupabaseClient<Database>>('supabase');
 
-	// Log what we received
-	console.log('Messages page data:', data);
-	console.log('Conversation object:', data.conversation);
-	console.log('Other user:', data.conversation?.other_user);
 
 	// Don't check for required data yet - let's see what we get
 	let messages = $state(data.messages || []);
@@ -43,7 +39,6 @@
 	let unsubscribePresence: (() => void) | null = null;
 
 	onMount(() => {
-		console.log('Component mounted, messageService:', !!messageService);
 		if (messageService) {
 			setupRealtime();
 			messageService.markAllAsRead();
@@ -109,19 +104,12 @@
 	}
 
 	async function handleSend() {
-		console.log('handleSend called');
-		console.log('newMessage:', newMessage);
-		console.log('sending:', sending);
-		console.log('messageService:', !!messageService);
-		console.log('data.user:', !!data.user);
 		
 		if (!newMessage.trim() || sending || !messageService || !data.user) {
-			console.log('Early return from handleSend');
 			return;
 		}
 
 		const messageContent = newMessage.trim();
-		console.log('Sending message:', messageContent);
 		newMessage = '';
 		sending = true;
 
@@ -141,24 +129,19 @@
 		scrollToBottom();
 
 		// Send message
-		console.log('Calling messageService.sendMessage...');
 		const sentMessage = await messageService.sendMessage(messageContent);
-		console.log('sendMessage result:', sentMessage);
 		
 		if (sentMessage) {
 			// Replace temp message with real one
-			console.log('Message sent successfully, replacing temp message');
 			messages = messages.map((msg: any) => 
 				msg.id === tempMessage.id ? sentMessage : msg
 			);
 		} else {
 			// Remove temp message on error
-			console.log('Message sending failed, removing temp message');
 			messages = messages.filter((msg: any) => msg.id !== tempMessage.id);
 		}
 		
 		sending = false;
-		console.log('handleSend completed');
 	}
 
 	function handleTyping(isTyping: boolean) {

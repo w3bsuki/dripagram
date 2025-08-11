@@ -69,25 +69,64 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 			viewed_at: new Date().toISOString()
 		}));
 		
-		// Batch insert views (using upsert to avoid duplicates within same session)
-		const { error: insertError } = await supabase
-			.from('product_views')
-			.insert(viewRecords);
+		// Update view counts directly on products/listings tables
+		// Since product_views table may not exist, use a simpler approach
+		let trackedCount = 0;
 		
-		if (insertError) {
-			// Log error but don't fail the request - views are non-critical
-			return json({ success: true, tracked: 0 });
-		}
-		
-		// Also increment view counts on products table for quick access
-		// This is denormalized but improves read performance
-		const { error: updateError } = await supabase.rpc('increment_product_views', {
-			product_ids: productIds
-		});
-		
-		if (updateError) {
-			// If RPC doesn't exist, create it or just skip
-			// Views are still tracked in product_views table
+		for (const productId of productIds) {
+			// Get current view count and increment it
+			const { data: product } = await supabase
+				.from('products')
+				.select('view_count')
+				.eq('id', productId)
+				.single();
+			
+			if (product) {
+				// Update products table
+				const newViewCount = (product.view_count || 0) + 1;
+				const { error: productUpdateError } = await supabase
+					.from('products')
+					.update({ view_count: newViewCount })
+					.eq('id', productId);
+				
+				if (!productUpdateError) {
+					trackedCount++;
+				}
+			} else {
+				// Try listings table as fallback
+				const { data: listing } = await supabase
+					.from('listings')
+					.select('view_count')
+					.eq('id', productId)
+					.single();
+				
+				if (listing) {
+					const newViewCount = (listing.view_count || 0) + 1;
+					const { error: listingUpdateError } = await supabase
+						.from('listings')
+						.update({ view_count: newViewCount })
+						.eq('id', productId);
+					
+					if (!listingUpdateError) {
+						trackedCount++;
+					}
+				}
+			}
+			
+			// Optional: Insert into product_views table for detailed analytics
+			// (only if table exists - ignore errors if it doesn't)
+			const viewRecord = {
+				product_id: productId,
+				user_id: userId,
+				ip_address: clientIp,
+				user_agent: userAgent,
+				viewed_at: new Date().toISOString()
+			};
+			
+			// Try to insert view record, but don't fail if table doesn't exist
+			await supabase.from('product_views').insert(viewRecord).catch(() => {
+				// Silently ignore - table may not exist
+			});
 		}
 		
 		// Clean up old rate limit entries periodically
@@ -102,7 +141,7 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 		
 		return json({ 
 			success: true, 
-			tracked: productIds.length 
+			tracked: trackedCount 
 		});
 		
 	} catch (error) {

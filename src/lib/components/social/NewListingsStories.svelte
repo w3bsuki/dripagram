@@ -228,7 +228,6 @@
 		border: none;
 		cursor: pointer;
 		flex-shrink: 0;
-		transition: transform 0.2s;
 		width: 76px;
 		height: 100px;
 		outline: none;
@@ -240,7 +239,7 @@
 	}
 
 	.story-item:active {
-		transform: scale(0.95);
+		opacity: 0.8;
 	}
 
 	/* Add Story Button - Black border */
@@ -254,12 +253,10 @@
 		align-items: center;
 		justify-content: center;
 		position: relative;
-		transition: all 0.2s ease;
 	}
 
 	.add-story:hover .story-circle {
 		border-color: #333; /* Slightly lighter border on hover */
-		transform: scale(1.05);
 	}
 
 	.add-icon-wrapper {
@@ -417,12 +414,8 @@
 
 	/* Hover effects for desktop */
 	@media (hover: hover) {
-		.story-item:hover {
-			transform: translateY(-2px);
-		}
-
 		.story-item:hover .story-image-wrapper {
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		}
 	}
 

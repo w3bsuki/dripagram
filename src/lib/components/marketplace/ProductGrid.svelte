@@ -106,11 +106,11 @@
 	.product-feed.grid {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		gap: 8px; /* Compact spacing for mobile */
-		padding: 8px;
+		gap: 6px; /* Tighter gap like Instagram */
+		padding: 6px;
 		width: 100%;
 		margin: 0 auto;
-		background: #f9fafb; /* Light background for better card contrast */
+		background: #fafafa; /* Instagram-style background */
 	}
 
 	.feed-item {

@@ -1,34 +1,29 @@
 <script lang="ts">
-	import { Heart, MessageCircle } from '@lucide/svelte';
+	import { Heart, MessageCircle, Bookmark } from '@lucide/svelte';
 	import type { LikeState } from '$lib/utils/likeLogic';
 	import * as m from '$lib/paraglide/messages';
 
 	interface Props {
 		product: any;
 		likeState: LikeState;
+		isSaved: boolean;
 		isHovered: boolean;
 		onclick: () => void;
 		onLikeClick: (e: MouseEvent) => void;
+		onSaveClick: (e: MouseEvent) => void;
 		onQuickMessage: (e: MouseEvent) => void;
 		priority?: boolean;
 	}
 
-	let { product, likeState, isHovered, onclick, onLikeClick, onQuickMessage, priority = false }: Props = $props();
+	let { product, likeState, isSaved, isHovered, onclick, onLikeClick, onSaveClick, onQuickMessage, priority = false }: Props = $props();
 
 	let imageUrl = $derived(
 		product.thumbnail_url || product.images?.[0] || '/placeholder.jpg'
 	);
 </script>
 
-<!-- Image Container (clickable) -->
-<div 
-	class="image-container"
-	{onclick}
-	role="button"
-	tabindex="0"
-	onkeydown={(e) => e.key === 'Enter' && onclick()}
-	aria-label="View {product.title}"
->
+<!-- Image Container -->
+<div class="image-container">
 	<img 
 		src={imageUrl} 
 		alt={product.title || 'Product image'} 
@@ -53,15 +48,28 @@
 		</div>
 	{/if}
 	
-	<!-- Like Button -->
-	<button 
-		class="like-btn {likeState.isLiked ? 'liked' : ''}"
-		onclick={onLikeClick}
-		aria-label={likeState.isLiked ? 'Unlike' : 'Like'}
-		type="button"
-	>
-		<Heart size={16} fill={likeState.isLiked ? 'currentColor' : 'none'} />
-	</button>
+	<!-- Action Buttons Container -->
+	<div class="action-buttons">
+		<!-- Like Button -->
+		<button 
+			class="action-btn like-btn {likeState.isLiked ? 'liked' : ''}"
+			onclick={onLikeClick}
+			aria-label={likeState.isLiked ? 'Unlike' : 'Like'}
+			type="button"
+		>
+			<Heart size={16} fill={likeState.isLiked ? 'currentColor' : 'none'} />
+		</button>
+		
+		<!-- Save Button -->
+		<button 
+			class="action-btn save-btn {isSaved ? 'saved' : ''}"
+			onclick={onSaveClick}
+			aria-label={isSaved ? 'Remove from favorites' : 'Add to favorites'}
+			type="button"
+		>
+			<Bookmark size={16} fill={isSaved ? 'currentColor' : 'none'} />
+		</button>
+	</div>
 	
 	<!-- Condition Badge (moved to top-left) -->
 	{#if product.condition}
@@ -90,31 +98,22 @@
 </div>
 
 <style>
-	/* Image Container */
+	/* Image Container - Vinted-style aspect ratio */
 	.image-container {
 		position: relative;
-		aspect-ratio: 1; /* Square for Instagram-style grid */
+		width: 100%;
+		aspect-ratio: 1 / 1.2; /* Slightly taller than square, like Vinted */
 		overflow: hidden;
-		background: #fafbfc; /* Light gray background */
-		cursor: pointer;
-		flex: 0 0 auto;
-		outline: none;
-		-webkit-tap-highlight-color: transparent;
-		padding: 8px; /* Add padding around the image */
-		border-radius: 8px; /* Round the container slightly */
-	}
-	
-	.image-container:focus {
-		outline: none;
+		background: #f5f5f5; /* Light gray background */
+		pointer-events: none; /* Let parent handle clicks */
 	}
 	
 	.product-image {
 		width: 100%;
 		height: 100%;
-		object-fit: contain; /* Changed from cover to contain for better product visibility */
-		transition: transform 200ms ease;
+		object-fit: cover; /* Cover for consistent grid */
+		transition: transform 0.2s ease;
 		pointer-events: none;
-		border-radius: 4px;
 	}
 	
 	.image-container:hover .product-image {
@@ -133,7 +132,7 @@
 		pointer-events: none;
 	}
 	
-	.action-btn {
+	.quick-message {
 		background: var(--color-background);
 		color: var(--color-foreground);
 		border: none;
@@ -147,58 +146,77 @@
 		gap: 6px;
 		transition: transform 200ms ease;
 		pointer-events: auto;
+		position: relative;
+		z-index: 10;
 	}
 	
-	.action-btn:hover {
+	.quick-message:hover {
 		transform: scale(1.05);
 	}
 	
-	/* Like Button */
-	.like-btn {
+	/* Action Buttons Container */
+	.action-buttons {
 		position: absolute;
-		top: 14px; /* Adjusted for padding */
-		right: 14px; /* Adjusted for padding */
-		width: 32px;
-		height: 32px;
+		top: 8px;
+		right: 8px;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		z-index: 10;
+	}
+	
+	/* Action Button Base Styles - Cleaner, more subtle */
+	.action-btn {
+		width: 30px;
+		height: 30px;
 		border-radius: 50%;
-		background: rgba(255, 255, 255, 0.95);
-		border: 1px solid var(--color-border);
+		background: rgba(255, 255, 255, 0.9);
+		border: none;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		transition: all 200ms ease;
-		z-index: 2;
+		transition: all 0.2s ease;
 		backdrop-filter: blur(10px);
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		pointer-events: auto;
+		color: #262626;
 	}
 	
-	.like-btn:hover {
+	.action-btn:hover {
 		transform: scale(1.1);
+		box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
 	}
 	
+	/* Like Button */
 	.like-btn.liked {
-		color: var(--color-text-error);
-		border-color: var(--color-surface-error);
+		color: #ed4956;
+		background: rgba(255, 255, 255, 0.95);
+	}
+	
+	/* Save Button */
+	.save-btn.saved {
+		color: #262626;
+		background: rgba(255, 255, 255, 0.95);
 	}
 	
 	/* Condition Badge */
 	.condition-badge {
 		position: absolute;
-		top: 14px; /* Adjusted for padding */
-		left: 14px; /* Adjusted for padding */
-		padding: 3px 7px;
-		background: var(--color-background);
-		border: 1px solid var(--color-border);
+		top: 8px;
+		left: 8px;
+		padding: 4px 8px;
+		background: rgba(255, 255, 255, 0.9);
+		border: none;
 		border-radius: 4px;
 		font-size: 10px;
-		font-weight: 700;
+		font-weight: 600;
 		text-transform: uppercase;
-		letter-spacing: 0.4px;
+		letter-spacing: 0.3px;
 		pointer-events: none;
 		backdrop-filter: blur(10px);
-		background: rgba(255, 255, 255, 0.95);
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+		color: #262626;
 	}
 	
 	.condition-badge.new_with_tags {

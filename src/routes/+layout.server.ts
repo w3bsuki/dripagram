@@ -1,6 +1,6 @@
 import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ locals: { safeGetSession, lang }, cookies }) => {
+export const load: LayoutServerLoad = async ({ locals: { safeGetSession, lang }, cookies, url }) => {
 	const { session, user } = await safeGetSession();
 
 	return {
@@ -8,5 +8,6 @@ export const load: LayoutServerLoad = async ({ locals: { safeGetSession, lang },
 		user,
 		lang,
 		cookies: cookies.getAll(),
+		url: { pathname: url.pathname },
 	};
 };

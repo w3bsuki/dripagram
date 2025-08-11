@@ -263,16 +263,16 @@
 		top: 0;
 		left: 0;
 		right: 0;
-		background: white;
-		border-bottom: 1px solid rgb(219, 219, 219);
+		background: hsl(var(--background));
+		border-bottom: var(--border-width-1) solid hsl(var(--border));
 		z-index: var(--z-higher);
 		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	.search-header.sticky {
-		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-		backdrop-filter: blur(10px);
-		background: rgba(255, 255, 255, 0.98);
+		box-shadow: var(--shadow-md);
+		backdrop-filter: blur(var(--blur-md));
+		background: hsl(var(--background) / 0.98);
 	}
 
 	.header-content {

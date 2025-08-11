@@ -76,7 +76,7 @@
 		<div class="absolute inset-0 opacity-10">
 			<div
 				class="absolute inset-0"
-				style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.1) 10px, rgba(255,255,255,.1) 20px)"
+				style="background-image: repeating-linear-gradient(45deg, transparent, transparent var(--space-2-5), hsl(var(--background) / 0.1) var(--space-2-5), hsl(var(--background) / 0.1) var(--space-5))"
 			></div>
 		</div>
 

@@ -19,13 +19,23 @@
 	let lastScrollY = $state(0);
 	let isMobile = $state(false);
 
-	let liveActivity = $state<{user: string, action: string, time: string, price?: number, item?: string}[]>([]);
+	interface Props {
+		liveActivity?: Array<{user: string, action: string, time: string, price?: number, item?: string}>;
+		stats?: {
+			activeUsers: number;
+			todayDeals: number;
+			newListings: number;
+		};
+	}
 
-	let stats = {
-		activeUsers: 0,
-		todayDeals: 0,
-		newListings: 0,
-	};
+	let {
+		liveActivity = [],
+		stats = {
+			activeUsers: 0,
+			todayDeals: 0,
+			newListings: 0,
+		}
+	}: Props = $props();
 
 	// Check mobile and handle scroll
 	onMount(() => {
@@ -53,29 +63,11 @@
 		window.addEventListener('resize', checkMobile);
 		window.addEventListener('scroll', handleScroll);
 
-		// Update live activity every 10 seconds
-		const activityInterval = setInterval(() => {
-			// Rotate activity items (mock real-time updates)
-			liveActivity = [
-				...liveActivity.slice(1),
-				{
-					user: `Потребител ${Math.floor(Math.random() * 100)}`,
-					action: Math.random() > 0.5 ? 'продаде продукт' : 'публикува обява',
-					time: 'току-що',
-					price: Math.floor(Math.random() * 500) + 50,
-				},
-			];
-
-			// Update stats
-			stats.activeUsers += Math.floor(Math.random() * 5) - 2;
-			stats.todayDeals += Math.random() > 0.7 ? 1 : 0;
-			stats.newListings += Math.random() > 0.8 ? 1 : 0;
-		}, 10000);
+		// No more mock data generation
 
 		return () => {
 			window.removeEventListener('resize', checkMobile);
 			window.removeEventListener('scroll', handleScroll);
-			clearInterval(activityInterval);
 		};
 	});
 

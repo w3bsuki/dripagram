@@ -96,10 +96,6 @@
 		<IconComponent 
 			size={24} 
 			strokeWidth={isActive(item.href) ? 2 : 1.5}
-			class={cn(
-				"transition-all duration-200",
-				isActive(item.href) && "scale-110"
-			)}
 		/>
 		{#if item.badge}
 			<span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
@@ -112,14 +108,14 @@
 <nav 
 	class={cn(
 		"fixed bottom-0 left-0 right-0 z-40",
-		"bg-surface border-t border-border",
-		"pb-safe-bottom",
+		"bg-white border-t border-gray-200",
+		"max-w-full",
 		"md:hidden", // Hide on desktop
 		className
 	)}
 	aria-label="Bottom navigation"
 >
-	<div class="flex h-14 items-stretch">
+	<div class="flex h-14 items-stretch min-w-0 overflow-hidden">
 		{#each navItems as item}
 			{@const active = isActive(item.href)}
 			{#if item.primary}
@@ -127,18 +123,15 @@
 				<a
 					href={item.href}
 					class={cn(
-						"relative flex flex-1 items-center justify-center px-2",
-						"transition-all duration-200",
+						"relative flex flex-1 items-center justify-center px-2 min-w-0",
 						"touch-manipulation"
 					)}
 					aria-label={item.label}
 				>
 					<div class={cn(
-						"flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200",
+						"flex items-center justify-center w-12 h-12 rounded-full",
 						"bg-black text-white", // Clean black filled button
-						"shadow-md",
-						"hover:scale-110 hover:bg-foreground",
-						"active:scale-95"
+						"shadow-md"
 					)}>
 						<Plus size={26} strokeWidth={2.5} />
 					</div>
@@ -148,12 +141,11 @@
 				<a
 					href={item.href}
 					class={cn(
-						"relative flex flex-1 flex-col items-center justify-center gap-0.5 px-2",
-						"text-muted-foreground transition-all duration-200",
-						"active:scale-95 active:bg-muted",
+						"relative flex flex-1 flex-col items-center justify-center gap-0.5 px-2 min-w-0",
+						"text-gray-500",
 						"touch-manipulation",
-						active && "text-foreground",
-						item.accent && !active && "text-primary"
+						active && "text-gray-900",
+						item.accent && !active && "text-blue-500"
 					)}
 					aria-label={item.label}
 					aria-current={active ? 'page' : undefined}
@@ -161,7 +153,7 @@
 					{@render navIcon(item)}
 					
 					<span class={cn(
-						"text-[10px] font-medium leading-tight",
+						"text-[10px] font-medium leading-tight truncate max-w-full",
 						active && "font-semibold"
 					)}>
 						{item.label}

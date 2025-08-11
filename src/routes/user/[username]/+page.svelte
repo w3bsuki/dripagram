@@ -42,7 +42,6 @@
 			return;
 		}
 		
-		console.log('Starting conversation with:', profile.id, profile.username);
 		
 		try {
 			// First, check if a conversation already exists or create one
@@ -68,7 +67,6 @@
 				throw new Error('No conversation ID returned');
 			}
 			
-			console.log('Navigating to conversation:', data.conversationId);
 			goto(`/messages/${data.conversationId}`);
 		} catch (error: any) {
 			console.error('Error creating conversation:', error);

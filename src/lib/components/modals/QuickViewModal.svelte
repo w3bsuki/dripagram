@@ -46,10 +46,43 @@
 		}
 	}
 
-	function handleMessage() {
-		if (product) {
-			goto(`/messages?product=${product.id}`);
-			onClose();
+	async function handleMessage() {
+		if (!product) return;
+		
+		onClose();
+		
+		// Ensure we have seller information
+		if (!product.seller?.id) {
+			console.error('No seller information available');
+			return;
+		}
+		
+		try {
+			// Create or find existing conversation with seller
+			const response = await fetch('/api/messages/conversation', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					otherUserId: product.seller.id,
+					productId: product.id
+				})
+			});
+			
+			if (!response.ok) {
+				throw new Error('Failed to create conversation');
+			}
+			
+			const { conversationId } = await response.json();
+			
+			// Navigate to the specific conversation
+			goto(`/messages/${conversationId}`);
+			
+		} catch (error) {
+			console.error('Failed to start conversation:', error);
+			// Fallback to general messages page
+			goto('/messages');
 		}
 	}
 
@@ -158,7 +191,9 @@
 								</svg>
 							{/if}
 						</div>
-						<div class="seller-rating">⭐ 4.8 (234 reviews)</div>
+						{#if product.seller?.rating && product.seller?.reviews_count}
+							<div class="seller-rating">⭐ {product.seller.rating.toFixed(1)} ({product.seller.reviews_count} reviews)</div>
+						{/if}
 					</div>
 				</div>
 			{/if}

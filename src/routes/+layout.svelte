@@ -95,7 +95,7 @@
 		</main>
 
 		<!-- Bottom Navigation (Mobile Only) - Hide on certain pages -->
-		{#if !$page.url.pathname.includes('/sell') && !$page.url.pathname.includes('/onboarding') && !$page.url.pathname.includes('/auth') && !$page.url.pathname.includes('/messages') && !$page.url.pathname.includes('/products')}
+		{#if !$page.url.pathname.includes('/auth')}
 			<BottomNav />
 		{/if}
 		

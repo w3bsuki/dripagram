@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { createClient } from '$lib/supabase/client';
+	import Breadcrumb, { type BreadcrumbItem } from '$lib/components/ui/Breadcrumb.svelte';
 	
 	type Product = any;
 	
@@ -40,6 +41,31 @@
 	let likeCount = $state(product.like_count ?? 0);
 	let viewCount = $state(product.views ?? 0);
 	
+	// Breadcrumb generation
+	let breadcrumbItems = $derived((): BreadcrumbItem[] => {
+		const items: BreadcrumbItem[] = [
+			{ label: 'Home', href: '/' },
+			{ label: 'Browse', href: '/browse' }
+		];
+		
+		// Add category if available
+		if (product.category) {
+			const categoryName = product.category.charAt(0).toUpperCase() + product.category.slice(1);
+			items.push({ 
+				label: categoryName, 
+				href: `/browse?category=${product.category}` 
+			});
+		}
+		
+		// Add current product (no href for current page)
+		const productTitle = product.title?.length > 30 
+			? product.title.slice(0, 30) + '...' 
+			: product.title;
+		items.push({ label: productTitle });
+		
+		return items;
+	});
+	
 	function goBack() {
 		if (window.history.length > 1) {
 			window.history.back();
@@ -48,12 +74,45 @@
 		}
 	}
 	
-	function handleMessage() {
+	async function handleMessage() {
 		if (!currentUser) {
 			goto('/auth/login');
 			return;
 		}
-		goto(`/messages/${product.seller_id}?listing=${product.id}`);
+		
+		// Ensure we have seller information
+		if (!product.seller_id) {
+			console.error('No seller information available');
+			return;
+		}
+		
+		try {
+			// Create or find existing conversation with seller
+			const response = await fetch('/api/messages/conversation', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					otherUserId: product.seller_id,
+					productId: product.id
+				})
+			});
+			
+			if (!response.ok) {
+				throw new Error('Failed to create conversation');
+			}
+			
+			const { conversationId } = await response.json();
+			
+			// Navigate to the specific conversation
+			goto(`/messages/${conversationId}`);
+			
+		} catch (error) {
+			console.error('Failed to start conversation:', error);
+			// Fallback to general messages page
+			goto('/messages');
+		}
 	}
 	
 	function handleBuy() {
@@ -159,6 +218,9 @@
 			<Share2 size={24} />
 		</button>
 	</div>
+	
+	<!-- Breadcrumb Navigation -->
+	<Breadcrumb items={breadcrumbItems()} />
 	
 	<!-- Image Carousel -->
 	<div class="image-container">

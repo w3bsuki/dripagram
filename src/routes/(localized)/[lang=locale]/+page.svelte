@@ -308,10 +308,10 @@
 <style>
 	.main-content {
 		min-height: 100vh;
-		background: var(--color-surface-secondary);
-		padding-top: 0; /* No padding */
-		padding-bottom: calc(var(--bottom-nav-height) + 24px); /* Space for mobile bottom nav + safe area */
-		margin-top: var(--header-height); /* Push content below fixed header */
+		background: #fafafa; /* Instagram-style background */
+		padding-top: 0;
+		padding-bottom: calc(var(--bottom-nav-height, 56px) + env(safe-area-inset-bottom)); /* iOS safe area support */
+		margin-top: var(--header-height, 56px);
 		/* Performance optimizations */
 		will-change: scroll-position;
 		contain: layout;
@@ -319,8 +319,11 @@
 	
 	@media (min-width: 768px) {
 		.main-content {
-			margin-top: var(--header-height-md); /* Use design token for desktop header */
-			padding-bottom: 0;
+			margin-top: var(--header-height-md, 64px);
+			padding-bottom: 24px;
+			max-width: 935px; /* Instagram max width */
+			margin-left: auto;
+			margin-right: auto;
 		}
 	}
 </style>

@@ -1,30 +1,37 @@
 <script lang="ts">
 	import { goto, invalidateAll } from '$app/navigation';
-	import { getAuthContext } from '$lib/stores/auth.svelte';
-	import { Settings, Grid3x3, Plus, Package, Heart, LogOut } from '@lucide/svelte';
+	import { Grid3x3, Plus, Package, Heart, Settings, LogOut, MoreVertical } from '@lucide/svelte';
+	import FollowersModal from '$lib/components/profile/FollowersModal.svelte';
 	import type { PageData } from './$types';
 	
 	let { data }: { data: PageData } = $props();
-	const auth = getAuthContext();
 	
 	let activeTab = $state<'listings' | 'sold' | 'liked'>('listings');
-	
-	// User profile data - prioritize profiles table data over user metadata
-	let profile = $derived({
-		username: data.profile?.username || 'user',
-		full_name: data.profile?.full_name || '',
-		bio: data.profile?.bio || '',
-		avatar_url: data.profile?.avatar_url || '',
-		is_brand: data.profile?.account_type === 'business' || data.profile?.account_type === 'brand',
-		brand_name: data.profile?.brand_name || ''
-	});
-	
-	// Helper function to build localized URLs
+	let showFollowersModal = $state(false);
+	let followersModalTitle = $state('');
+	let followersModalType = $state<'followers' | 'following'>('followers');
+
+	function handleFollowersModal() {
+		followersModalTitle = 'Followers';
+		followersModalType = 'followers';
+		showFollowersModal = true;
+	}
+
+	function handleFollowingModal() {
+		followersModalTitle = 'Following';
+		followersModalType = 'following';
+		showFollowersModal = true;
+	}
+
+	function closeFollowersModal() {
+		showFollowersModal = false;
+	}
+
 	function buildLocalizedUrl(path: string): string {
 		const lang = data?.lang || 'bg';
 		return `/${lang}${path}`;
 	}
-	
+
 	function getInitials(name: string): string {
 		if (!name || name.trim() === '') return 'U';
 		const parts = name.trim().split(' ').filter(part => part.length > 0);
@@ -32,7 +39,7 @@
 		if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
 		return parts.slice(0, 2).map(part => part.charAt(0)).join('').toUpperCase();
 	}
-	
+
 	async function handleSignOut() {
 		const { error } = await data.supabase.auth.signOut();
 		if (!error) {
@@ -42,588 +49,443 @@
 	}
 </script>
 
-<!-- Main Content Wrapper with Instagram-style background -->
-<main class="profile-main">
-	<!-- Profile Header Section -->
-	<div class="profile-header">
-		<div class="profile-container">
-			<!-- Avatar Section -->
-			<div class="profile-avatar">
-				{#if profile.avatar_url}
+<div class="profile">
+	<!-- Mobile Header -->
+	<header class="profile-header">
+		<h1 class="header-username">{data.profile?.username || 'user'}</h1>
+		<button class="menu-btn" onclick={() => console.log('menu')}>
+			<MoreVertical size={24} />
+		</button>
+	</header>
+
+	<!-- Profile Info Section -->
+	<div class="profile-info">
+		<div class="info-container">
+			<!-- Avatar -->
+			<div class="avatar-wrapper">
+				{#if data.profile?.avatar_url}
 					<img 
-						src={profile.avatar_url} 
-						alt={profile.username}
-						loading="eager"
-						decoding="sync"
-						fetchpriority="high"
-						width="150"
-						height="150"
-						class="avatar-image"
+						src={data.profile.avatar_url} 
+						alt={data.profile.username}
+						class="avatar"
 					/>
 				{:else}
 					<div class="avatar-placeholder">
-						<span class="avatar-initials">
-							{getInitials(profile.full_name && profile.full_name !== profile.username ? profile.full_name : profile.username)}
-						</span>
+						{getInitials(data.profile?.full_name || data.profile?.username || 'U')}
 					</div>
 				{/if}
 			</div>
-			
-			<!-- Profile Details -->
-			<div class="profile-details">
-				<!-- Username and Actions Row -->
-				<div class="profile-header-row">
-					<div class="username-group">
-						<h1 class="profile-username">{profile.username}</h1>
-						{#if profile.is_brand}
-							<span class="verified-badge">
-								<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-									<path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z"/>
-								</svg>
-							</span>
-						{/if}
-					</div>
-					<div class="profile-actions">
-						<button 
-							onclick={() => goto(buildLocalizedUrl('/profile/edit'))}
-							class="action-button primary"
-						>
-							Edit profile
-						</button>
-						<button 
-							onclick={() => goto(buildLocalizedUrl('/profile/settings'))}
-							class="action-button secondary"
-							aria-label="Settings"
-						>
-							<Settings size={16} />
-						</button>
-						<button 
-							onclick={handleSignOut}
-							class="action-button secondary logout"
-							aria-label="Sign Out"
-						>
-							<LogOut size={16} />
-						</button>
-					</div>
-				</div>
-				
-				<!-- Stats Row -->
-				<div class="profile-stats">
-					<button class="stat-button" onclick={() => activeTab = 'listings'}>
-						<span class="stat-number">{data.stats.listings}</span>
-						<span class="stat-label">listings</span>
-					</button>
-					<span class="stat-divider"></span>
-					<button class="stat-button">
-						<span class="stat-number">{data.stats.followers}</span>
-						<span class="stat-label">followers</span>
-					</button>
-					<span class="stat-divider"></span>
-					<button class="stat-button">
-						<span class="stat-number">{data.stats.following}</span>
-						<span class="stat-label">following</span>
-					</button>
-				</div>
-				
-				<!-- Bio Section -->
-				{#if profile.full_name || profile.bio}
-					<div class="profile-bio">
-						{#if profile.full_name && profile.full_name !== profile.username}
-							<div class="bio-name">{profile.full_name}</div>
-						{/if}
-						{#if profile.bio}
-							<div class="bio-text">{profile.bio}</div>
-						{/if}
-					</div>
-				{/if}
+
+			<!-- Stats -->
+			<div class="stats-wrapper">
+				<button class="stat" onclick={() => activeTab = 'listings'}>
+					<span class="stat-number">{data.stats.listings}</span>
+					<span class="stat-label">posts</span>
+				</button>
+				<button class="stat" onclick={handleFollowersModal}>
+					<span class="stat-number">{data.stats.followers}</span>
+					<span class="stat-label">followers</span>
+				</button>
+				<button class="stat" onclick={handleFollowingModal}>
+					<span class="stat-number">{data.stats.following}</span>
+					<span class="stat-label">following</span>
+				</button>
 			</div>
 		</div>
-	</div>
-	
-	<!-- Navigation Tabs -->
-	<div class="profile-nav">
-		<div class="nav-container">
+
+		<!-- Name & Bio -->
+		<div class="bio-section">
+			{#if data.profile?.full_name}
+				<div class="fullname">{data.profile.full_name}</div>
+			{/if}
+			{#if data.profile?.bio}
+				<div class="bio">{data.profile.bio}</div>
+			{/if}
+		</div>
+
+		<!-- Action Buttons -->
+		<div class="action-buttons">
 			<button 
-				class="nav-tab {activeTab === 'listings' ? 'active' : ''}"
-				onclick={() => activeTab = 'listings'}
+				class="btn-primary"
+				onclick={() => goto(buildLocalizedUrl('/profile/edit'))}
 			>
-				<Grid3x3 size={12} />
-				<span class="nav-label">Posts</span>
+				Edit profile
 			</button>
 			<button 
-				class="nav-tab {activeTab === 'sold' ? 'active' : ''}"
-				onclick={() => activeTab = 'sold'}
+				class="btn-secondary"
+				onclick={() => goto(buildLocalizedUrl('/profile/settings'))}
 			>
-				<Package size={12} />
-				<span class="nav-label">Sold</span>
+				<Settings size={18} />
 			</button>
 			<button 
-				class="nav-tab {activeTab === 'liked' ? 'active' : ''}"
-				onclick={() => activeTab = 'liked'}
+				class="btn-secondary logout"
+				onclick={handleSignOut}
 			>
-				<Heart size={12} />
-				<span class="nav-label">Saved</span>
+				<LogOut size={18} />
 			</button>
 		</div>
 	</div>
-	
-	<!-- Content Area -->
-	<div class="profile-content">
+
+	<!-- Tabs -->
+	<div class="tabs">
+		<button 
+			class="tab {activeTab === 'listings' ? 'active' : ''}"
+			onclick={() => activeTab = 'listings'}
+		>
+			<Grid3x3 size={24} />
+		</button>
+		<button 
+			class="tab {activeTab === 'sold' ? 'active' : ''}"
+			onclick={() => activeTab = 'sold'}
+		>
+			<Package size={24} />
+		</button>
+		<button 
+			class="tab {activeTab === 'liked' ? 'active' : ''}"
+			onclick={() => activeTab = 'liked'}
+		>
+			<Heart size={24} />
+		</button>
+	</div>
+
+	<!-- Content -->
+	<div class="content">
 		{#if activeTab === 'listings'}
 			{#if data.listings.length === 0}
-				<div class="empty-content">
-					<div class="empty-circle">
-						<Plus size={24} />
+				<div class="empty">
+					<div class="empty-icon">
+						<Plus size={40} />
 					</div>
-					<h3 class="empty-title">Share Your First Listing</h3>
-					<p class="empty-subtitle">When you list items for sale, they'll appear on your profile.</p>
+					<h3>Share Photos</h3>
+					<p>When you share photos, they will appear on your profile.</p>
 					<button 
+						class="share-btn"
 						onclick={() => goto(buildLocalizedUrl('/sell'))}
-						class="empty-button"
 					>
-						Create Listing
+						Share your first photo
 					</button>
 				</div>
 			{:else}
-				<div class="content-grid">
+				<div class="grid">
 					{#each data.listings as listing}
 						<a href={buildLocalizedUrl(`/products/${listing.id}`)} class="grid-item">
-							<div class="item-image">
-								<img 
-									src={listing.thumbnail_url || '/placeholder.jpg'} 
-									alt={listing.title}
-									loading="lazy"
-									decoding="async"
-								/>
-							</div>
-							<div class="item-info">
-								<span class="item-price">€{listing.price}</span>
+							<img 
+								src={listing.thumbnail_url || '/placeholder.jpg'} 
+								alt={listing.title}
+								loading="lazy"
+							/>
+							<div class="overlay">
+								<span>€{listing.price}</span>
 							</div>
 						</a>
 					{/each}
 				</div>
 			{/if}
 		{:else if activeTab === 'sold'}
-			<div class="empty-content">
-				<div class="empty-circle">
-					<Package size={24} />
+			<div class="empty">
+				<div class="empty-icon">
+					<Package size={40} />
 				</div>
-				<h3 class="empty-title">No Sold Items</h3>
-				<p class="empty-subtitle">Items you've sold will appear here.</p>
+				<h3>No Sold Items</h3>
+				<p>Items you've sold will appear here.</p>
 			</div>
-		{:else if activeTab === 'liked'}
-			<div class="empty-content">
-				<div class="empty-circle">
-					<Heart size={24} />
+		{:else}
+			<div class="empty">
+				<div class="empty-icon">
+					<Heart size={40} />
 				</div>
-				<h3 class="empty-title">No Saved Items</h3>
-				<p class="empty-subtitle">Items you save will appear here.</p>
+				<h3>No Saved Items</h3>
+				<p>Save photos and videos that you want to see again.</p>
 			</div>
 		{/if}
 	</div>
-</main>
+</div>
+
+<FollowersModal
+	isOpen={showFollowersModal}
+	title={followersModalTitle}
+	userId={data.user?.id || ''}
+	currentUser={data.user}
+	onClose={closeFollowersModal}
+	on:follow={() => invalidateAll()}
+	on:unfollow={() => invalidateAll()}
+/>
 
 <style>
-	/* Main Layout */
-	.profile-main {
+	.profile {
 		min-height: 100vh;
-		background: #fafafa;
-		padding-bottom: 80px;
-	}
-	
-	/* Profile Header */
-	.profile-header {
 		background: white;
-		border-bottom: 1px solid #e5e5e5;
-		padding: 32px 0 24px;
+		padding-bottom: 60px; /* Bottom nav space */
 	}
-	
-	.profile-container {
-		max-width: 975px;
-		margin: 0 auto;
-		padding: 0 20px;
-		display: flex;
-		align-items: flex-start;
-		gap: 44px;
-	}
-	
-	/* Avatar */
-	.profile-avatar {
-		flex-shrink: 0;
-	}
-	
-	.avatar-image {
-		width: 150px;
-		height: 150px;
-		border-radius: 50%;
-		object-fit: cover;
-		border: 1px solid #e5e5e5;
-	}
-	
-	.avatar-placeholder {
-		width: 150px;
-		height: 150px;
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		color: white;
-		border: 1px solid #e5e5e5;
-	}
-	
-	.avatar-initials {
-		font-size: 28px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 1px;
-	}
-	
-	/* Profile Details */
-	.profile-details {
-		flex: 1;
-		min-width: 0;
-	}
-	
-	.profile-header-row {
+
+	/* Header */
+	.profile-header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		margin-bottom: 20px;
+		padding: 12px 16px;
+		border-bottom: 1px solid #efefef;
+		position: sticky;
+		top: 0;
+		background: white;
+		z-index: 10;
 	}
-	
-	.username-group {
+
+	.header-username {
+		font-size: 22px;
+		font-weight: 600;
+		margin: 0;
+	}
+
+	.menu-btn {
+		background: none;
+		border: none;
+		padding: 4px;
+		cursor: pointer;
+	}
+
+	/* Profile Info */
+	.profile-info {
+		padding: 16px;
+	}
+
+	.info-container {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: 28px;
+		margin-bottom: 12px;
 	}
-	
-	.profile-username {
-		font-size: 28px;
+
+	.avatar-wrapper {
+		flex-shrink: 0;
+	}
+
+	.avatar, .avatar-placeholder {
+		width: 77px;
+		height: 77px;
+		border-radius: 50%;
+	}
+
+	.avatar {
+		object-fit: cover;
+	}
+
+	.avatar-placeholder {
+		background: #efefef;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 24px;
+		color: #8e8e8e;
 		font-weight: 300;
-		line-height: 32px;
-		margin: 0;
+	}
+
+	.stats-wrapper {
+		flex: 1;
+		display: flex;
+		justify-content: space-around;
+	}
+
+	.stat {
+		background: none;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 2px;
+	}
+
+	.stat-number {
+		font-size: 16px;
+		font-weight: 600;
 		color: #262626;
 	}
-	
-	.verified-badge {
-		color: #1877f2;
-		display: flex;
-		align-items: center;
+
+	.stat-label {
+		font-size: 13px;
+		color: #8e8e8e;
 	}
-	
-	.profile-actions {
+
+	.bio-section {
+		margin-bottom: 12px;
+	}
+
+	.fullname {
+		font-size: 14px;
+		font-weight: 600;
+		margin-bottom: 2px;
+	}
+
+	.bio {
+		font-size: 14px;
+		line-height: 18px;
+	}
+
+	.action-buttons {
 		display: flex;
-		align-items: center;
 		gap: 8px;
 	}
-	
-	.action-button {
-		border: none;
+
+	.btn-primary {
+		flex: 1;
+		padding: 7px 0;
+		background: white;
+		border: 1px solid #dbdbdb;
 		border-radius: 8px;
 		font-size: 14px;
 		font-weight: 600;
 		cursor: pointer;
-		transition: all 0.2s ease;
+	}
+
+	.btn-secondary {
+		padding: 7px 11px;
+		background: white;
+		border: 1px solid #dbdbdb;
+		border-radius: 8px;
+		cursor: pointer;
 		display: flex;
 		align-items: center;
-		gap: 6px;
-	}
-	
-	.action-button.primary {
-		background: #efefef;
-		color: #262626;
-		padding: 7px 16px;
-	}
-	
-	.action-button.primary:hover {
-		background: #e0e0e0;
-	}
-	
-	.action-button.secondary {
-		background: #efefef;
-		color: #262626;
-		padding: 7px;
-		width: 32px;
-		height: 32px;
 		justify-content: center;
+		color: #262626;
 	}
-	
-	.action-button.secondary:hover {
-		background: #e0e0e0;
-	}
-	
-	.action-button.logout {
+
+	.btn-secondary.logout {
 		color: #ed4956;
 	}
-	
-	.action-button.logout:hover {
-		background: rgba(237, 73, 86, 0.1);
-	}
-	
-	/* Stats */
-	.profile-stats {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		margin-bottom: 20px;
-	}
-	
-	.stat-button {
-		display: flex;
-		align-items: center;
-		gap: 4px;
-		background: none;
-		border: none;
-		cursor: pointer;
-		padding: 0;
-		font-size: 16px;
-		color: #262626;
-	}
-	
-	.stat-number {
-		font-weight: 600;
-	}
-	
-	.stat-label {
-		font-weight: 400;
-	}
-	
-	.stat-divider {
-		width: 1px;
-		height: 16px;
-		background: #dbdbdb;
-		margin: 0 12px;
-	}
-	
-	/* Bio */
-	.profile-bio {
-		font-size: 16px;
-		line-height: 24px;
-		color: #262626;
-	}
-	
-	.bio-name {
-		font-weight: 600;
-		margin-bottom: 4px;
-	}
-	
 
-	.bio-text {
-		margin-bottom: 8px;
-	}
-	
-	/* Navigation Tabs */
-	.profile-nav {
-		background: white;
-		border-top: 1px solid #e5e5e5;
-	}
-	
-	.nav-container {
-		max-width: 975px;
-		margin: 0 auto;
+	/* Tabs */
+	.tabs {
 		display: flex;
-		justify-content: center;
+		border-top: 1px solid #efefef;
 	}
-	
-	.nav-tab {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		padding: 16px 12px;
+
+	.tab {
+		flex: 1;
+		padding: 12px;
 		background: none;
 		border: none;
-		border-top: 1px solid transparent;
-		color: #8e8e8e;
+		border-bottom: 1px solid transparent;
 		cursor: pointer;
-		font-size: 12px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 1px;
-		transition: all 0.2s ease;
-		margin: 0 24px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #8e8e8e;
 	}
-	
-	.nav-tab:hover {
+
+	.tab.active {
 		color: #262626;
+		border-bottom-color: #262626;
 	}
-	
-	.nav-tab.active {
-		color: #262626;
-		border-top-color: #262626;
+
+	/* Content */
+	.content {
+		min-height: 400px;
 	}
-	
-	.nav-label {
-		display: none;
-	}
-	
-	/* Content Area */
-	.profile-content {
-		max-width: 975px;
-		margin: 0 auto;
-		padding: 24px 20px;
-	}
-	
-	.content-grid {
+
+	.grid {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
-		gap: 4px;
+		gap: 2px;
 	}
-	
+
 	.grid-item {
 		position: relative;
 		aspect-ratio: 1;
 		overflow: hidden;
-		background: #f8f8f8;
-		display: block;
+		background: #000;
 	}
-	
-	.item-image {
-		width: 100%;
-		height: 100%;
-	}
-	
-	.item-image img {
+
+	.grid-item img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		transition: transform 0.2s ease;
 	}
-	
-	.grid-item:hover .item-image img {
-		transform: scale(1.03);
-	}
-	
-	.item-info {
+
+	.overlay {
 		position: absolute;
-		bottom: 8px;
-		left: 8px;
-		right: 8px;
-		background: rgba(0, 0, 0, 0.7);
-		color: white;
-		padding: 4px 8px;
-		border-radius: 4px;
-		font-size: 12px;
-		font-weight: 600;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.3);
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		opacity: 0;
-		transition: opacity 0.2s ease;
+		transition: opacity 0.2s;
+		color: white;
+		font-weight: 600;
 	}
-	
-	.grid-item:hover .item-info {
+
+	.grid-item:active .overlay {
 		opacity: 1;
 	}
-	
-	/* Empty State */
-	.empty-content {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
+
+	.empty {
+		padding: 60px 44px;
 		text-align: center;
-		padding: 64px 24px;
-		color: #262626;
 	}
-	
-	.empty-circle {
-		width: 72px;
-		height: 72px;
-		border-radius: 50%;
+
+	.empty-icon {
+		width: 62px;
+		height: 62px;
 		border: 2px solid #262626;
+		border-radius: 50%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		margin-bottom: 24px;
+		margin: 0 auto 16px;
 	}
-	
-	.empty-title {
-		font-size: 28px;
+
+	.empty h3 {
+		font-size: 24px;
 		font-weight: 300;
-		margin: 0 0 16px 0;
+		margin: 0 0 12px;
 	}
-	
-	.empty-subtitle {
+
+	.empty p {
 		font-size: 14px;
 		color: #8e8e8e;
-		margin: 0 0 24px 0;
-		line-height: 20px;
+		margin: 0 0 24px;
+		line-height: 18px;
 	}
-	
-	.empty-button {
+
+	.share-btn {
 		background: #0095f6;
-		color: white;
 		border: none;
 		border-radius: 8px;
-		padding: 8px 24px;
+		color: white;
+		padding: 7px 16px;
 		font-size: 14px;
 		font-weight: 600;
 		cursor: pointer;
-		transition: all 0.2s ease;
 	}
-	
-	.empty-button:hover {
-		background: #1877f2;
-	}
-	
-	/* Mobile Responsive */
-	@media (max-width: 735px) {
-		.profile-container {
-			padding: 0 16px;
-			gap: 28px;
+
+	/* Desktop adjustments */
+	@media (min-width: 736px) {
+		.profile {
+			max-width: 600px;
+			margin: 0 auto;
 		}
-		
-		.avatar-image,
+
+		.avatar, .avatar-placeholder {
+			width: 150px;
+			height: 150px;
+		}
+
 		.avatar-placeholder {
-			width: 77px;
-			height: 77px;
+			font-size: 40px;
 		}
-		
-		.avatar-initials {
+
+		.info-container {
+			gap: 40px;
+		}
+
+		.stat-number {
 			font-size: 18px;
 		}
-		
-		.profile-username {
-			font-size: 24px;
-		}
-		
-		.profile-header-row {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 16px;
-		}
-		
-		.profile-actions {
-			width: 100%;
-			justify-content: flex-start;
-		}
-		
-		.action-button.primary {
-			flex: 1;
-			justify-content: center;
-		}
-		
-		.profile-stats {
-			justify-content: space-around;
-			margin: 16px 0;
-		}
-		
-		.stat-divider {
-			display: none;
-		}
-		
-		.nav-tab {
-			margin: 0 12px;
-		}
-		
-		.nav-label {
-			display: block;
-		}
-		
-		.profile-content {
-			padding: 16px;
-		}
-		
-		.content-grid {
-			gap: 2px;
+
+		.stat-label {
+			font-size: 14px;
 		}
 	}
 </style>

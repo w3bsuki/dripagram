@@ -48,37 +48,37 @@
 </div>
 
 <style>
-	/* Clean Feed Tabs */
+	/* Instagram-style Feed Tabs */
 	.feed-tabs {
 		background: white;
-		border-bottom: 1px solid #e5e7eb;
+		border-bottom: 1px solid #efefef;
 	}
 
 	.tabs-container {
 		display: flex;
 		align-items: center;
-		max-width: 468px;
 		margin: 0 auto;
 		padding: 0;
-		height: 48px; /* Fixed height to prevent shifts */
+		height: 50px;
 	}
 
 	.feed-tab {
 		flex: 1;
 		height: 100%;
-		padding: 0 1rem;
+		padding: 0 16px;
 		background: none;
 		border: none;
-		font-size: 0.9375rem;
-		font-weight: 500;
-		color: #6b7280;
+		border-bottom: 2px solid transparent;
+		font-size: 15px;
+		font-weight: 600;
+		color: #8e8e8e;
 		cursor: pointer;
 		transition: all 0.2s ease;
 		position: relative;
 	}
 
-	.feed-tab:hover {
-		color: #374151;
+	.feed-tab:hover:not(:disabled) {
+		color: #262626;
 	}
 
 	.feed-tab:disabled {
@@ -87,36 +87,34 @@
 	}
 
 	.feed-tab.active {
-		color: #111827;
-		font-weight: 600;
+		color: #262626;
+		border-bottom-color: #262626;
 	}
 
+	/* Remove the ::after pseudo element since we're using border-bottom */
 	.feed-tab.active::after {
-		content: '';
-		position: absolute;
-		bottom: 0;
-		left: 15%;
-		right: 15%;
-		height: 3px;
-		background: #2563eb;
-		border-radius: 3px 3px 0 0;
+		display: none;
 	}
 
-	/* Vertical Separator */
+	/* Hide separators - cleaner look */
 	.separator {
-		width: 1px;
-		height: 20px;
-		background: #e5e7eb;
+		display: none;
 	}
 
 	@media (max-width: 640px) {
 		.tabs-container {
-			height: 48px; /* Keep consistent height */
+			height: 48px;
 		}
 		
 		.feed-tab {
-			font-size: 0.875rem;
-			padding: 0 0.75rem;
+			font-size: 14px;
+			padding: 0 12px;
+		}
+	}
+
+	@media (min-width: 768px) {
+		.tabs-container {
+			max-width: 600px;
 		}
 	}
 </style>

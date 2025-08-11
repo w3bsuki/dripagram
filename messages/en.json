@@ -670,11 +670,11 @@
 		"welcome_toast": "Welcome to Driplo! 🎉 Your profile is ready."
 	},
 	"wishlist": {
-		"title": "Your Wishlist",
+		"title": "Wishlist ❤️",
 		"empty_title": "Your wishlist is empty",
-		"empty_description": "Save items you love to buy them later",
+		"empty_description": "Save items you love",
 		"browse_products": "Browse Products",
-		"loading": "Loading your wishlist...",
+		"loading": "Loading...",
 		"grid_view": "Grid view",
 		"list_view": "List view"
 	}
