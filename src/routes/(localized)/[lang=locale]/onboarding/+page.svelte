@@ -137,6 +137,8 @@
 
   // Step navigation
   async function nextStep() {
+    console.log('nextStep called, currentStep:', currentStep, 'formData:', formData);
+    
     if (currentStep === 1) {
       const isValid = await validateUsername();
       if (!isValid) return;
@@ -151,11 +153,9 @@
     }
 
     if (currentStep === 3) {
-      if (!formData.payout_method) {
-        errors.payout_method = m['onboarding.payout.error_method_required']();
-        return;
-      }
-      if (!formData.payout_details) {
+      // Payout is optional - users can set this up later in settings
+      // Only validate if they started filling it out
+      if (formData.payout_method && !formData.payout_details) {
         errors.payout_details = m['onboarding.payout.error_details_required']();
         return;
       }
@@ -178,6 +178,7 @@
 
   // Complete onboarding
   async function completeOnboarding() {
+    console.log('Starting onboarding completion...', { formData });
     isLoading = true;
 
     try {
