@@ -859,7 +859,7 @@ GPT AUDIT: High-level audit and actionable recommendations
   - Intent to adopt Svelte 5 runes, validation (Valibot), and Remote Functions for a thinner client.
 
 - Biggest risks + mitigations
-  - Remote Functions are experimental: gate rollout behind feature flags, keep current fetch paths as fallback, and pilot on Browse only before expanding.
+
   - Runed event migration (onclick) across third‑party components: don’t modify vendor libs (shadcn-svelte); wrap instead and migrate only local code. Verify library compatibility first.
   - Large-slot → snippet migration: do incrementally. Converting complex nested slots all at once is brittle; migrate leaf components first.
   - Route dedup (localized vs non-localized): ensure redirects and link updates to avoid broken navigation; test SSR/CSR parity and hydration.

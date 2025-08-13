@@ -5,22 +5,30 @@
 		sortBy = 'newest',
 		viewMode = 'grid',
 		selectedSize = null,
+		selectedCondition = null,
+		selectedBrand = null,
 		onSortChange,
 		onViewModeChange,
 		onSizeChange,
-		onShowFilters
+		onConditionChange,
+		onBrandChange
 	}: {
 		sortBy?: string;
 		viewMode?: 'grid' | 'list';
 		selectedSize?: string | null;
+		selectedCondition?: string | null;
+		selectedBrand?: string | null;
 		onSortChange: (sort: string) => void;
 		onViewModeChange: (mode: 'grid' | 'list') => void;
 		onSizeChange: (size: string | null) => void;
-		onShowFilters: () => void;
+		onConditionChange: (condition: string | null) => void;
+		onBrandChange: (brand: string | null) => void;
 	} = $props();
 
 	let showSort = $state(false);
 	let showSize = $state(false);
+	let showCondition = $state(false);
+	let showBrand = $state(false);
 
 	const sortOptions = [
 		{ value: 'newest', label: 'Newest' },
@@ -30,6 +38,8 @@
 	];
 
 	const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+	const conditionOptions = ['New with tags', 'Like new', 'Good', 'Fair'];
+	const brandOptions = ['Nike', 'Adidas', 'Zara', 'H&M', 'Gucci', 'Prada', 'Other'];
 </script>
 
 <div class="filter-bar">
@@ -90,10 +100,61 @@
 			{/if}
 		</div>
 
-		<!-- More filters -->
-		<button class="dropdown-button" onclick={onShowFilters}>
-			More filters
-		</button>
+		<!-- Condition dropdown -->
+		<div class="dropdown-wrapper">
+			<button
+				class="dropdown-button"
+				onclick={() => showCondition = !showCondition}
+			>
+				Condition
+				<ChevronDown size={14} />
+			</button>
+			
+			{#if showCondition}
+				<div class="dropdown-menu">
+					{#each conditionOptions as condition}
+						<button
+							class="dropdown-item"
+							class:active={selectedCondition === condition}
+							onclick={() => {
+								onConditionChange(selectedCondition === condition ? null : condition);
+								showCondition = false;
+							}}
+						>
+							{condition}
+						</button>
+					{/each}
+				</div>
+			{/if}
+		</div>
+
+		<!-- Brand dropdown -->
+		<div class="dropdown-wrapper">
+			<button
+				class="dropdown-button"
+				onclick={() => showBrand = !showBrand}
+			>
+				Brand
+				<ChevronDown size={14} />
+			</button>
+			
+			{#if showBrand}
+				<div class="dropdown-menu">
+					{#each brandOptions as brand}
+						<button
+							class="dropdown-item"
+							class:active={selectedBrand === brand}
+							onclick={() => {
+								onBrandChange(selectedBrand === brand ? null : brand);
+								showBrand = false;
+							}}
+						>
+							{brand}
+						</button>
+					{/each}
+				</div>
+			{/if}
+		</div>
 	</div>
 
 	<!-- View mode toggle -->
@@ -116,12 +177,14 @@
 </div>
 
 <!-- Click outside to close -->
-{#if showSort || showSize}
+{#if showSort || showSize || showCondition || showBrand}
 	<button
 		class="backdrop"
 		onclick={() => {
 			showSort = false;
 			showSize = false;
+			showCondition = false;
+			showBrand = false;
 		}}
 		aria-hidden="true"
 	/>
