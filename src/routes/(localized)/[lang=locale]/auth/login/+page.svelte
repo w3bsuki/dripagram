@@ -228,7 +228,7 @@
 		background: var(--color-surface-primary);
 		border: 1px solid var(--color-border-primary);
 		border-radius: 8px;
-		font-size: 15px;
+		font-size: 16px;
 		color: var(--color-text-primary);
 		transition: all 0.15s ease;
 	}
@@ -371,7 +371,8 @@
 		}
 
 		:global(.form-input) {
-			height: 44px;
+			height: 48px;
+			font-size: 16px;
 		}
 
 		:global(.submit-button) {
