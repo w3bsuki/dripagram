@@ -24,8 +24,8 @@
 	let products = $state(data?.products || []);
 	let isLoading = $state(false);
 
-	// URL update
-	function updateURL() {
+	// URL update and data fetch
+	async function updateFiltersAndFetch() {
 		const url = new URL($page.url);
 		
 		if (searchQuery) url.searchParams.set('q', searchQuery);
@@ -46,52 +46,53 @@
 		if (selectedCondition) url.searchParams.set('condition', selectedCondition);
 		else url.searchParams.delete('condition');
 		
-		if (priceMin > 0) url.searchParams.set('min', priceMin.toString());
-		else url.searchParams.delete('min');
+		if (priceMin > 0) url.searchParams.set('price_min', priceMin.toString());
+		else url.searchParams.delete('price_min');
 		
-		if (priceMax < 9999) url.searchParams.set('max', priceMax.toString());
-		else url.searchParams.delete('max');
+		if (priceMax < 9999) url.searchParams.set('price_max', priceMax.toString());
+		else url.searchParams.delete('price_max');
 		
 		if (sortBy !== 'newest') url.searchParams.set('sort', sortBy);
 		else url.searchParams.delete('sort');
 		
+		// Navigate to new URL which will trigger server-side reload
 		goto(url.toString(), { replaceState: true, keepFocus: true, noScroll: true });
 	}
 
 	function handleSearch(e: Event) {
 		e.preventDefault();
-		updateURL();
+		updateFiltersAndFetch();
 	}
 
 	function handleCategoryChange(categoryId: string | null) {
 		selectedCategory = categoryId;
 		selectedSubcategory = null; // Reset subcategory when category changes
-		updateURL();
+		updateFiltersAndFetch();
 	}
 
 	function handleSubcategoryChange(subcategoryId: string | null) {
 		selectedSubcategory = subcategoryId;
-		updateURL();
+		updateFiltersAndFetch();
 	}
 
 	function handleSortChange(sort: string) {
 		sortBy = sort;
-		updateURL();
+		updateFiltersAndFetch();
 	}
 
 	function handleSizeChange(size: string | null) {
 		selectedSize = size;
-		updateURL();
+		updateFiltersAndFetch();
 	}
 
 	function handleConditionChange(condition: string | null) {
 		selectedCondition = condition;
-		updateURL();
+		updateFiltersAndFetch();
 	}
 
 	function handleBrandChange(brand: string | null) {
 		selectedBrand = brand;
-		updateURL();
+		updateFiltersAndFetch();
 	}
 
 	function handlePriceChange(price: string | null) {
@@ -112,7 +113,7 @@
 			priceMin = 200;
 			priceMax = 9999;
 		}
-		updateURL();
+		updateFiltersAndFetch();
 	}
 </script>
 

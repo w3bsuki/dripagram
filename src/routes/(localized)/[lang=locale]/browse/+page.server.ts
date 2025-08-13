@@ -46,6 +46,8 @@ export const load = async ({ cookies, url, params }: { cookies: Cookies; url: UR
 	const _subcategory = url.searchParams.get('subcategory'); // reserved for future
 	const collection = url.searchParams.get('collection');
 	const condition = url.searchParams.get('condition');
+	const size = url.searchParams.get('size');
+	const brand = url.searchParams.get('brand');
 	const sort = url.searchParams.get('sort') || 'newest';
 	const min = Number(url.searchParams.get('price_min') || '0');
 	const max = Number(url.searchParams.get('price_max') || '0');
@@ -134,6 +136,16 @@ export const load = async ({ cookies, url, params }: { cookies: Cookies; url: UR
 	// Condition
 	if (condition) {
 		query = query.eq('condition', condition);
+	}
+
+	// Size
+	if (size) {
+		query = query.eq('size', size);
+	}
+
+	// Brand
+	if (brand) {
+		query = query.ilike('brand', `%${brand}%`);
 	}
 
 	// Collections mapping via tags
