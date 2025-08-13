@@ -116,6 +116,15 @@ export const actions: Actions = {
 			});
 		}
 
+		// Require size for clothing/shoes categories
+		const sizeRequiredCategories = ['shoes', 'tops', 'bottoms', 'dresses', 'men-shoes', 'men-tops', 'men-bottoms'];
+		if (sizeRequiredCategories.includes(category) && (!size || size.length < 1)) {
+			return fail(400, {
+				error: 'Size is required for this category',
+				values
+			});
+		}
+
 		if (brand.length > 50) {
 			return fail(400, {
 				error: 'Brand name is too long',
@@ -155,12 +164,26 @@ export const actions: Actions = {
 		}
 
 		try {
+			// Resolve category slug to ID
+			let categoryId = null;
+			if (category) {
+				const { data: categoryData } = await locals.supabase
+					.from('categories')
+					.select('id')
+					.eq('slug', category)
+					.single();
+				
+				if (categoryData) {
+					categoryId = categoryData.id;
+				}
+			}
+
 			// Create listing data
 			const listingData = {
 				title,
 				description: description || undefined,
 				price,
-				category_id: undefined, // We're not using category_id for now
+				category_id: categoryId,
 				condition: condition as 'new' | 'like_new' | 'very_good' | 'good' | 'acceptable',
 				brand,
 				size: size || undefined,

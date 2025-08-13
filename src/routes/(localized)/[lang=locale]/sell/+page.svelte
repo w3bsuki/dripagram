@@ -13,16 +13,18 @@
 	let loading = $state(false);
 	let imageUrls = $state<string[]>([]);
 
-	// Categories
+	// Categories - matching database structure
 	const categories = [
-		{ value: 'clothing', label: 'Clothing' },
-		{ value: 'shoes', label: 'Shoes' },
-		{ value: 'bags', label: 'Bags & Accessories' },
-		{ value: 'jewelry', label: 'Jewelry' },
-		{ value: 'watches', label: 'Watches' },
-		{ value: 'beauty', label: 'Beauty' },
-		{ value: 'electronics', label: 'Electronics' },
-		{ value: 'home', label: 'Home & Living' }
+		{ value: 'shoes', label: 'Women - Shoes' },
+		{ value: 'tops', label: 'Women - Tops' },
+		{ value: 'bottoms', label: 'Women - Bottoms' },
+		{ value: 'dresses', label: 'Women - Dresses' },
+		{ value: 'men-shoes', label: 'Men - Shoes' },
+		{ value: 'men-tops', label: 'Men - Tops' },
+		{ value: 'men-bottoms', label: 'Men - Bottoms' },
+		{ value: 'bags', label: 'Accessories - Bags' },
+		{ value: 'hats', label: 'Accessories - Hats' },
+		{ value: 'jewelry', label: 'Accessories - Jewelry' }
 	];
 
 	// Conditions
