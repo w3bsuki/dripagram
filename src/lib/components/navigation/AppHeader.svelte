@@ -92,8 +92,8 @@
 				<LocaleSwitcher compact={true} />
 			</div>
 			
-			<!-- Theme Toggle -->
-			<div class="theme-toggle-container">
+			<!-- Theme Toggle - Desktop only -->
+			<div class="theme-toggle-container desktop-only">
 				<ThemeToggle size={24} />
 			</div>
 			
@@ -361,10 +361,20 @@
 		}
 	}
 	
-	/* Hide theme toggle on very small mobile screens to save space */
-	@media (max-width: 360px) {
+	/* Hide theme toggle on mobile completely */
+	@media (max-width: 768px) {
 		.theme-toggle-container {
 			display: none;
+		}
+	}
+	
+	.desktop-only {
+		display: none;
+	}
+	
+	@media (min-width: 768px) {
+		.desktop-only {
+			display: block;
 		}
 	}
 </style>
