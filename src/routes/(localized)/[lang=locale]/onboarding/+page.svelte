@@ -139,6 +139,7 @@
   // Step navigation
   async function nextStep() {
     console.log('nextStep called, currentStep:', currentStep, 'formData:', formData);
+    console.log('Account type:', formData.account_type);
     
     if (currentStep === 1) {
       const isValid = await validateUsername();
@@ -146,10 +147,13 @@
     }
 
     if (currentStep === 2) {
+      console.log('Step 2 validation - account_type:', formData.account_type);
       if (!formData.account_type) {
+        console.log('Account type validation failed - no account type selected');
         errors.account_type = m['onboarding.account_type.error_required']();
         return;
       }
+      console.log('Account type validation passed');
       errors.account_type = '';
     }
 
@@ -167,6 +171,7 @@
     if (currentStep < 4) {
       currentStep++;
     } else {
+      console.log('About to call completeOnboarding(), account_type:', formData.account_type);
       await completeOnboarding();
     }
   }
