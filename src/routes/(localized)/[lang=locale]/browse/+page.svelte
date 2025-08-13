@@ -5,6 +5,7 @@
 	import FilterBar from '$lib/components/browse/FilterBar.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { invalidateAll } from '$app/navigation';
 
 	const { data } = $props();
 
@@ -55,8 +56,9 @@
 		if (sortBy !== 'newest') url.searchParams.set('sort', sortBy);
 		else url.searchParams.delete('sort');
 		
-		// Navigate to new URL which will trigger server-side reload
-		goto(url.toString(), { replaceState: true, keepFocus: true, noScroll: true });
+		// Navigate to new URL and invalidate data to force reload
+		await goto(url.toString(), { replaceState: true, keepFocus: true, noScroll: true });
+		await invalidateAll();
 	}
 
 	function handleSearch(e: Event) {
