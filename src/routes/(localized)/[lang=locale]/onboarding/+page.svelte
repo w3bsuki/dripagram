@@ -283,19 +283,19 @@
       <div class="welcome-content">
         {#if welcomeStep === 1}
           <div class="welcome-icon">
-            <Sparkles size={48} />
+            ✨
           </div>
           <h1>Welcome {getDisplayName()}!</h1>
           <p>You're all set! Ready to discover the best fashion deals?</p>
         {:else if welcomeStep === 2}
           <div class="welcome-icon">
-            <TrendingUp size={48} />
+            🛍️
           </div>
           <h1>Buy & Sell Fashion</h1>
           <p>List your items for free and discover unique pieces from our community</p>
         {:else if welcomeStep === 3}
           <div class="welcome-icon">
-            <Shield size={48} />
+            🛡️
           </div>
           <h1>Safe & Secure</h1>
           <p>Only 5% transaction fee. Buyer protection guaranteed on every purchase.</p>
@@ -1114,7 +1114,7 @@
     align-items: center;
     justify-content: center;
     margin: 0 auto 1.5rem;
-    color: #000;
+    font-size: 2rem;
   }
 
   .welcome-content h1 {
