@@ -10,7 +10,7 @@
 	import Zap from '@lucide/svelte/icons/zap';
 	import { liveShoppingService, type LiveSession, type LiveMessage } from '$lib/services/live-shopping';
 	import { gamificationService } from '$lib/services/gamification';
-	import Button from '$lib/components/ui/button';
+	import Button from '$lib/components/native/Button.svelte';
 	import { toast } from '$lib/utils/toast';
 
 	let { 

@@ -667,10 +667,11 @@ export const searchProducts = query(ProductFilters, async (filters) => {
    - Add proper focus management
    - Optimize mobile responsiveness
 
-3. **Button component streamlining**:
-   - Consolidate variants using CSS custom properties
-   - Add proper TypeScript props interface
-   - Implement loading states with $derived
+3. **shadcn-svelte Removal (High Priority)**:
+   - Replace shadcn Button with native Svelte 5 component
+   - Remove dependencies: bits-ui, class-variance-authority, clsx, tailwind-merge
+   - Create design tokens with CSS custom properties
+   - Achieve ~50KB bundle reduction
 
 #### **Week 4: Social & Browse Features**
 1. **Browse page with remote functions**:
@@ -717,15 +718,15 @@ export const searchProducts = query(ProductFilters, async (filters) => {
 ### **Phase 4: Advanced Patterns & Performance (Week 7-8)**
 
 #### **Week 7: Snippet System Migration**
-1. **Slots → Snippets conversion**:
-   - Convert all `<slot />` to `{@render children?.()}`
-   - Migrate named slots to snippet props
-   - Eliminate `<svelte:fragment>` usage
-   - Add proper TypeScript for snippet props
+1. **Incremental Slots → Snippets conversion**:
+   - **Leaf components first**: Start with components that don't contain other slots
+   - **Simple slots before complex**: Basic `<slot />` before named slots with props
+   - **Test thoroughly**: Each component conversion needs visual regression testing
+   - **Note**: shadcn-svelte components will be removed by this point
 
 2. **Shared pattern extraction**:
    - Create common loading/error snippets
-   - Build consistent modal system
+   - Build consistent modal system  
    - Extract form control patterns
    - Standardize animation library
 
@@ -766,7 +767,7 @@ pnpm run lint       # Clean code standards
 pnpm run dev        # Test in development
 ```
 
-## 📊 Updated Project Metrics
+## 📊 Updated Project Metrics (Auditor-Enhanced)
 
 ### **Comprehensive Task Breakdown**
 - **Core Component Tasks**: 150+ individual refactoring tasks across 15 components
@@ -774,8 +775,28 @@ pnpm run dev        # Test in development
 - **Remote Functions Tasks**: 25+ data layer and API modernizations
 - **Performance Optimizations**: 40+ targeted improvements
 - **Quality Assurance Tasks**: 30+ testing and documentation items
+- **New Audit-Driven Tasks**: 45+ additional quality and safety measures
 
-**Total Tasks**: 320+ individual tasks across 9 weeks
+**Total Tasks**: 365+ individual tasks across 9 weeks
+
+### **Critical Audit-Driven Additions**
+
+#### **GPT's Valuable Contributions**
+- ✅ **Vendor Library Safety**: Clear policy on shadcn-svelte modifications
+- ✅ **Incremental Migration**: Leaf-first approach for complex slot conversions  
+- ✅ **Import Standardization**: Barrel approach for consistency
+- ✅ **CI Quality Gates**: Concrete metrics and enforcement
+
+#### **Gemini's Valuable Contributions**  
+- ✅ **Visual Regression Testing**: Percy integration for UI safety
+- ✅ **Central Type Definitions**: Foundation before refactoring
+- ✅ **Global State Architecture**: Clear strategy for scaling
+- ✅ **Feature Flag Infrastructure**: Risk mitigation for experimental features
+
+#### **Timeline Adjustment (Gemini's Reality Check)**
+**Original**: 9 weeks aggressive timeline
+**Revised**: 9 weeks with 20% buffer + learning spikes in Week 1
+**Fallback**: Each phase delivers independent value if timeline extends
 
 ### **Expected Outcomes**
 
@@ -817,29 +838,46 @@ pnpm run dev        # Test in development
 ## 🎯 Immediate Next Steps
 
 ### **Week 1 Kickoff Tasks**
-1. **Environment Setup**:
-   ```bash
-   # Enable remote functions
-   # Update svelte.config.js
-   kit: { experimental: { remoteFunctions: true } }
-   
-   # Install validation library
-   pnpm add valibot
-   
-   # Update TypeScript config for stricter checking
-   ```
 
-2. **Quick Wins**:
-   - [ ] Delete duplicate browse pages (immediate ~200 lines reduction)
-   - [ ] Remove unused LiveShoppingList import
-   - [ ] Standardize ProductCard imports across 5 files
-   - [ ] Run type checking audit: `pnpm run check`
+#### **1. Foundation Setup**
+```bash
+# Core infrastructure
+kit: { experimental: { remoteFunctions: true } }
+pnpm add valibot @percy/cli  # Visual regression testing
+pnpm add -D husky @commitlint/cli  # Pre-commit hooks
 
-3. **Documentation**:
-   - [ ] Create migration tracking spreadsheet
-   - [ ] Set up before/after performance benchmarks  
-   - [ ] Document current component API contracts
-   - [ ] Create testing checklist for each phase
+# TypeScript strict mode
+# Enable: noImplicitAny, exactOptionalPropertyTypes, strictNullChecks
+```
+
+#### **2. Quick Wins (High Impact)**
+- [ ] **Create central types**: `src/lib/types.ts` with Product, User, WishlistItem interfaces
+- [ ] **Import barrels**: Fix all ProductCard/Button inconsistencies in one PR
+- [ ] **Delete duplicates**: Remove `/browse` and `/wishlist` routes, keep localized versions only
+- [ ] **Clean dead code**: Remove LiveShoppingList + any EnhancedSearchBar/FilterBottomSheet references
+- [ ] **Feature flags**: Simple env-based flags for remote functions rollout
+
+#### **3. Quality Gates Setup** 
+- [ ] **CI Pipeline Requirements**:
+  - svelte-check: 0 errors
+  - Bundle budgets: JS < 250kB per route
+  - Lighthouse: mobile LCP < 2.5s, INP < 200ms
+  - Accessibility: 0 critical/serious axe violations
+  - Visual regression: Percy screenshot comparison
+
+- [ ] **Pre-commit Hooks**:
+  ```bash
+  # .husky/pre-commit
+  pnpm run check
+  pnpm run lint
+  pnpm run test:unit
+  ```
+
+#### **4. Architecture Decisions**
+- [ ] **Global State Strategy**: Document when to use Svelte 5 stores vs local $state
+- [ ] **shadcn-svelte Removal Plan**: Replace with native Svelte 5 components (already documented in SHADCN.md)
+- [ ] **Testing Strategy**: Unit (Vitest) + E2E (Playwright) + Visual (Percy)
+- [ ] **Error Boundary Pattern**: Shared error UI contract for all components
 
 ### **Success Criteria Per Phase**
 
@@ -909,3 +947,27 @@ GPT AUDIT: High-level audit and actionable recommendations
   - Preview deployments for every PR; block merge on budget/perf/accessibility regressions.
 
 Overall: Proceed with Phase 1 immediately (dedup, imports, dead code). Pilot Remote Functions on /browse behind a flag, then expand. Convert to runes incrementally, starting with leaf components and avoiding vendor lib edits. Add concrete budgets and CI gates now to prevent regressions later.
+
+GEMINI AUDIT:
+- **What’s Strong**: This is an exemplary, highly-detailed refactoring plan. The phased approach with weekly goals, specific component-level tasks, and clear success criteria is excellent. The proactive adoption of Svelte 5 and Remote Functions is forward-thinking. The risk analysis for experimental features is well-considered.
+
+- **Biggest Risks + Mitigations**:
+  - **Timeline Ambition**: The 9-week timeline is aggressive, especially with experimental features. The learning curve for Runes and Remote Functions could be steep. **Mitigation**: Build in explicit "learning/prototyping" spikes in Week 1. Be prepared to adjust the timeline after Phase 1 based on actual team velocity.
+  - **State Management Strategy**: The plan focuses on component state but lacks a clear vision for shared/global state. As the app grows, relying solely on component-level `$state` and context can become unwieldy. **Mitigation**: Define a clear strategy for when to use global Svelte 5 stores vs. local state early on. Document this in a central architecture guide.
+  - **Database & Backend Dependencies**: The plan is frontend-centric. Refactoring might uncover needs for new DB indexes, schema changes, or API optimizations. **Mitigation**: Schedule regular check-ins with backend/DBA counterparts throughout the 9 weeks to ensure backend work is prioritized and doesn't become a bottleneck.
+
+- **Gaps / Clarifications Needed**:
+  - **Visual Regression Testing**: The plan relies on functional (Vitest) and E2E (Playwright) testing. For a UI-heavy refactor, this misses unintended visual changes. A tool to compare screenshots before/after changes is crucial.
+  - **Data Seeding/Mocking**: How will developers test components in isolation with realistic data? A clear strategy for dev/test data (e.g., using seed scripts, mocked API responses) is needed.
+  - **Environment Parity**: The plan should specify how to ensure dev, preview, and production environments are as similar as possible to avoid "works on my machine" issues, especially concerning environment variables and database access.
+
+- **Priority Adjustments (Low Effort, High Impact)**:
+  - **Centralize Type Definitions**: Before refactoring components, create a central `src/lib/types.ts` file for core data models (Product, User, WishlistItem). This enforces consistency and makes refactoring much safer.
+  - **Establish a Shared `utils.ts`**: Consolidate common helper functions (formatting, calculations, etc.) early to avoid duplication as components are refactored.
+  - **Pre-commit Hooks**: Implement pre-commit hooks (e.g., with Husky) to run `svelte-check` and `eslint` automatically. This catches errors before they even enter the CI pipeline.
+
+- **Immediate Actions (Next 48 hours)**:
+  - The existing "Immediate Next Steps" are excellent. I would add:
+  - **Setup a feature flag mechanism**: Use a simple library or environment variables to create feature flags. This is critical for de-risking the rollout of Remote Functions and major component rewrites.
+  - **Create the `src/lib/types.ts` file** and populate it with initial interfaces for `Product` and `User` based on existing code.
+  - **Draft a "Testing Strategy" document**: Briefly outline what gets a unit test vs. an E2E test vs. a visual regression test. This aligns the team before they start writing tests.

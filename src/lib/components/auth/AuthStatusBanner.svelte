@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { Alert, AlertDescription } from '$lib/components/ui/alert';
+	import Button from '$lib/components/native/Button.svelte';
+	import Alert from '$lib/components/native/Alert.svelte';
+	import AlertDescription from '$lib/components/native/AlertDescription.svelte';
 	import { CheckCircle, AlertCircle, Mail, X } from '@lucide/svelte';
 	import * as m from '$lib/paraglide/messages';
 	import { page } from '$app/stores';

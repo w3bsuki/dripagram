@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { XCircle } from '@lucide/svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/native/Button.svelte';
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">

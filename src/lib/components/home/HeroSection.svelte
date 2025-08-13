@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Search } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
-	import Button from '$lib/components/ui/button';
+	import Button from '$lib/components/native/Button.svelte';
 
 	type Props = {
 		searchQuery?: string;

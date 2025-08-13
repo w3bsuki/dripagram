@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { XCircle } from '@lucide/svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/native/Button.svelte';
 	
 	let message = $state('');
 	

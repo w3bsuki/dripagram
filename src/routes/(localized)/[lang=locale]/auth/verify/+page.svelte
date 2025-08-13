@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { toast } from '$lib/utils/toast';
 	import { CheckCircle, Mail, Loader2 } from '@lucide/svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/native/Button.svelte';
 	
 	let { data } = $props();
 	let resending = $state(false);

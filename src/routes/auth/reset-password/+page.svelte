@@ -6,7 +6,7 @@
 	const supabase = createClient();
 	import { toast } from '$lib/utils/toast';
 	import { Lock, Eye, EyeOff, Check } from '@lucide/svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/native/Button.svelte';
 	
 	let password = $state('');
 	let confirmPassword = $state('');

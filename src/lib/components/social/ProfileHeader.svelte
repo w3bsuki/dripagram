@@ -5,7 +5,7 @@ Responsive design with mobile/desktop variations
 -->
 <script lang="ts">
 	import { MoreHorizontal, MessageCircle, UserPlus, UserCheck, Share2, Settings } from '@lucide/svelte';
-	import Button from '$lib/components/ui/button';
+	import Button from '$lib/components/native/Button.svelte';
 	import { Avatar, AvatarImage, AvatarFallback } from '$lib/components/ui/avatar';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';

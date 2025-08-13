@@ -1,11 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { toggleLikeState, type LikeState } from '$lib/utils/likeLogic';
-	import ProductMedia from './ProductMedia.svelte';
-	import ProductSeller from './ProductSeller.svelte';
-	import ProductInfo from './ProductInfo.svelte';
-	import ProductStats from './ProductStats.svelte';
-
+	import { Heart, Star } from 'lucide-svelte';
+	
 	// Product type - using any for now since database structure is unclear
 	type Product = any;
 
@@ -16,191 +12,140 @@
 
 	let { product, onclick }: Props = $props();
 
-	let likeState = $state<LikeState>({
-		isLiked: false,
-		likeCount: product.like_count || product.likes?.[0]?.count || 0
-	});
+	let isWishlisted = $state(product.isWishlisted || false);
 
-	let isSaved = $state(false);
-	let isHovered = $state(false);
-
-	function handleClick() {
+	function handleClick(e?: MouseEvent | KeyboardEvent) {
+		// Don't navigate if clicking on interactive elements
+		if (e && 'target' in e && (e.target as HTMLElement).closest('button')) {
+			return;
+		}
+		
 		if (onclick) {
 			onclick();
 		} else {
-			// Ensure we always scroll to top when navigating
 			window.scrollTo(0, 0);
 			goto(`/products/${product.id}`);
 		}
 	}
 
-	async function handleLikeClick(e: MouseEvent) {
+	async function handleWishlistClick(e: MouseEvent) {
 		e.stopPropagation();
 		
 		// Optimistic update
-		const previousState = { ...likeState };
-		likeState = toggleLikeState(likeState);
+		const previousState = isWishlisted;
+		isWishlisted = !isWishlisted;
 		
 		try {
-			// Call the new like API endpoint
-			const response = await fetch(`/api/products/${product.id}/like`, {
+			const response = await fetch(`/api/products/${product.id}/wishlist`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
 			});
+			
+			if (!response.ok) {
+				throw new Error('Failed to toggle wishlist');
+			}
 			
 			const result = await response.json();
-			
-			if (!response.ok) {
-				throw new Error(result.error || 'Failed to toggle like');
-			}
-			
-			// Update with server response
-			likeState = {
-				isLiked: result.liked,
-				likeCount: result.likeCount,
-				isAnimating: true
-			};
+			isWishlisted = result.wishlisted;
 			
 		} catch (error) {
-			// Revert optimistic update on error
-			likeState = previousState;
-			console.error('Failed to toggle like:', error);
-			
-			// You could show a toast notification here
-			// showToast('Failed to update like', 'error');
+			// Revert on error
+			isWishlisted = previousState;
+			console.error('Failed to toggle wishlist:', error);
 		}
 	}
-
-	async function handleSaveClick(e: MouseEvent) {
-		e.stopPropagation();
-		
-		// Optimistic update
-		const previousSaved = isSaved;
-		isSaved = !isSaved;
-		
-		try {
-			// Call the new save API endpoint
-			const response = await fetch(`/api/products/${product.id}/save`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
-			
-			const result = await response.json();
-			
-			if (!response.ok) {
-				throw new Error(result.error || 'Failed to toggle save');
-			}
-			
-			// Update with server response
-			isSaved = result.saved;
-			
-		} catch (error) {
-			// Revert optimistic update on error
-			isSaved = previousSaved;
-			console.error('Failed to toggle save:', error);
-			
-			// You could show a toast notification here
-			// showToast('Failed to update save', 'error');
-		}
-	}
-
-	async function handleQuickMessage(e: MouseEvent) {
-		e.stopPropagation();
-		
-		// Ensure we have seller information
-		if (!product.seller?.id) {
-			console.error('No seller information available');
-			return;
-		}
-		
-		try {
-			// Create or find existing conversation with seller
-			const response = await fetch('/api/messages/conversation', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					otherUserId: product.seller.id,
-					productId: product.id
-				})
-			});
-			
-			if (!response.ok) {
-				throw new Error('Failed to create conversation');
-			}
-			
-			const { conversationId } = await response.json();
-			
-			// Navigate to the specific conversation
-			goto(`/messages/${conversationId}`);
-			
-		} catch (error) {
-			console.error('Failed to start conversation:', error);
-			// Fallback to general messages page
-			goto('/messages');
-		}
+	
+	// Helper to get seller initials
+	function getSellerInitials(name: string) {
+		if (!name) return 'U';
+		return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 	}
 </script>
 
 <div 
 	class="product-card"
 	data-product-id={product.id}
-	onmouseenter={() => isHovered = true}
-	onmouseleave={() => isHovered = false}
 	onclick={handleClick}
 	role="button"
 	tabindex="0"
 	onkeydown={(e) => e.key === 'Enter' && handleClick()}
 	aria-label="View {product.title}"
 >
-	<ProductMedia 
-		{product}
-		{likeState}
-		{isSaved}
-		{isHovered}
-		onclick={handleClick}
-		onLikeClick={handleLikeClick}
-		onSaveClick={handleSaveClick}
-		onQuickMessage={handleQuickMessage}
-	/>
-	
-	<!-- Redesigned Product Info -->
-	<div class="product-info">
-		<!-- Title at top, bigger -->
-		<div class="product-title">{product.title || 'Untitled'}</div>
+	<!-- Image section with overlays -->
+	<div class="image-container">
+		<img 
+			src={product.thumbnail_url || product.images?.[0]?.url || product.images?.[0] || product.image_url || '/placeholder.jpg'} 
+			alt={product.title}
+			class="product-image"
+			loading="lazy"
+		/>
 		
-		<!-- Category/Brand/Size info -->
-		<div class="product-meta">
+		<!-- Status tag (top-left) -->
+		{#if product.condition === 'like-new' || product.condition === 'new'}
+			<div class="status-tag">
+				{product.condition === 'new' ? 'НОВО' : 'КАТО НОВО'}
+			</div>
+		{/if}
+		
+		<!-- Price tag (top-right) -->
+		<div class="price-tag">
+			{product.price} лв
+		</div>
+	</div>
+	
+	<!-- Content section -->
+	<div class="content-section">
+		<!-- Title and heart row -->
+		<div class="title-row">
+			<h3 class="title">{product.title || 'Untitled'}</h3>
+			<button 
+				class="heart-button"
+				class:wishlisted={isWishlisted}
+				onclick={handleWishlistClick}
+				aria-label="Add to wishlist"
+			>
+				<Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
+			</button>
+		</div>
+		
+		<!-- Tags row -->
+		<div class="tags-row">
 			{#if product.brand}
-				<span class="meta-tag">{product.brand}</span>
+				<span class="brand-tag">{product.brand}</span>
 			{/if}
 			{#if product.size}
-				<span class="meta-tag">Size {product.size}</span>
-			{/if}
-			{#if product.category_display || product.category}
-				<span class="meta-tag">{product.category_display || product.category}</span>
+				<span class="size-tag">{product.size}</span>
 			{/if}
 		</div>
 		
-		<!-- Bottom row: seller with avatar on left, price on right -->
-		<div class="bottom-row">
-			<div class="product-seller">
-				<img 
-					src={product.seller?.avatar_url || product.seller?.avatar || `https://ui-avatars.com/api/?name=${product.seller?.username || 'U'}&background=random&size=20`} 
-					alt={product.seller?.username || 'Seller'}
-					class="seller-avatar"
-				/>
-				<span class="seller-name">{product.seller?.username || 'Anonymous'}</span>
-				{#if product.seller?.verified || product.seller?.seller_verified}
-					<span class="verified-badge">✓</span>
+		<!-- Seller info row -->
+		<div class="seller-row">
+			<div class="seller-info">
+				{#if product.seller?.avatar_url}
+					<img 
+						src={product.seller.avatar_url} 
+						alt={product.seller.username}
+						class="seller-avatar"
+					/>
+				{:else}
+					<div class="seller-avatar-placeholder">
+						{getSellerInitials(product.seller?.username || 'U')}
+					</div>
 				{/if}
+				<span class="seller-name">{product.seller?.username || 'tintin'}</span>
+				<div class="seller-rating">
+					<div class="stars">
+						<Star size={12} fill="currentColor" />
+						<Star size={12} fill="currentColor" />
+						<Star size={12} fill="currentColor" />
+						<Star size={12} fill="currentColor" />
+						<Star size={12} fill={product.seller?.rating >= 4.5 ? 'currentColor' : 'none'} />
+					</div>
+					<span class="rating-text">4.5 ({product.seller?.review_count || 52})</span>
+				</div>
 			</div>
-			<div class="product-price">€{product.price}</div>
 		</div>
 	</div>
 </div>
@@ -208,33 +153,26 @@
 <style>
 	.product-card {
 		background: white;
-		border-radius: 8px;
+		border: 1px solid #e5e7eb;
+		border-radius: 12px;
 		overflow: hidden;
 		width: 100%;
-		transition: all 0.2s ease;
+		transition: all 0.15s ease;
 		display: flex;
 		flex-direction: column;
-		border: none;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 		position: relative;
 		outline: none;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 		text-align: left;
 		padding: 0;
-		/* Typography baseline */
 		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
 		-webkit-font-smoothing: antialiased;
-		-moz-osx-font-smoothing: grayscale;
 	}
 
-	.product-card:focus {
-		outline: none;
-	}
-
-	
 	.product-card:hover {
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 		transform: translateY(-2px);
 	}
 	
@@ -242,86 +180,154 @@
 		transform: translateY(-1px);
 	}
 	
-	/* Product Info - Actually readable */
-	.product-info {
+	/* Image container with overlays */
+	.image-container {
+		position: relative;
+		width: 100%;
+		aspect-ratio: 1;
+		overflow: hidden;
+		background: #f9fafb;
+	}
+	
+	.product-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	
+	/* Status tag (top-left) */
+	.status-tag {
+		position: absolute;
+		top: 8px;
+		left: 8px;
+		background: #14b8a6;
+		color: white;
+		font-size: 11px;
+		font-weight: 600;
+		padding: 4px 8px;
+		border-radius: 6px;
+		text-transform: uppercase;
+		letter-spacing: 0.3px;
+	}
+	
+	/* Price tag (top-right) */
+	.price-tag {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		background: rgba(17, 24, 39, 0.85);
+		color: white;
+		font-size: 14px;
+		font-weight: 700;
+		padding: 5px 10px;
+		border-radius: 6px;
+	}
+	
+	/* Content section */
+	.content-section {
 		padding: 12px;
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
-		background: white;
-		pointer-events: none;
-		position: relative;
-		flex-shrink: 0;
-		min-height: 120px;
+		gap: 10px;
+		flex-grow: 1;
 	}
 	
-	/* Title - Actually big and readable */
-	.product-title {
-		font-size: 18px;
+	/* Title and heart row */
+	.title-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 4px;
+	}
+	
+	.title {
+		font-size: 15px;
 		font-weight: 600;
-		color: #111;
+		color: #111827;
+		margin: 0;
+		flex: 1;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
-		white-space: normal;
 		line-height: 1.3;
 	}
 	
-	/* Meta tags - Visible badges */
-	.product-meta {
+	.heart-button {
+		background: none;
+		border: none;
+		padding: 4px;
+		cursor: pointer;
+		color: #9ca3af;
+		transition: all 0.15s ease;
+		border-radius: 4px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	.heart-button:hover {
+		background: #f3f4f6;
+	}
+	
+	.heart-button.wishlisted {
+		color: #ef4444;
+	}
+	
+	/* Tags row */
+	.tags-row {
 		display: flex;
 		gap: 6px;
 		flex-wrap: wrap;
-		align-items: center;
 	}
 	
-	.meta-tag {
-		font-size: 13px;
-		padding: 4px 8px;
-		background: #f0f0f0;
-		color: #444;
-		border-radius: 6px;
+	.brand-tag {
+		background: #dbeafe;
+		color: #1e40af;
+		font-size: 11px;
 		font-weight: 500;
-		white-space: nowrap;
+		padding: 3px 8px;
+		border-radius: 12px;
 	}
 	
-	/* Bottom row - Actually visible */
-	.bottom-row {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
+	.size-tag {
+		background: #f3f4f6;
+		color: #374151;
+		font-size: 11px;
+		font-weight: 500;
+		padding: 3px 8px;
+		border-radius: 12px;
+	}
+	
+	/* Seller info row */
+	.seller-row {
 		margin-top: auto;
+		padding-top: 10px;
+		border-top: 1px solid #f3f4f6;
 	}
 	
-	.product-seller {
+	.seller-info {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: 6px;
+		width: 100%;
 	}
 	
 	.seller-avatar {
-		width: 26px;
-		height: 26px;
+		width: 24px;
+		height: 24px;
 		border-radius: 50%;
 		object-fit: cover;
-		border: 2px solid #f0f0f0;
 		flex-shrink: 0;
 	}
 	
-	.seller-name {
-		font-size: 14px;
-		font-weight: 500;
-		color: #555;
-	}
-	
-	.verified-badge {
-		width: 16px;
-		height: 16px;
-		background: #3897f0;
-		color: white;
+	.seller-avatar-placeholder {
+		width: 24px;
+		height: 24px;
 		border-radius: 50%;
+		background: #a78bfa;
+		color: white;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -330,55 +336,117 @@
 		flex-shrink: 0;
 	}
 	
-	/* Price - Big and bold */
-	.product-price {
-		font-size: 20px;
-		font-weight: 700;
-		color: #111;
+	.seller-name {
+		font-size: 12px;
+		font-weight: 500;
+		color: #374151;
+		flex-shrink: 0;
+		max-width: 80px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 	
+	.seller-rating {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		margin-left: auto;
+	}
 	
-	/* Mobile Optimizations */
+	.stars {
+		display: flex;
+		align-items: center;
+		gap: 1px;
+		color: #fbbf24;
+		flex-shrink: 0;
+	}
+	
+	.rating-text {
+		font-size: 11px;
+		color: #6b7280;
+		white-space: nowrap;
+	}
+	
+	/* Mobile adjustments */
 	@media (max-width: 640px) {
 		.product-card {
-			border-radius: 10px;
-			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+			border-radius: 8px;
+			border: 0.5px solid #e5e7eb;
 		}
 		
-		.product-info {
-			padding: 10px;
-			min-height: 100px;
+		.content-section {
+			padding: 8px;
+			gap: 6px;
 		}
 		
-		.product-title {
-			font-size: 16px;
+		.title {
+			font-size: 13px;
+			-webkit-line-clamp: 1;
 		}
 		
-		.product-price {
-			font-size: 18px;
-		}
-		
-		.meta-tag {
-			font-size: 11px;
+		.price-tag {
+			font-size: 12px;
 			padding: 3px 6px;
+			top: 6px;
+			right: 6px;
 		}
 		
-		.seller-avatar {
-			width: 24px;
-			height: 24px;
+		.status-tag {
+			font-size: 9px;
+			padding: 2px 5px;
+			top: 6px;
+			left: 6px;
+			border-radius: 4px;
+		}
+		
+		.tags-row {
+			gap: 4px;
+		}
+		
+		.brand-tag,
+		.size-tag {
+			font-size: 10px;
+			padding: 2px 6px;
+		}
+		
+		.seller-row {
+			padding-top: 6px;
+		}
+		
+		.seller-info {
+			gap: 4px;
+		}
+		
+		.seller-avatar,
+		.seller-avatar-placeholder {
+			width: 20px;
+			height: 20px;
+			font-size: 9px;
 		}
 		
 		.seller-name {
-			font-size: 13px;
+			font-size: 11px;
+			max-width: 60px;
 		}
 		
-		.product-card:hover {
-			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-			transform: translateY(-1px);
+		.seller-rating {
+			gap: 2px;
+		}
+		
+		.stars {
+			gap: 0;
+		}
+		
+		.rating-text {
+			font-size: 10px;
+		}
+		
+		.heart-button {
+			padding: 2px;
 		}
 	}
 	
-	/* Accessibility improvements */
 	@media (prefers-reduced-motion: reduce) {
 		.product-card {
 			transition: none;
@@ -388,7 +456,4 @@
 			transform: none;
 		}
 	}
-	
-	/* Dark mode support - now handled by design tokens */
-	
 </style>

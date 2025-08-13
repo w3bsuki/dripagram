@@ -5,7 +5,7 @@ Can be used in PostCard, FeedCard, or standalone
 -->
 <script lang="ts">
 	import { Heart, MessageCircle, Share2, Bookmark, ShoppingBag, Send } from '@lucide/svelte';
-	import Button from '$lib/components/ui/button';
+	import Button from '$lib/components/native/Button.svelte';
 
 	interface Props {
 		// State

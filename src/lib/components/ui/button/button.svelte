@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { cn } from '$lib/utils';
-	import type { HTMLButtonAttributes } from 'svelte/elements';
+		import type { HTMLButtonAttributes } from 'svelte/elements';
 
 	interface Props extends HTMLButtonAttributes {
 		variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
@@ -35,12 +34,7 @@
 </script>
 
 <button
-	class={cn(
-		'ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center rounded-md text-sm font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
-		variants[variant],
-		sizes[size],
-		className
-	)}
+	class={`ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center rounded-md text-sm font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className || ''}`}
 	{type}
 	{...restProps}
 >

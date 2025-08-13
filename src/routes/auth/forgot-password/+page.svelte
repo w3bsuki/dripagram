@@ -4,7 +4,7 @@
 	const supabase = createClient();
 	import { toast } from '$lib/utils/toast';
 	import { Mail, ArrowLeft } from '@lucide/svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/native/Button.svelte';
 	
 	let email = $state('');
 	let loading = $state(false);

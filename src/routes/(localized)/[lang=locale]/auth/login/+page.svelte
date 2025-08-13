@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import { Input } from '$lib/components/ui/input';
+	import Button from '$lib/components/native/Button.svelte';
+	import Input from '$lib/components/native/Input.svelte';
 	import { Label } from '$lib/components/ui/label';
-	import { Alert, AlertDescription } from '$lib/components/ui/alert';
+	import Alert from '$lib/components/native/Alert.svelte';
+	import AlertDescription from '$lib/components/native/AlertDescription.svelte';
 	import { Eye, EyeOff, Mail, Lock, AlertCircle, Loader2 } from '@lucide/svelte';
 	import AnimatedLogo from '$lib/components/branding/AnimatedLogo.svelte';
 	import * as m from '$lib/paraglide/messages';

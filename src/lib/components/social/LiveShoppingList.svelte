@@ -9,7 +9,7 @@
 	import Zap from '@lucide/svelte/icons/zap';
 	import { liveShoppingService, type LiveSession } from '$lib/services/live-shopping';
 	import LiveShopping from './LiveShopping.svelte';
-	import Button from '$lib/components/ui/button';
+	import Button from '$lib/components/native/Button.svelte';
 
 	// State
 	let activeSessions = $state<LiveSession[]>([]);

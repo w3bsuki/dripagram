@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Plus, Package, Heart } from '@lucide/svelte';
-    import Button from '$lib/components/ui/button';
+    import Button from '$lib/components/native/Button.svelte';
 
     let { activeTab, createListing } = $props();
 

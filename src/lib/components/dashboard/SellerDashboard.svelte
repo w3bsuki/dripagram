@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { Badge } from '$lib/components/ui/badge';
-	import Button from '$lib/components/ui/button';
+	import Button from '$lib/components/native/Button.svelte';
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Progress } from '$lib/components/ui/progress';
 	import { Separator } from '$lib/components/ui/separator';

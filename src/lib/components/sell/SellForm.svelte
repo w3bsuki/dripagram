@@ -5,7 +5,7 @@
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	// UI Components
-	import Button from '$lib/components/ui/button';
+	import Button from '$lib/components/native/Button.svelte';
 	import MobileStepper from './MobileStepper.svelte';
 	import CategorySelector from './CategorySelector.svelte';
 	import ImageUpload from './ImageUpload.svelte';

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Search, Camera, MapPin } from '@lucide/svelte';
-	import Button from '$lib/components/ui/button';
-	import Input from '$lib/components/ui/input/input.svelte';
+	import Button from '$lib/components/native/Button.svelte';
+	import Input from '$lib/components/native/Input.svelte';
 	import * as Popover from '$lib/components/ui/popover';
 	import SearchModal from './SearchModal.svelte';
 	import { goto } from '$app/navigation';

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Heart } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
-	import Button from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/native/Button.svelte';
 	import { getAuthContext } from '$lib/stores/auth.svelte';
 	
 	const auth = getAuthContext();

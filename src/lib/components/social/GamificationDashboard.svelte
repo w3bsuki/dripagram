@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { Star, Trophy, Gift, Users, Zap, Crown, Target, TrendingUp, Award } from '@lucide/svelte';
 	import { gamificationService, type SellerReputation, type LoyaltyPoints, type Badge, type ReferralProgram } from '$lib/services/gamification';
-	import Button from '$lib/components/ui/button';
+	import Button from '$lib/components/native/Button.svelte';
 	import { Progress } from '$lib/components/ui/progress';
 
 	let { userId } = $props<{ userId: string }>();
