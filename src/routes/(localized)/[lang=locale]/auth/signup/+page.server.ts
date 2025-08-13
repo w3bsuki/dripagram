@@ -1,11 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { superValidate, message } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
 import { signupSchema } from '$lib/schemas/auth';
 import type { Actions, PageServerLoad } from './$types';
-
-// Define adapter at module level for memoization
-const signupAdapter = zod(signupSchema as any);
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	const { session } = await locals.safeGetSession();
@@ -16,26 +11,37 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		redirect(303, `/${locale}`);
 	}
 	
-	const form = await superValidate(signupAdapter, { id: 'signup' });
-	return { form };
+	return {};
 };
 
 export const actions: Actions = {
 	default: async ({ request, locals, url, params }) => {
-		const form = await superValidate(request, signupAdapter, { id: 'signup' });
-		
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-		
-		const { email, password, fullName } = form.data as {
-			email: string;
-			password: string;
-			confirmPassword: string;
-			fullName: string;
-		};
+		const data = await request.formData();
+		const formData = Object.fromEntries(data);
 
 		const locale = params.lang || 'bg';
+
+		// Validate form data with Zod schema
+		const result = signupSchema.safeParse(formData);
+		
+		if (!result.success) {
+			const errors = result.error.format();
+			
+			// Return the first validation error
+			let errorMessage = 'Invalid form data';
+			if (errors.email?._errors[0]) errorMessage = errors.email._errors[0];
+			else if (errors.password?._errors[0]) errorMessage = errors.password._errors[0];
+			else if (errors.confirmPassword?._errors[0]) errorMessage = errors.confirmPassword._errors[0];
+			else if (errors.fullName?._errors[0]) errorMessage = errors.fullName._errors[0];
+			
+			return fail(400, { 
+				error: errorMessage,
+				email: formData.email as string,
+				fullName: formData.fullName as string
+			});
+		}
+
+		const { email, password, fullName } = result.data;
 
 		// Sign up the user
 		const { data: authData, error } = await locals.supabase.auth.signUp({
@@ -50,7 +56,11 @@ export const actions: Actions = {
 		});
 
 		if (error) {
-			return message(form, error.message, { status: 400 });
+			return fail(400, { 
+				error: error.message,
+				email: email,
+				fullName: fullName
+			});
 		}
 
 		if (authData.user) {

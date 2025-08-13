@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { superForm } from 'sveltekit-superforms';
-	import { zod } from 'sveltekit-superforms/adapters';
-	import { signupSchema } from '$lib/schemas/auth';
+	import { enhance } from '$app/forms';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -10,27 +8,15 @@
 	import AnimatedLogo from '$lib/components/branding/AnimatedLogo.svelte';
 	import * as m from '$lib/paraglide/messages';
 	import { page } from '$app/stores';
-	import type { PageData } from './$types';
+	import type { PageData, ActionData } from './$types';
 
-	let { data }: { data: PageData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 	let showPassword = $state(false);
 	let showConfirmPassword = $state(false);
+	let submitting = $state(false);
 
 	// Get locale from URL params
 	let locale = $derived($page.params.lang || 'bg');
-
-	const { form, errors, enhance, submitting, message } = superForm(data.form, {
-		resetForm: false,
-		taintedMessage: null,
-		delayMs: 500,
-		timeoutMs: 8000,
-		dataType: 'form',
-		onResult: ({ result }) => {
-			if (result.type === 'redirect') {
-				window.location.href = result.location;
-			}
-		}
-	});
 </script>
 
 <svelte:head>
@@ -55,7 +41,13 @@
 		</div>
 
 		<!-- Form -->
-		<form method="POST" use:enhance class="auth-form">
+		<form method="POST" use:enhance={() => {
+			submitting = true;
+			return async ({ update }) => {
+				await update();
+				submitting = false;
+			};
+		}} class="auth-form">
 			<div class="form-group">
 				<Label for="fullName" class="form-label">{m['auth.full_name']()}</Label>
 				<div class="input-wrapper">
@@ -65,19 +57,12 @@
 						name="fullName"
 						type="text"
 						placeholder={m['auth.full_name_placeholder']()}
-						bind:value={$form.fullName}
-						class="form-input {$errors.fullName ? 'error' : ''}"
-						disabled={$submitting}
+						class="form-input"
+						disabled={submitting}
 						autocomplete="name"
 						required
 					/>
 				</div>
-				{#if $errors.fullName}
-					<p class="error-message">
-						<AlertCircle size={14} />
-						{$errors.fullName}
-					</p>
-				{/if}
 			</div>
 
 			<div class="form-group">
@@ -89,19 +74,12 @@
 						name="email"
 						type="email"
 						placeholder={m['auth.email_placeholder']()}
-						bind:value={$form.email}
-						class="form-input {$errors.email ? 'error' : ''}"
-						disabled={$submitting}
+						class="form-input"
+						disabled={submitting}
 						autocomplete="email"
 						required
 					/>
 				</div>
-				{#if $errors.email}
-					<p class="error-message">
-						<AlertCircle size={14} />
-						{$errors.email}
-					</p>
-				{/if}
 			</div>
 
 			<div class="form-group">
@@ -113,9 +91,8 @@
 						name="password"
 						type={showPassword ? 'text' : 'password'}
 						placeholder={m['auth.create_strong_password']()}
-						bind:value={$form.password}
-						class="form-input password-input {$errors.password ? 'error' : ''}"
-						disabled={$submitting}
+						class="form-input password-input"
+						disabled={submitting}
 						autocomplete="new-password"
 						required
 					/>
@@ -132,12 +109,6 @@
 						{/if}
 					</button>
 				</div>
-				{#if $errors.password}
-					<p class="error-message">
-						<AlertCircle size={14} />
-						{$errors.password}
-					</p>
-				{/if}
 			</div>
 
 			<div class="form-group">
@@ -149,9 +120,8 @@
 						name="confirmPassword"
 						type={showConfirmPassword ? 'text' : 'password'}
 						placeholder={m['auth.confirm_your_password']()}
-						bind:value={$form.confirmPassword}
-						class="form-input password-input {$errors.confirmPassword ? 'error' : ''}"
-						disabled={$submitting}
+						class="form-input password-input"
+						disabled={submitting}
 						autocomplete="new-password"
 						required
 					/>
@@ -168,27 +138,21 @@
 						{/if}
 					</button>
 				</div>
-				{#if $errors.confirmPassword}
-					<p class="error-message">
-						<AlertCircle size={14} />
-						{$errors.confirmPassword}
-					</p>
-				{/if}
 			</div>
 
-			{#if $message}
+			{#if form?.error}
 				<div class="alert-error">
 					<AlertCircle size={16} />
-					<span>{$message}</span>
+					<span>{form.error}</span>
 				</div>
 			{/if}
 
 			<Button 
 				type="submit" 
 				class="submit-button"
-				disabled={$submitting}
+				disabled={submitting}
 			>
-				{#if $submitting}
+				{#if submitting}
 					<Loader2 class="spinner" size={16} />
 					{m['auth.creating_account']()}
 				{:else}

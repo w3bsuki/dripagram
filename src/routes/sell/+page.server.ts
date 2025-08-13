@@ -5,8 +5,6 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { listingSchema } from '$lib/schemas/listing';
 import { createListing } from '$lib/services/listingService';
 
-const listingAdapter = zod(listingSchema as any);
-
 export const load: PageServerLoad = async ({ locals }) => {
 	const { session, user } = await locals.safeGetSession();
 	
@@ -15,17 +13,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	// Initialize form with defaults
-	const form = await superValidate(listingAdapter, {
-		id: 'listing',
-		defaults: {
-			condition: 'like_new',
-			shipping_available: true,
-			shipping_price: 5,
-			location: 'Sofia, Bulgaria',
-			images: [],
-			tags: []
-		}
-	});
+	const form = await superValidate({
+		condition: 'like_new',
+		shipping_available: true,
+		shipping_price: 5,
+		location: 'Sofia, Bulgaria',
+		images: [],
+		tags: []
+	}, listingSchema, zod);
 
 	return {
 		session,
@@ -42,7 +37,7 @@ export const actions: Actions = {
 			throw redirect(303, '/auth/login');
 		}
 
-		const form = await superValidate(request, listingAdapter, { id: 'listing' });
+		const form = await superValidate(request, listingSchema, zod);
 
 		if (!form.valid) {
 			return fail(400, { form });

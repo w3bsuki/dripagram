@@ -1,11 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { superValidate, message } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
 import { loginSchema } from '$lib/schemas/auth';
 import type { Actions, PageServerLoad } from './$types';
-
-// Define adapter at module level for memoization
-const loginAdapter = zod(loginSchema as any);
 
 export const load: PageServerLoad = async ({ url, locals, params }) => {
 	const { session } = await locals.safeGetSession();
@@ -17,29 +12,40 @@ export const load: PageServerLoad = async ({ url, locals, params }) => {
 		redirect(303, redirectTo);
 	}
 	
-	const form = await superValidate(loginAdapter, { id: 'login' });
-	return { form };
+	return {};
 };
 
 export const actions: Actions = {
 	default: async ({ request, locals, url, params }) => {
-		const form = await superValidate(request, loginAdapter, { id: 'login' });
+		const data = await request.formData();
+		const formData = Object.fromEntries(data);
 		
-		if (!form.valid) {
-			return fail(400, { form });
-		}
-		
-		const { email, password } = form.data as { email: string; password: string };
 		const locale = params.lang || 'bg';
 		const redirectTo = url.searchParams.get('redirectTo') || `/${locale}`;
 
-		const { error, data } = await locals.supabase.auth.signInWithPassword({
+		// Validate form data with Zod schema
+		const result = loginSchema.safeParse(formData);
+		
+		if (!result.success) {
+			const errors = result.error.format();
+			return fail(400, { 
+				error: errors.email?._errors[0] || errors.password?._errors[0] || 'Invalid form data',
+				email: formData.email as string
+			});
+		}
+
+		const { email, password } = result.data;
+
+		const { error } = await locals.supabase.auth.signInWithPassword({
 			email,
 			password
 		});
 
 		if (error) {
-			return message(form, error.message, { status: 400 });
+			return fail(400, { 
+				error: error.message,
+				email: email
+			});
 		}
 
 		throw redirect(303, redirectTo);

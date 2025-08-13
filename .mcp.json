@@ -5,16 +5,12 @@
       "url": "https://svelte-llm.stanislav.garden/mcp/sse"
     },
     "supabase": {
-      "command": "cmd",
+      "command": "mcp-server-supabase",
       "args": [
-        "/c",
-        "npx",
-        "-y",
-        "@supabase/mcp-server-supabase@latest",
         "--project-ref=luggxybkeidlpsyqetmb"
       ],
       "env": {
-        "SUPABASE_ACCESS_TOKEN": "sbp_3de3f1fe4f4ac6804f44b3129d3c4df7025d0462"
+        "SUPABASE_ACCESS_TOKEN": "sbp_1105fb0e21b6cf2f4a7e86da975ac401d00f5594"
       }
     }
   }

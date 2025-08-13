@@ -38,7 +38,7 @@
 		<div class="overlay-actions">
 			<button 
 				class="action-btn quick-message"
-				onclick={onQuickMessage}
+				onclick={(e) => { e.stopPropagation(); onQuickMessage(e); }}
 				aria-label="Message seller"
 				type="button"
 			>
@@ -53,7 +53,7 @@
 		<!-- Like Button -->
 		<button 
 			class="action-btn like-btn {likeState.isLiked ? 'liked' : ''}"
-			onclick={onLikeClick}
+			onclick={(e) => { e.stopPropagation(); onLikeClick(e); }}
 			aria-label={likeState.isLiked ? 'Unlike' : 'Like'}
 			type="button"
 		>
@@ -63,7 +63,7 @@
 		<!-- Save Button -->
 		<button 
 			class="action-btn save-btn {isSaved ? 'saved' : ''}"
-			onclick={onSaveClick}
+			onclick={(e) => { e.stopPropagation(); onSaveClick(e); }}
 			aria-label={isSaved ? 'Remove from favorites' : 'Add to favorites'}
 			type="button"
 		>

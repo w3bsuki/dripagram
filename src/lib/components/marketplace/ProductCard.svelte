@@ -147,13 +147,15 @@
 	}
 </script>
 
-<button 
+<div 
 	class="product-card"
 	data-product-id={product.id}
 	onmouseenter={() => isHovered = true}
 	onmouseleave={() => isHovered = false}
 	onclick={handleClick}
-	type="button"
+	role="button"
+	tabindex="0"
+	onkeydown={(e) => e.key === 'Enter' && handleClick()}
 	aria-label="View {product.title}"
 >
 	<ProductMedia 
@@ -201,7 +203,7 @@
 			<div class="product-price">€{product.price}</div>
 		</div>
 	</div>
-</button>
+</div>
 
 <style>
 	.product-card {
@@ -216,8 +218,8 @@
 		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 		position: relative;
 		outline: none;
-		-webkit-tap-highlight-color: transparent;
 		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
 		text-align: left;
 		padding: 0;
 		/* Typography baseline */

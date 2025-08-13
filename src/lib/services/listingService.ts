@@ -46,43 +46,47 @@ export async function createListing(
 
 	// Convert condition values to match database enum
 	const conditionMap: Record<string, string> = {
-		'new_with_tags': 'new',
-		'new_without_tags': 'new',
+		'new': 'new',
 		'like_new': 'like_new',
 		'very_good': 'very_good',
 		'good': 'good',
-		'fair': 'acceptable'
+		'acceptable': 'acceptable'
 	};
+
+	const insertData = {
+		title: listingData.title,
+		description: listingData.description || null,
+		price: listingData.price,
+		category_id: listingData.category_id || null,
+		brand: listingData.brand || null,
+		size: listingData.size || null,
+		condition: conditionMap[listingData.condition] || 'good',
+		color: listingData.color || null,
+		material: listingData.material || null,
+		images: listingData.images,
+		thumbnail_url,
+		location: listingData.location ? { city: listingData.location } : null,
+		city: listingData.city || listingData.location || null,
+		shipping_available: listingData.shipping_available,
+		shipping_price: listingData.shipping_price || null,
+		tags: listingData.tags || [],
+		seller_id: user.id,
+		status: 'active',
+		views: 0,
+		likes: 0,
+		like_count: 0
+	};
+
+	console.log('Inserting listing data:', insertData);
 
 	const { data, error } = await supabase
 		.from('products')
-		.insert({
-			title: listingData.title,
-			description: listingData.description,
-			price: listingData.price,
-			category_id: listingData.category_id || null,
-			brand: listingData.brand,
-			size: listingData.size,
-			condition: conditionMap[listingData.condition] || 'good',
-			color: listingData.color,
-			material: listingData.material,
-			images: listingData.images,
-			thumbnail_url,
-			location: listingData.location ? { city: listingData.location } : {},
-			city: listingData.city || listingData.location,
-			shipping_available: listingData.shipping_available,
-			shipping_price: listingData.shipping_price,
-			tags: listingData.tags || [],
-			seller_id: user.id,
-			status: 'active',
-			views: 0,
-			likes: 0,
-			like_count: 0
-		})
+		.insert(insertData)
 		.select('id')
 		.single();
 
 	if (error) {
+		console.error('Supabase error:', error);
 		throw new Error(`Failed to create listing: ${error.message}`);
 	}
 

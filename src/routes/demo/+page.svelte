@@ -4,7 +4,7 @@
 		MessageCircle, Bell, Filter, MapPin, TrendingUp, Star,
 		Camera, Sparkles, Clock, Shield, ChevronDown, MoreVertical,
 		Eye, Share2, Bookmark, Package, Zap, Award
-	} from '@lucide-svelte';
+	} from 'lucide-svelte';
 	import type { PageData } from './$types';
 	
 	let { data }: { data: PageData } = $props();

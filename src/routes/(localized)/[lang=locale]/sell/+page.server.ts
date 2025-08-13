@@ -1,11 +1,6 @@
 import type { PageServerLoad, Actions } from './$types';
 import { redirect, fail } from '@sveltejs/kit';
-import { superValidate, message } from 'sveltekit-superforms';
-import { zod } from 'sveltekit-superforms/adapters';
-import { listingSchema } from '$lib/schemas/listing';
 import { createListing } from '$lib/services/listingService';
-
-const listingAdapter = zod(listingSchema as any);
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	const { lang } = params;
@@ -26,23 +21,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		throw redirect(303, `/${lang}/onboarding`);
 	}
 
-	// Initialize form with defaults
-	const form = await superValidate(listingAdapter, {
-		id: 'listing',
-		defaults: {
-			condition: 'like_new',
-			shipping_available: true,
-			shipping_price: 5,
-			location: 'Sofia, Bulgaria',
-			images: [],
-			tags: []
-		}
-	});
-
 	return {
 		session,
 		user,
-		form,
 		lang
 	};
 };
@@ -56,37 +37,161 @@ export const actions: Actions = {
 			throw redirect(303, `/${lang}/auth/login`);
 		}
 
-		const form = await superValidate(request, listingAdapter, { id: 'listing' });
+		const formData = await request.formData();
+		
+		// Extract form data
+		const title = formData.get('title')?.toString().trim() || '';
+		const description = formData.get('description')?.toString().trim() || '';
+		const priceStr = formData.get('price')?.toString() || '';
+		const category = formData.get('category')?.toString() || '';
+		const condition = formData.get('condition')?.toString() || 'good';
+		const brand = formData.get('brand')?.toString().trim() || '';
+		const size = formData.get('size')?.toString().trim() || '';
+		const color = formData.get('color')?.toString().trim() || '';
+		const location = formData.get('location')?.toString().trim() || 'Sofia';
+		const shippingAvailable = formData.get('shipping_available') === 'on';
+		const shippingPriceStr = formData.get('shipping_price')?.toString() || '5';
+		
+		// Extract image URLs
+		const imageUrls = formData.getAll('images')
+			.map(img => img.toString())
+			.filter(Boolean);
 
-		if (!form.valid) {
-			return fail(400, { form });
+		// Store form values for re-display on error
+		const values = {
+			title,
+			description,
+			price: priceStr,
+			category,
+			condition,
+			brand,
+			size,
+			color,
+			location,
+			shipping_available: shippingAvailable,
+			shipping_price: shippingPriceStr
+		};
+
+		// Validation
+		if (!title || title.length < 3) {
+			return fail(400, {
+				error: 'Title must be at least 3 characters long',
+				values
+			});
+		}
+
+		if (title.length > 80) {
+			return fail(400, {
+				error: 'Title must be less than 80 characters',
+				values
+			});
+		}
+
+		const price = parseFloat(priceStr);
+		if (isNaN(price) || price <= 0) {
+			return fail(400, {
+				error: 'Please enter a valid price',
+				values
+			});
+		}
+
+		if (price > 99999) {
+			return fail(400, {
+				error: 'Price cannot exceed 99,999 BGN',
+				values
+			});
+		}
+
+		if (!category) {
+			return fail(400, {
+				error: 'Please select a category',
+				values
+			});
+		}
+
+		if (!brand || brand.length < 2) {
+			return fail(400, {
+				error: 'Please enter a valid brand name',
+				values
+			});
+		}
+
+		if (brand.length > 50) {
+			return fail(400, {
+				error: 'Brand name is too long',
+				values
+			});
+		}
+
+		const shippingPrice = parseFloat(shippingPriceStr);
+		if (shippingAvailable && (isNaN(shippingPrice) || shippingPrice < 0)) {
+			return fail(400, {
+				error: 'Please enter a valid shipping price',
+				values
+			});
+		}
+
+		if (imageUrls.length === 0) {
+			return fail(400, {
+				error: 'Please add at least one photo',
+				values
+			});
+		}
+
+		if (imageUrls.length > 10) {
+			return fail(400, {
+				error: 'Maximum 10 photos allowed',
+				values
+			});
+		}
+
+		// Validate condition value
+		const validConditions = ['new', 'like_new', 'very_good', 'good', 'acceptable'];
+		if (!validConditions.includes(condition)) {
+			return fail(400, {
+				error: 'Invalid condition selected',
+				values
+			});
 		}
 
 		try {
-			// Create listing in Supabase
-			const listingData = form.data as any;
-			
-			// Don't send category_id if it's not a valid UUID
-			const createData: any = {
-				...listingData,
-				thumbnail_url: listingData.images?.[0]
+			// Create listing data
+			const listingData = {
+				title,
+				description: description || undefined,
+				price,
+				category_id: undefined, // We're not using category_id for now
+				condition: condition as 'new' | 'like_new' | 'very_good' | 'good' | 'acceptable',
+				brand,
+				size: size || undefined,
+				color: color || undefined,
+				location,
+				city: location,
+				shipping_available: shippingAvailable,
+				shipping_price: shippingAvailable ? shippingPrice : undefined,
+				images: imageUrls,
+				thumbnail_url: imageUrls[0],
+				tags: []
 			};
 			
-			// Remove the category field since it's not a UUID
-			delete createData.category;
-			
-			const listing = await createListing(createData, locals.supabase);
+			// Create the listing
+			const listing = await createListing(listingData, locals.supabase);
 
-			// Redirect to success page with listing info
-			const title = encodeURIComponent(listingData.title || '');
-			throw redirect(303, `/${lang}/sell/success?id=${listing.id}&title=${title}`);
+			// Redirect to success page
+			throw redirect(303, `/${lang}/sell/success?id=${listing.id}`);
+			
 		} catch (error) {
-			// If it's a redirect, it means success - rethrow it
+			// If it's a redirect (success), rethrow it
 			if (error && typeof error === 'object' && 'status' in error && error.status === 303) {
 				throw error;
 			}
 			
-			return message(form, 'Failed to create listing. Please try again.', { status: 500 });
+			console.error('Failed to create listing:', error);
+			
+			return fail(500, {
+				error: 'Failed to create listing. Please try again.',
+				values
+			});
 		}
 	}
 };

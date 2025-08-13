@@ -53,80 +53,43 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 		// Initialize Supabase client
 		const supabase = createSupabaseServerClient(cookies);
 		
-		// Get user session (optional - views can be anonymous)
-		const { data: { session } } = await supabase.auth.getSession();
-		const userId = session?.user?.id || null;
+		// Test database connection
+		const { error: testError } = await supabase.from('products').select('id').limit(1);
+		if (testError) {
+			console.error('Supabase connection test failed:', testError);
+			return json({ 
+				error: 'Database connection failed',
+				success: false 
+			}, { status: 500 });
+		}
 		
-		// Get user agent for analytics
-		const userAgent = request.headers.get('user-agent') || null;
-		
-		// Prepare view records
-		const viewRecords = productIds.map(productId => ({
-			product_id: productId,
-			user_id: userId,
-			ip_address: clientIp,
-			user_agent: userAgent,
-			viewed_at: new Date().toISOString()
-		}));
-		
-		// Update view counts directly on products/listings tables
-		// Since product_views table may not exist, use a simpler approach
+		// Simple approach: just increment view_count without complex logic
 		let trackedCount = 0;
 		
 		for (const productId of productIds) {
-			// Get current view count and increment it
-			const { data: product } = await supabase
-				.from('products')
-				.select('view_count')
-				.eq('id', productId)
-				.single();
-			
-			if (product) {
-				// Update products table
-				const newViewCount = (product.view_count || 0) + 1;
-				const { error: productUpdateError } = await supabase
-					.from('products')
-					.update({ view_count: newViewCount })
-					.eq('id', productId);
+			try {
+				// Use SQL function to increment view count atomically
+				const { error: updateError } = await supabase.rpc('increment_view_count', {
+					product_id: productId
+				});
 				
-				if (!productUpdateError) {
+				if (!updateError) {
 					trackedCount++;
-				}
-			} else {
-				// Try listings table as fallback
-				const { data: listing } = await supabase
-					.from('listings')
-					.select('view_count')
-					.eq('id', productId)
-					.single();
-				
-				if (listing) {
-					const newViewCount = (listing.view_count || 0) + 1;
-					const { error: listingUpdateError } = await supabase
-						.from('listings')
-						.update({ view_count: newViewCount })
+				} else {
+					// Fallback: try direct update
+					const { error: fallbackError } = await supabase
+						.from('products')
+						.update({ view_count: supabase.sql`view_count + 1` })
 						.eq('id', productId);
 					
-					if (!listingUpdateError) {
+					if (!fallbackError) {
 						trackedCount++;
 					}
 				}
+			} catch (err) {
+				// Continue processing other products even if one fails
+				console.warn(`Failed to track view for product ${productId}:`, err);
 			}
-			
-			// Optional: Insert into product_views table for detailed analytics
-			// (only if table exists - ignore errors if it doesn't)
-			const viewRecord = {
-				product_id: productId,
-				user_id: userId,
-				ip_address: clientIp,
-				user_agent: userAgent,
-				viewed_at: new Date().toISOString()
-			};
-			
-			// Try to insert view record, but don't fail if table doesn't exist
-			await supabase.from('product_views').insert(viewRecord).catch(() => {
-				// Silently ignore - table may not exist
-			});
 		}
 		
 		// Clean up old rate limit entries periodically
@@ -145,6 +108,7 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 		});
 		
 	} catch (error) {
+		console.error('Analytics API error:', error);
 		return json({ 
 			error: 'Failed to track views',
 			success: false 
