@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import Button from '$lib/components/native/Button.svelte';
-	import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '$lib/components/ui/sheet';
-	import { Switch } from '$lib/components/ui/switch';
-	import { Label } from '$lib/components/ui/label';
+	import { SheetRoot, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '$lib/components/native';
+	import { Switch } from '$lib/components/native';
+	import { Label } from '$lib/components/native';
 	import { Cookie, Shield, Settings } from '@lucide/svelte';
 	import { analytics } from '$lib/services/analytics';
 	
@@ -155,17 +155,24 @@
 	</div>
 {/if}
 
-<Sheet bind:open={showSettings}>
+<SheetRoot bind:open={showSettings}>
 	<SheetContent side="bottom" class="h-auto max-h-[80vh] overflow-y-auto">
-		<SheetHeader>
-			<SheetTitle class="flex items-center gap-2">
-				<Shield class="h-5 w-5" />
-				Настройки за поверителност
-			</SheetTitle>
-			<SheetDescription>
-				Управлявайте вашите предпочитания за бисквитки. Можете да промените тези настройки по всяко време.
-			</SheetDescription>
-		</SheetHeader>
+		{#snippet children()}
+			<SheetHeader>
+				{#snippet children()}
+					<SheetTitle class="flex items-center gap-2">
+						{#snippet children()}
+							<Shield class="h-5 w-5" />
+							Настройки за поверителност
+						{/snippet}
+					</SheetTitle>
+					<SheetDescription>
+						{#snippet children()}
+							Управлявайте вашите предпочитания за бисквитки. Можете да промените тези настройки по всяко време.
+						{/snippet}
+					</SheetDescription>
+				{/snippet}
+			</SheetHeader>
 		
 		<div class="mt-6 space-y-6">
 			<!-- Necessary cookies -->
@@ -182,7 +189,7 @@
 			<!-- Analytics cookies -->
 			<div class="flex items-start justify-between gap-4">
 				<div class="flex-1">
-					<Label htmlFor="analytics" class="text-base font-medium">Аналитични бисквитки</Label>
+					<Label for="analytics" class="text-base font-medium">Аналитични бисквитки</Label>
 					<p class="text-sm text-muted-foreground mt-1">
 						Помагат ни да разберем как използвате сайта и да подобрим вашето изживяване.
 					</p>
@@ -197,7 +204,7 @@
 			<!-- Marketing cookies -->
 			<div class="flex items-start justify-between gap-4">
 				<div class="flex-1">
-					<Label htmlFor="marketing" class="text-base font-medium">Маркетингови бисквитки</Label>
+					<Label for="marketing" class="text-base font-medium">Маркетингови бисквитки</Label>
 					<p class="text-sm text-muted-foreground mt-1">
 						Използват се за показване на персонализирани реклами и препоръки.
 					</p>
@@ -221,9 +228,10 @@
 			>
 				Отказ
 			</Button>
-		</div>
+			</div>
+		{/snippet}
 	</SheetContent>
-</Sheet>
+</SheetRoot>
 
 <style>
 	@keyframes slide-up {

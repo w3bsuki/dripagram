@@ -10,8 +10,8 @@
 		ArrowLeft,
 		Plus,
 	} from '@lucide/svelte';
-	import * as Dialog from '$lib/components/ui/dialog';
-	import * as Sheet from '$lib/components/ui/sheet';
+	import * as Dialog from '$lib/components/native';
+	import * as Sheet from '$lib/components/native';
 	import { onMount } from 'svelte';
 
 	// Props
@@ -260,16 +260,23 @@
 {#if !isMobile}
 	<Dialog.Root bind:open={isOpen}>
 		<Dialog.Trigger>
-			<button
-				class="bg-primary hover:bg-primary/90 rounded-xl px-6 py-3 font-medium text-white transition-colors"
-			>
-				{trigger}
-			</button>
+			{#snippet children()}
+				<button
+					class="bg-primary hover:bg-primary/90 rounded-xl px-6 py-3 font-medium text-white transition-colors"
+				>
+					{trigger}
+				</button>
+			{/snippet}
 		</Dialog.Trigger>
 		<Dialog.Content class="max-h-[90vh] max-w-2xl overflow-y-auto">
-			<Dialog.Header>
-				<Dialog.Title>Създай обява за 3 минути</Dialog.Title>
-			</Dialog.Header>
+			{#snippet children()}
+				<Dialog.Header>
+					{#snippet children()}
+						<Dialog.Title>
+							{#snippet children()}Създай обява за 3 минути{/snippet}
+						</Dialog.Title>
+					{/snippet}
+				</Dialog.Header>
 
 			<!-- Progress Steps -->
 			<div class="mb-6 flex items-center justify-between">
@@ -335,23 +342,31 @@
 					</button>
 				{/if}
 			</div>
+			{/snippet}
 		</Dialog.Content>
 	</Dialog.Root>
 
 	<!-- Mobile Sheet -->
 {:else}
-	<Sheet.Root bind:open={isOpen}>
-		<Sheet.Trigger>
-			<button
-				class="bg-primary hover:bg-primary/90 rounded-xl px-6 py-3 font-medium text-white transition-colors"
-			>
-				{trigger}
-			</button>
-		</Sheet.Trigger>
-		<Sheet.Content side="bottom" class="h-[90vh]">
-			<Sheet.Header>
-				<Sheet.Title>Създай обява</Sheet.Title>
-			</Sheet.Header>
+	<Sheet.Sheet bind:open={isOpen}>
+		<Sheet.SheetTrigger>
+			{#snippet children()}
+				<button
+					class="bg-primary hover:bg-primary/90 rounded-xl px-6 py-3 font-medium text-white transition-colors"
+				>
+					{trigger}
+				</button>
+			{/snippet}
+		</Sheet.SheetTrigger>
+		<Sheet.SheetContent side="bottom" class="h-[90vh]">
+			{#snippet children()}
+				<Sheet.SheetHeader>
+					{#snippet children()}
+						<Sheet.SheetTitle>
+							{#snippet children()}Създай обява{/snippet}
+						</Sheet.SheetTitle>
+					{/snippet}
+				</Sheet.SheetHeader>
 
 			<!-- Mobile Progress -->
 			<div class="mb-6 flex justify-center">
@@ -397,7 +412,8 @@
 						Публикувай
 					</button>
 				{/if}
-			</div>
-		</Sheet.Content>
-	</Sheet.Root>
+				</div>
+			{/snippet}
+		</Sheet.SheetContent>
+	</Sheet.Sheet>
 {/if}

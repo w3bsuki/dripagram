@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Search, Camera, TrendingUp, MapPin } from '@lucide/svelte';
-	import * as Dialog from '$lib/components/ui/dialog';
+	import * as Dialog from '$lib/components/native';
 	import Button from '$lib/components/native/Button.svelte';
 	import Input from '$lib/components/native/Input.svelte';
 	import { Badge } from '$lib/components/native';
@@ -56,10 +56,17 @@
 
 <Dialog.Root bind:open>
 	<Dialog.Content class="max-h-[80vh] max-w-2xl overflow-y-auto">
-		<Dialog.Header>
-			<Dialog.Title>Търсене</Dialog.Title>
-			<Dialog.Description>Търси продукти, марки, категории или потребители</Dialog.Description>
-		</Dialog.Header>
+		{#snippet children()}
+			<Dialog.Header>
+				{#snippet children()}
+					<Dialog.Title>
+						{#snippet children()}Търсене{/snippet}
+					</Dialog.Title>
+					<Dialog.Description>
+						{#snippet children()}Търси продукти, марки, категории или потребители{/snippet}
+					</Dialog.Description>
+				{/snippet}
+			</Dialog.Header>
 
 		<div class="space-y-6">
 			<!-- Search Input -->
@@ -139,5 +146,6 @@
 				</div>
 			</div>
 		</div>
+		{/snippet}
 	</Dialog.Content>
 </Dialog.Root>

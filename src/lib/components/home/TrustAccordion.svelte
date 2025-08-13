@@ -9,7 +9,7 @@
 		Clock,
 		MessageCircle,
 	} from '@lucide/svelte';
-	import * as Accordion from '$lib/components/ui/accordion';
+	import * as Accordion from '$lib/components/native';
 
 	// Trust indicators data
 	let trustFeatures = [
@@ -227,20 +227,6 @@
 								<h3 class="mb-1 font-semibold text-gray-900">{feature.title}</h3>
 								<p class="text-sm text-gray-600">{feature.description}</p>
 							</div>
-							<div class="accordion-chevron transition-transform duration-200">
-								<svg
-									width="15"
-									height="15"
-									viewBox="0 0 15 15"
-									fill="none"
-									xmlns="http://www.w3.org/2000/svg"
-								>
-									<path
-										d="m4.93179 5.43179c.20811-.20811.54565-.20811.75376 0l2.06066 2.06066c.4929.4929 1.2936.4929 1.7865 0l2.0607-2.06066c.2081-.20811.5456-.20811.7537 0 .2081.20811.2081.54565 0 .75376l-2.7829 2.78289c-.6834.6834-1.7929.6834-2.4763 0l-2.78289-2.78289c-.20811-.20811-.20811-.54565 0-.75376z"
-										fill="currentColor"
-									/>
-								</svg>
-							</div>
 						</Accordion.Trigger>
 						<Accordion.Content class="px-6 pb-6">
 							<div class="prose prose-sm max-w-none">
@@ -282,11 +268,6 @@
 </section>
 
 <style>
-	/* Accordion chevron rotation */
-	:global([data-state='open']) .accordion-chevron {
-		transform: rotate(180deg);
-	}
-
 	/* Prose styles for accordion content */
 	.prose h4 {
 		margin-top: 0;

@@ -10,7 +10,7 @@ Modular post card following Instagram design patterns with:
 <script lang="ts">
 	import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal } from '@lucide/svelte';
 	import Button from '$lib/components/native/Button.svelte';
-	import { Avatar, AvatarImage, AvatarFallback } from '$lib/components/ui/avatar';
+	import { Avatar, AvatarImage, AvatarFallback } from '$lib/components/native';
 	import { Badge } from '$lib/components/native';
 	import type { FeedProduct } from '$lib/types';
 

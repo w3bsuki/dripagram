@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/native/Button.svelte';
 	import Input from '$lib/components/native/Input.svelte';
-	import { Label } from '$lib/components/ui/label';
+	import { Label } from '$lib/components/native';
 	import Alert from '$lib/components/native/Alert.svelte';
 	import AlertDescription from '$lib/components/native/AlertDescription.svelte';
 	import { Eye, EyeOff, User, Mail, Lock, AlertCircle, Loader2 } from '@lucide/svelte';

@@ -4,7 +4,7 @@ Displays story/highlight thumbnails with gradient ring for unviewed stories
 Can be used for user stories, brand highlights, category collections, etc.
 -->
 <script lang="ts">
-	import { Avatar, AvatarImage, AvatarFallback } from '$lib/components/ui/avatar';
+	import { Avatar, AvatarImage, AvatarFallback } from '$lib/components/native';
 	import { Badge } from '$lib/components/native';
 
 	interface Props {

@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 export const analyticsEventSchema = z.object({
 	event_name: z.string().min(1).max(100),
-	properties: z.record(z.unknown()).optional(),
+	properties: z.record(z.string(), z.unknown()).optional(),
 	user_id: z.string().uuid().optional(),
 	session_id: z.string().optional(),
 	timestamp: z.string().datetime().optional()
@@ -155,7 +155,7 @@ export function validateRequest<T>(
 	}
 	
 	// Format error message
-	const errors = result.error.errors.map(err => 
+	const errors = result.error.issues.map(err => 
 		`${err.path.join('.')}: ${err.message}`
 	).join(', ');
 	

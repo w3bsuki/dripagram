@@ -6,9 +6,9 @@ Responsive design with mobile/desktop variations
 <script lang="ts">
 	import { MoreHorizontal, MessageCircle, UserPlus, UserCheck, Share2, Settings } from '@lucide/svelte';
 	import Button from '$lib/components/native/Button.svelte';
-	import { Avatar, AvatarImage, AvatarFallback } from '$lib/components/ui/avatar';
+	import { Avatar, AvatarImage, AvatarFallback } from '$lib/components/native';
 	import { Badge } from '$lib/components/native';
-	import { Separator } from '$lib/components/ui/separator';
+	import { Separator } from '$lib/components/native';
 	import type { Profile } from '$lib/types';
 	import * as m from '$lib/paraglide/messages';
 

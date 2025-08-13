@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Grid3x3, Package, Heart } from '@lucide/svelte';
-    import { Tabs, TabsList, TabsTrigger } from "$lib/components/ui/tabs";
 
     let { activeTab, onTabChange } = $props();
 

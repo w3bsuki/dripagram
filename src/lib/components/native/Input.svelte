@@ -9,7 +9,7 @@
 		class?: string;
 		id?: string;
 		name?: string;
-		autocomplete?: string;
+		autocomplete?: string | null;
 		'aria-label'?: string;
 		'aria-describedby'?: string;
 		oninput?: (event: Event) => void;

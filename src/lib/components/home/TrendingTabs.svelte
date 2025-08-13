@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Clock, TrendingUp, MapPin, Heart, Eye, Star } from '@lucide/svelte';
-	import * as Tabs from '$lib/components/ui/tabs';
+	import { Tabs } from '$lib/components/native';
 	import type { FeedProduct } from '$lib/types';
 
 	interface Props {

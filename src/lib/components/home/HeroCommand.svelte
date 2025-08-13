@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Search, Camera, Zap, TrendingUp, MapPin, Star, Users } from '@lucide/svelte';
-	// import * as Command from '$lib/components/ui/command'; // Temporarily disabled
-	// import * as Popover from '$lib/components/ui/popover'; // Temporarily disabled due to compatibility issues
+	import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem, CommandSeparator, CommandShortcut } from '$lib/components/native';
 
 	let searchOpen = $state(false);
 	let searchValue = $state('');
@@ -197,101 +196,59 @@
 	></div>
 {/if}
 
-<!-- Simple Search Modal (temporary replacement for Command Dialog) -->
-{#if searchOpen}
-	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-		role="dialog"
-		aria-modal="true"
-		aria-label="Search products"
-		tabindex="0"
-		onclick={() => (searchOpen = false)}
-		onkeydown={(e) => e.key === 'Escape' && (searchOpen = false)}
-	>
-		<div
-			class="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white"
-			role="document"
-		>
-			<div class="p-6">
-				<div class="mb-6">
-					<input
-						bind:value={searchValue}
-						type="search"
-						placeholder="Търси продукти, марки, категории, потребители..."
-						class="focus:ring-primary focus:border-primary w-full rounded-lg border border-gray-300 px-4 py-3 text-lg outline-none focus:ring-2"
-						aria-label="Search input"
-					/>
-				</div>
+<!-- Command Dialog for Search -->
+<CommandDialog bind:open={searchOpen}>
+	<CommandInput placeholder="Търси продукти, марки, категории, потребители..." />
+	<CommandList>
+		<CommandEmpty>Няма резултати.</CommandEmpty>
 
-				{#if searchValue === '' && recentSearches.length > 0}
-					<div class="mb-6">
-						<h3 class="mb-3 text-sm font-medium text-gray-900">Скорошни търсения</h3>
-						<div class="space-y-1">
-							{#each recentSearches as search}
-								<button
-									onclick={() => handleSearch(search)}
-									class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-gray-50"
-								>
-									<Search size={16} class="text-gray-400" />
-									<span class="flex-1">{search}</span>
-								</button>
-							{/each}
-						</div>
-					</div>
-				{/if}
+		{#if recentSearches.length > 0}
+			<CommandGroup heading="Скорошни търсения">
+				{#each recentSearches as search}
+					<CommandItem
+						value={search}
+						onSelect={() => handleSearch(search)}
+					>
+						<Search size={16} class="mr-2 text-gray-400" />
+						{search}
+					</CommandItem>
+				{/each}
+			</CommandGroup>
+			<CommandSeparator />
+		{/if}
 
-				{#if searchValue === ''}
-					<div class="mb-6">
-						<h3 class="mb-3 text-sm font-medium text-gray-900">Популярни търсения</h3>
-						<div class="space-y-1">
-							{#each trendingSearches as search}
-								<button
-									onclick={() => handleSearch(search)}
-									class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-gray-50"
-								>
-									<TrendingUp size={16} class="text-orange-500" />
-									<span class="flex-1">{search}</span>
-									<span class="text-xs text-gray-500">Популярно</span>
-								</button>
-							{/each}
-						</div>
-					</div>
-				{/if}
+		<CommandGroup heading="Популярни търсения">
+			{#each trendingSearches as search}
+				<CommandItem
+					value={search}
+					onSelect={() => handleSearch(search)}
+				>
+					<TrendingUp size={16} class="mr-2 text-orange-500" />
+					{search}
+					<CommandShortcut>Популярно</CommandShortcut>
+				</CommandItem>
+			{/each}
+		</CommandGroup>
 
-				<div>
-					<h3 class="mb-3 text-sm font-medium text-gray-900">Категории</h3>
-					<div class="space-y-1">
-						<button
-							onclick={() => handleSearch('дамски дрехи')}
-							class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-gray-50"
-						>
-							<span>👗</span>
-							<span>Дамски дрехи</span>
-						</button>
-						<button
-							onclick={() => handleSearch('мъжки дрехи')}
-							class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-gray-50"
-						>
-							<span>👔</span>
-							<span>Мъжки дрехи</span>
-						</button>
-						<button
-							onclick={() => handleSearch('обувки')}
-							class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-gray-50"
-						>
-							<span>👟</span>
-							<span>Обувки</span>
-						</button>
-						<button
-							onclick={() => handleSearch('електроника')}
-							class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-gray-50"
-						>
-							<span>📱</span>
-							<span>Електроника</span>
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-{/if}
+		<CommandSeparator />
+
+		<CommandGroup heading="Категории">
+			<CommandItem value="дамски дрехи" onSelect={() => handleSearch('дамски дрехи')}>
+				<span class="mr-2">👗</span>
+				Дамски дрехи
+			</CommandItem>
+			<CommandItem value="мъжки дрехи" onSelect={() => handleSearch('мъжки дрехи')}>
+				<span class="mr-2">👔</span>
+				Мъжки дрехи
+			</CommandItem>
+			<CommandItem value="обувки" onSelect={() => handleSearch('обувки')}>
+				<span class="mr-2">👟</span>
+				Обувки
+			</CommandItem>
+			<CommandItem value="електроника" onSelect={() => handleSearch('електроника')}>
+				<span class="mr-2">📱</span>
+				Електроника
+			</CommandItem>
+		</CommandGroup>
+	</CommandList>
+</CommandDialog>

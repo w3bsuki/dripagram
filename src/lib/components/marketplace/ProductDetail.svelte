@@ -360,7 +360,7 @@
 <style>
 	.product-detail {
 		background: white;
-		padding-bottom: 88px;
+		padding-bottom: calc(88px + env(safe-area-inset-bottom));
 		margin-bottom: 0;
 	}
 	
@@ -621,10 +621,10 @@
 		background: rgba(255, 255, 255, 0.95);
 		backdrop-filter: blur(10px);
 		border-top: 1px solid #efefef;
-		padding: 12px 16px;
+		padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
 		display: flex;
 		gap: 12px;
-		z-index: 10;
+		z-index: 50;
 	}
 	
 	.wishlist-btn {
@@ -660,11 +660,13 @@
 		background: white;
 		color: #000;
 		border: 1px solid #ddd;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	}
 	
 	.buy-btn, .edit-btn {
-		background: #000;
+		background: linear-gradient(135deg, #000 0%, #333 100%);
 		color: white;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 	}
 	
 	.buy-btn:hover, .edit-btn:hover {

@@ -3,7 +3,7 @@
 	import { getAuthContext } from '$lib/stores/auth.svelte';
 	import { Settings, LogOut, Verified } from '@lucide/svelte';
 	import Button from '$lib/components/native/Button.svelte';
-	import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/ui/avatar';
+	import { Avatar, AvatarFallback, AvatarImage } from '$lib/components/native';
 
 	let { data } = $props();
 	const auth = getAuthContext();

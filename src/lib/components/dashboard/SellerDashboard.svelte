@@ -4,9 +4,9 @@
 	import { page } from '$app/stores';
 	import { Badge } from '$lib/components/native';
 	import Button from '$lib/components/native/Button.svelte';
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { Progress } from '$lib/components/ui/progress';
-	import { Separator } from '$lib/components/ui/separator';
+	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/native';
+	import { Progress } from '$lib/components/native';
+	import { Separator } from '$lib/components/native';
 	import { 
 		TrendingUp, 
 		DollarSign, 
