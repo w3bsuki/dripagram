@@ -135,16 +135,18 @@
 					</div>
 				{/if}
 				<span class="seller-name">{product.seller?.username || 'tintin'}</span>
-				<div class="seller-rating">
-					<div class="stars">
-						<Star size={12} fill="currentColor" />
-						<Star size={12} fill="currentColor" />
-						<Star size={12} fill="currentColor" />
-						<Star size={12} fill="currentColor" />
-						<Star size={12} fill={product.seller?.rating >= 4.5 ? 'currentColor' : 'none'} />
+				{#if product.seller?.rating_count > 0}
+					<div class="seller-rating">
+						<div class="stars">
+							{#each Array(5) as _, i}
+								<Star size={12} fill={i < Math.round(product.seller.rating_average) ? 'currentColor' : 'none'} />
+							{/each}
+						</div>
+						<span class="rating-text">{product.seller.rating_average} ({product.seller.rating_count})</span>
 					</div>
-					<span class="rating-text">4.5 ({product.seller?.review_count || 52})</span>
-				</div>
+				{:else}
+					<span class="no-rating">New seller</span>
+				{/if}
 			</div>
 		</div>
 	</div>
@@ -367,6 +369,12 @@
 		font-size: 11px;
 		color: #6b7280;
 		white-space: nowrap;
+	}
+
+	.no-rating {
+		font-size: 11px;
+		color: #9ca3af;
+		font-style: italic;
 	}
 	
 	/* Mobile adjustments */
