@@ -96,7 +96,7 @@
 		<!-- Name & Bio -->
 		<div class="bio-section">
 			<div class="fullname">
-				{#if data.profile?.account_type === 'brand' && data.profile?.brand_name}
+				{#if data.profile?.account_type === 'business' && data.profile?.brand_name}
 					{data.profile.brand_name}
 					<span class="brand-badge">Brand</span>
 				{:else}

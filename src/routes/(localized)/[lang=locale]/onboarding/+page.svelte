@@ -35,7 +35,7 @@
   // Form data
   let formData = $state({
     username: '',
-    account_type: '' as 'personal' | 'brand',
+    account_type: '' as 'personal' | 'business',
     payout_method: '' as 'revolut' | 'paypal' | 'card' | '',
     payout_details: '',
     social_links: {
@@ -209,8 +209,8 @@
         updated_at: new Date().toISOString()
       };
 
-      // Add brand-specific fields if it's a brand account
-      if (formData.account_type === 'brand') {
+      // Add brand-specific fields if it's a business account
+      if (formData.account_type === 'business') {
         profileData.brand_name = formData.username;
       }
 
@@ -270,7 +270,7 @@
 
   // Get display name for welcome
   function getDisplayName() {
-    if (formData.account_type === 'brand' && formData.username) {
+    if (formData.account_type === 'business' && formData.username) {
       return formData.username.toUpperCase();
     }
     return data.user?.user_metadata?.full_name || formData.username;
@@ -386,11 +386,11 @@
             </div>
           </label>
 
-          <label class="account-option" class:selected={formData.account_type === 'brand'}>
+          <label class="account-option" class:selected={formData.account_type === 'business'}>
             <input
               type="radio"
               bind:group={formData.account_type}
-              value="brand"
+              value="business"
             />
             <div class="option-content">
               <div class="option-icon">
