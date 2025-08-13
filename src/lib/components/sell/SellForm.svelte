@@ -8,7 +8,7 @@
 	import Button from '$lib/components/ui/button';
 	import MobileStepper from './MobileStepper.svelte';
 	import CategorySelector from './CategorySelector.svelte';
-	import ProductImageUploader from './ProductImageUploader.svelte';
+	import ImageUpload from './ImageUpload.svelte';
 	import ProductDetailsForm from './ProductDetailsForm.svelte';
 	import ShippingOptions from './ShippingOptions.svelte';
 	import ListingPreview from './ListingPreview.svelte';
@@ -248,9 +248,8 @@
 
 			<!-- Step 2: Images -->
 			{#if currentStep === 2}
-				<ProductImageUploader
-					images={$form.images || []}
-					userId={data.user?.id || ''}
+				<ImageUpload
+					maxImages={10}
 					onImagesChange={handleImagesChange}
 				/>
 			{/if}
