@@ -14,7 +14,7 @@
 	} = $props();
 
 	const categories = [
-		{ id: null, name: 'All', emoji: '✨' },
+		{ id: null, name: 'All', emoji: '' },
 		{ id: 'men', name: 'Men', emoji: '👨' },
 		{ id: 'women', name: 'Women', emoji: '👩' },
 		{ id: 'kids', name: 'Kids', emoji: '👶' },
@@ -95,7 +95,9 @@
 					class:all-pill={category.id === null}
 					onclick={() => handleCategoryClick(category.id)}
 				>
-					<span class="pill-emoji">{category.emoji}</span>
+					{#if category.emoji}
+						<span class="pill-emoji">{category.emoji}</span>
+					{/if}
 					<span>{category.name}</span>
 				</button>
 			{/each}
