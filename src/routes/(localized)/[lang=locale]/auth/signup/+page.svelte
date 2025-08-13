@@ -75,6 +75,7 @@
 						autocomplete="name"
 						required
 						bind:value={formData.fullName}
+						hasIcon={true}
 					/>
 				</div>
 			</div>
@@ -93,6 +94,7 @@
 						autocomplete="email"
 						required
 						bind:value={formData.email}
+						hasIcon={true}
 					/>
 				</div>
 			</div>
@@ -111,6 +113,7 @@
 						autocomplete="new-password"
 						required
 						bind:value={formData.password}
+						hasIcon={true}
 					/>
 					<button
 						type="button"
@@ -141,6 +144,7 @@
 						autocomplete="new-password"
 						required
 						bind:value={formData.confirmPassword}
+						hasIcon={true}
 					/>
 					<button
 						type="button"
@@ -280,6 +284,8 @@
 	.input-icon {
 		position: absolute;
 		left: 12px;
+		top: 50%;
+		transform: translateY(-50%);
 		color: var(--color-text-secondary);
 		z-index: 1;
 		pointer-events: none;
