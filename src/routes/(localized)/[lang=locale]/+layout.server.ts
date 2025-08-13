@@ -23,12 +23,12 @@ export const load: LayoutServerLoad = async ({ params, locals, cookies, url }) =
 			// Check if user has completed onboarding
 			const { data: profile } = await locals.supabase
 				.from('profiles')
-				.select('onboarding_completed')
+				.select('onboarding_completed, username')
 				.eq('id', user.id)
 				.single();
 			
-			// If onboarding not completed, redirect to onboarding
-			if (!profile?.onboarding_completed) {
+			// If onboarding not completed or username still temporary, redirect to onboarding
+			if (!profile?.onboarding_completed || profile?.username?.startsWith('temp_')) {
 				throw redirect(303, `/${lang}/onboarding`);
 			}
 		}

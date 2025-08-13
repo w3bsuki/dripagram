@@ -65,11 +65,12 @@ export const actions: Actions = {
 
 		if (authData.user) {
 			// Create profile with minimal required fields - onboarding will complete it
+			// Use full user ID as temp username to ensure uniqueness
 			const { error: profileError } = await locals.supabase
 				.from('profiles')
 				.upsert({
 					id: authData.user.id,
-					username: `user_${authData.user.id.slice(0, 8)}`, // Temporary username
+					username: `temp_${authData.user.id}`, // Temporary username using full UUID
 					full_name: fullName,
 					onboarding_completed: false,
 					locale: locale === 'en' ? 'en' : 'bg',
