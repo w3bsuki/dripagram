@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance, type SubmitFunction } from '$app/forms';
 	import Button from '$lib/components/native/Button.svelte';
-	import Input from '$lib/components/native/Input.svelte';
+	import InputWithIcon from '$lib/components/native/InputWithIcon.svelte';
 	import { Label } from '$lib/components/native';
 	import Alert from '$lib/components/native/Alert.svelte';
 	import AlertDescription from '$lib/components/native/AlertDescription.svelte';
@@ -60,52 +60,37 @@
 		<form method="POST" use:enhance={handleSubmit} class="auth-form">
 			<div class="form-group">
 				<Label for="email" class="form-label">{m['auth.email_label']()}</Label>
-				<div class="input-wrapper">
-					<Mail class="input-icon" size={16} />
-					<Input
-						id="email"
-						name="email"
-						type="email"
-						placeholder={m['auth.email_placeholder']()}
-						class="form-input"
-						disabled={submitting}
-						autocomplete="email"
-						required
-						bind:value={formData.email}
-						hasIcon={true}
-					/>
-				</div>
+				<InputWithIcon
+					id="email"
+					name="email"
+					type="email"
+					placeholder={m['auth.email_placeholder']()}
+					class=""
+					disabled={submitting}
+					autocomplete="email"
+					required
+					leftIcon={Mail}
+					bind:value={formData.email}
+				/>
 			</div>
 
 			<div class="form-group">
 				<Label for="password" class="form-label">{m['auth.password_label']()}</Label>
-				<div class="input-wrapper">
-					<Lock class="input-icon" size={16} />
-					<Input
-						id="password"
-						name="password"
-						type={showPassword ? 'text' : 'password'}
-						placeholder={m['auth.password_placeholder']()}
-						class="form-input password-input"
-						disabled={submitting}
-						autocomplete="current-password"
-						required
-						bind:value={formData.password}
-						hasIcon={true}
-					/>
-					<button
-						type="button"
-						onclick={() => (showPassword = !showPassword)}
-						class="password-toggle"
-						aria-label={showPassword ? m['auth.hide_password']() : m['auth.show_password']()}
-					>
-						{#if showPassword}
-							<EyeOff size={16} />
-						{:else}
-							<Eye size={16} />
-						{/if}
-					</button>
-				</div>
+				<InputWithIcon
+					id="password"
+					name="password"
+					type={showPassword ? 'text' : 'password'}
+					placeholder={m['auth.password_placeholder']()}
+					class=""
+					disabled={submitting}
+					autocomplete="current-password"
+					required
+					leftIcon={Lock}
+					rightIcon={showPassword ? EyeOff : Eye}
+					onRightIconClick={() => (showPassword = !showPassword)}
+					rightIconLabel={showPassword ? m['auth.hide_password']() : m['auth.show_password']()}
+					bind:value={formData.password}
+				/>
 			</div>
 
 			{#if form?.error}
@@ -222,83 +207,6 @@
 		margin-bottom: 8px;
 	}
 
-	.input-wrapper {
-		position: relative;
-		display: flex;
-		align-items: center;
-	}
-
-	.input-icon {
-		position: absolute;
-		left: 12px;
-		top: 50%;
-		transform: translateY(-50%);
-		color: var(--color-text-secondary);
-		z-index: 1;
-		pointer-events: none;
-	}
-
-	:global(.form-input) {
-		width: 100%;
-		height: 48px;
-		padding: 0 16px 0 44px;
-		background: var(--color-surface-primary);
-		border: 1px solid var(--color-border-primary);
-		border-radius: 8px;
-		font-size: 16px;
-		color: var(--color-text-primary);
-		transition: all 0.15s ease;
-	}
-
-	:global(.form-input:focus) {
-		outline: none;
-		border-color: var(--color-interactive-primary);
-		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-	}
-
-	:global(.form-input.error) {
-		border-color: var(--color-surface-error);
-	}
-
-	:global(.form-input.error:focus) {
-		box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-	}
-
-	:global(.password-input) {
-		padding-right: 48px;
-	}
-
-	.password-toggle {
-		position: absolute;
-		right: 12px;
-		background: none;
-		border: none;
-		color: var(--color-text-secondary);
-		cursor: pointer;
-		padding: 8px;
-		border-radius: 4px;
-		transition: all 0.15s ease;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		min-width: 32px;
-		min-height: 32px;
-	}
-
-	.password-toggle:hover {
-		color: var(--color-text-primary);
-		background: var(--color-surface-tertiary);
-	}
-
-	.error-message {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		font-size: 13px;
-		color: var(--color-text-error);
-		margin-top: 8px;
-		margin: 8px 0 0 0;
-	}
 
 	.alert-error {
 		display: flex;
@@ -369,32 +277,6 @@
 	.footer-link:hover {
 		opacity: 0.8;
 		text-decoration: underline;
-	}
-
-	/* Mobile Responsive */
-	@media (max-width: 640px) {
-		.auth-container {
-			padding: 16px;
-		}
-		
-		.auth-card {
-			max-width: 100%;
-			padding: 24px;
-			border-radius: 12px;
-		}
-
-		.auth-title {
-			font-size: 20px;
-		}
-
-		:global(.form-input) {
-			height: 48px;
-			font-size: 16px;
-		}
-
-		:global(.submit-button) {
-			height: 44px;
-		}
 	}
 
 	@keyframes spin {
