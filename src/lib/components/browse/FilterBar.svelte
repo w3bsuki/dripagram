@@ -242,7 +242,9 @@
 
 	.filters {
 		display: flex;
-		gap: 8px;
+		gap: 6px;
+		flex-wrap: wrap;
+		flex: 1;
 	}
 
 	.dropdown-wrapper {
@@ -252,14 +254,15 @@
 	.dropdown-button {
 		display: flex;
 		align-items: center;
-		gap: 4px;
-		padding: 7px 10px;
+		gap: 3px;
+		padding: 6px 9px;
 		background: white;
 		border: 1px solid #e5e7eb;
 		border-radius: 6px;
 		font-size: 13px;
 		color: #374151;
 		cursor: pointer;
+		white-space: nowrap;
 	}
 
 	.dropdown-button:hover {
@@ -273,9 +276,10 @@
 		min-width: 160px;
 		background: white;
 		border: 1px solid #e5e7eb;
-		border-radius: 8px;
+		border-radius: 6px;
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 		z-index: 50;
+		overflow: hidden;
 	}
 
 	.dropdown-item {
@@ -337,7 +341,16 @@
 
 	@media (max-width: 768px) {
 		.filter-bar {
-			padding: 8px 16px;
+			padding: 8px 12px;
+		}
+
+		.filters {
+			gap: 4px;
+		}
+
+		.dropdown-button {
+			padding: 6px 8px;
+			font-size: 12px;
 		}
 
 		.view-toggle {
