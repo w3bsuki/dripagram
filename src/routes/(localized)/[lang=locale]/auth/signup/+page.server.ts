@@ -64,30 +64,18 @@ export const actions: Actions = {
 		}
 
 		if (authData.user) {
-			// Create profile with minimal required fields - onboarding will complete it
-			// Use full user ID as temp username to ensure uniqueness
-			const { error: profileError } = await locals.supabase
-				.from('profiles')
-				.upsert({
-					id: authData.user.id,
-					username: `temp_${authData.user.id}`, // Temporary username using full UUID
-					full_name: fullName,
-					onboarding_completed: false,
-					locale: locale === 'en' ? 'en' : 'bg',
-					region: locale === 'bg' ? 'sofia' : 'international',
-					country_code: 'BG',
-					follower_count: 0,
-					following_count: 0,
-					listing_count: 0,
-					rating_count: 0,
-					created_at: new Date().toISOString(),
-					updated_at: new Date().toISOString()
-				});
+			// Create profile using secure database function that bypasses RLS
+			const { error: profileError } = await locals.supabase.rpc('create_user_profile', {
+				user_id: authData.user.id,
+				user_email: email,
+				user_full_name: fullName,
+				user_locale: locale
+			});
 
 			if (profileError) {
 				console.error('Profile creation error:', profileError);
 				return fail(500, { 
-					error: 'Failed to create user profile. Please try again.',
+					error: `Failed to create user profile: ${profileError.message}`,
 					email: email,
 					fullName: fullName
 				});
