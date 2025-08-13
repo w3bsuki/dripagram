@@ -61,7 +61,7 @@
 				class="dropdown-button"
 				onclick={() => showSort = !showSort}
 			>
-				Sort by
+				Sort
 				<ChevronDown size={14} />
 			</button>
 			
