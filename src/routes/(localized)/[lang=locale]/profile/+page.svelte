@@ -95,9 +95,14 @@
 
 		<!-- Name & Bio -->
 		<div class="bio-section">
-			{#if data.profile?.full_name}
-				<div class="fullname">{data.profile.full_name}</div>
-			{/if}
+			<div class="fullname">
+				{#if data.profile?.account_type === 'brand' && data.profile?.brand_name}
+					{data.profile.brand_name}
+					<span class="brand-badge">Brand</span>
+				{:else}
+					{data.profile?.full_name || data.profile?.username}
+				{/if}
+			</div>
 			{#if data.profile?.bio}
 				<div class="bio">{data.profile.bio}</div>
 			{/if}
@@ -316,6 +321,20 @@
 		font-size: 14px;
 		font-weight: 600;
 		margin-bottom: 2px;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.brand-badge {
+		background: #000;
+		color: white;
+		font-size: 10px;
+		font-weight: 500;
+		padding: 2px 6px;
+		border-radius: 4px;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
 	}
 
 	.bio {

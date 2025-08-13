@@ -30,6 +30,7 @@
   let currentStep = $state(1);
   let isLoading = $state(false);
   let showSuccess = $state(false);
+  let welcomeStep = $state(0); // 0 = onboarding, 1-3 = welcome screens
   
   // Form data
   let formData = $state({
@@ -231,14 +232,8 @@
       // Note: Payout and preferences will be saved later in settings
       // For now, just complete the profile creation to get user into the app
 
-      // Show success screen
-      showSuccess = true;
-      
-      // Auto redirect to main page after 3 seconds
-      setTimeout(() => {
-        toast.success(m['onboarding.welcome_toast']());
-        goto('/');
-      }, 3000);
+      // Show welcome overlay screens
+      welcomeStep = 1;
       
     } catch (error) {
       console.error('Onboarding error:', error);
@@ -254,15 +249,26 @@
     formData.social_links[platform] = value;
   }
 
-  // Navigation from success screen
-  async function goToHome() {
-    toast.success(m['onboarding.welcome_toast']());
-    await goto('/');
+  // Welcome screen navigation
+  function nextWelcomeStep() {
+    if (welcomeStep < 3) {
+      welcomeStep++;
+    } else {
+      finishWelcome();
+    }
   }
 
-  async function goToSell() {
+  function finishWelcome() {
     toast.success(m['onboarding.welcome_toast']());
-    await goto('/sell');
+    goto('/');
+  }
+
+  // Get display name for welcome
+  function getDisplayName() {
+    if (formData.account_type === 'brand' && formData.username) {
+      return formData.username.toUpperCase();
+    }
+    return data.user?.user_metadata?.full_name || formData.username;
   }
 </script>
 
@@ -272,16 +278,37 @@
 </svelte:head>
 
 <div class="onboarding">
-  {#if showSuccess}
-    <div class="success">
-      <div class="success-icon">
-        <CheckCircle size={32} />
-      </div>
-      <h1>Welcome to Driplo!</h1>
-      <p>Your account is ready</p>
-      <div class="success-actions">
-        <button class="btn-secondary" onclick={goToHome}>Start Shopping</button>
-        <button class="btn-primary" onclick={goToSell}>Start Selling</button>
+  {#if welcomeStep > 0}
+    <div class="welcome-overlay" onclick={(e) => e.target === e.currentTarget && nextWelcomeStep()}>
+      <div class="welcome-content">
+        {#if welcomeStep === 1}
+          <div class="welcome-icon">
+            <Sparkles size={48} />
+          </div>
+          <h1>Welcome {getDisplayName()}!</h1>
+          <p>You're all set! Ready to discover the best fashion deals?</p>
+        {:else if welcomeStep === 2}
+          <div class="welcome-icon">
+            <TrendingUp size={48} />
+          </div>
+          <h1>Buy & Sell Fashion</h1>
+          <p>List your items for free and discover unique pieces from our community</p>
+        {:else if welcomeStep === 3}
+          <div class="welcome-icon">
+            <Shield size={48} />
+          </div>
+          <h1>Safe & Secure</h1>
+          <p>Only 5% transaction fee. Buyer protection guaranteed on every purchase.</p>
+        {/if}
+        
+        <button class="btn-primary welcome-btn" onclick={nextWelcomeStep}>
+          {#if welcomeStep === 3}
+            Let's Go!
+          {:else}
+            Next
+          {/if}
+          <ChevronRight size={16} />
+        </button>
       </div>
     </div>
   {:else}
@@ -1045,57 +1072,70 @@
     display: block;
   }
 
-  /* Success Screen */
-  .success {
+  /* Welcome Overlay */
+  .welcome-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    min-height: 80vh;
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
+    z-index: 1000;
+    padding: 1rem;
   }
 
-  .success-icon {
-    width: 48px;
-    height: 48px;
-    background: #16a34a;
+  .welcome-content {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .welcome-icon {
+    width: 80px;
+    height: 80px;
+    background: #f9f9f9;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    margin-bottom: 1.5rem;
+    margin: 0 auto 1.5rem;
+    color: #000;
   }
 
-  .success h1 {
+  .welcome-content h1 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #000000;
-    margin-bottom: 0.5rem;
+    color: #000;
+    margin-bottom: 0.75rem;
   }
 
-  .success p {
-    color: #666666;
+  .welcome-content p {
+    color: #666;
     margin-bottom: 2rem;
-    font-size: 0.875rem;
+    line-height: 1.5;
   }
 
-  .success-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+  .welcome-btn {
     width: 100%;
-    max-width: 300px;
+    max-width: 200px;
+    margin: 0 auto;
   }
 
-  .success-actions .btn-secondary,
-  .success-actions .btn-primary {
-    width: 100%;
-    justify-content: center;
-  }
 
   /* Mobile optimizations */
   @media (max-width: 640px) {
