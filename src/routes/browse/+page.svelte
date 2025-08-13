@@ -5,6 +5,10 @@
 	import BrowseSearchBar from '$lib/components/browse/BrowseSearchBar.svelte';
 	import CategorySelector from '$lib/components/browse/CategorySelector.svelte';
 	import FilterSheet from '$lib/components/browse/FilterSheet.svelte';
+	import CategoryPills from '$lib/components/browse/CategoryPills.svelte';
+	import FilterBar from '$lib/components/browse/FilterBar.svelte';
+	import FilterBottomSheet from '$lib/components/browse/FilterBottomSheet.svelte';
+	import EnhancedSearchBar from '$lib/components/browse/EnhancedSearchBar.svelte';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -12,21 +16,17 @@
 
 	// Search state
 	let searchQuery = $state('');
-	let showSearchDropdown = $state(false);
 	
 	// View mode state
 	let viewMode = $state<'grid' | 'list'>('grid');
 	
 	// Category state
-	let selectedDemographic = $state<string | null>(null);
 	let selectedCategory = $state<string | null>(null);
-	let showCategoryMenu = $state(false);
+	let selectedSubcategory = $state<string | null>(null);
 	
 	// Filter state
 	let isMobile = $state(false);
 	let showFilters = $state(false);
-	let showSizeDropdown = $state(false);
-	let selectedSubcategory = $state<string | null>(null);
 	let filters = $state({
 		selectedCondition: null as string | null,
 		selectedBrand: null as string | null,
@@ -198,23 +198,42 @@
 		showSearchDropdown = false;
 	}
 
-	function handleSearchFocus() {
-		showSearchDropdown = true;
-	}
-
-	function handleDemographicClick(demographicId: string) {
-		if (selectedDemographic === demographicId) {
-			selectedDemographic = null;
-		} else {
-			selectedDemographic = demographicId;
-		}
-	}
-
-	function handleCategorySelect(categoryId: string) {
+	// Handler functions for enhanced components
+	function handleCategoryChange(categoryId: string | null) {
 		selectedCategory = categoryId;
 		selectedSubcategory = null;
 		updateURL();
-		showSearchDropdown = false;
+	}
+
+	function handleSubcategoryChange(subcategoryId: string | null) {
+		selectedSubcategory = subcategoryId;
+		updateURL();
+	}
+
+	function handleSortChange(sort: string) {
+		sortBy = sort;
+		updateURL();
+	}
+
+	function handleFilterChange(newFilters: any) {
+		filters = newFilters;
+		updateURL();
+	}
+
+	function handleViewModeChange(mode: 'grid' | 'list') {
+		viewMode = mode;
+	}
+
+	function handleShowFilters() {
+		showFilters = true;
+	}
+
+	function handleApplyFilters(newFilters: any, category: string | null, subcategory: string | null) {
+		filters = newFilters;
+		selectedCategory = category;
+		selectedSubcategory = subcategory;
+		updateURL();
+		showFilters = false;
 	}
 
 	onMount(() => {
@@ -429,22 +448,96 @@
 
 <!-- Removed local <SearchHeader />; layout already renders mobile/desktop headers -->
 
-<main class="main-content">
-		<!-- Search Section -->
-		<section class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3 relative">
-			<div class="max-w-7xl mx-auto">
-				<div class="relative" bind:this={searchInputEl}>
-					<div class="relative flex items-center">
-						<Search size={18} class="absolute left-3 text-gray-400 dark:text-gray-500 pointer-events-none z-10" />
-						<input
-							type="search"
-							placeholder="Search items or @sellers"
-							bind:value={searchQuery}
-							onkeydown={(e) => e.key === 'Enter' && handleSearch(e)}
-							onfocus={handleSearchFocus}
-							class="w-full h-12 pl-10 pr-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white transition-all duration-200 focus:outline-none focus:border-gray-900 dark:focus:border-gray-300 focus:bg-white dark:focus:bg-gray-700 focus:shadow-sm"
-						/>
+<main class="main-content" style="margin-top: var(--header-height);">
+	<!-- Enhanced Search Section -->
+	<section class="search-section">
+		<div class="search-container">
+			<EnhancedSearchBar
+				{searchQuery}
+				onSearch={(query) => {
+					searchQuery = query;
+					updateURL();
+				}}
+				placeholder="Search items or @sellers"
+			/>
+		</div>
+	</section>
+
+	<!-- Category Pills -->
+	<CategoryPills
+		{selectedCategory}
+		{selectedSubcategory}
+		onCategoryChange={handleCategoryChange}
+		onSubcategoryChange={handleSubcategoryChange}
+	/>
+
+	<!-- Filter Bar -->
+	<FilterBar
+		{sortBy}
+		{filters}
+		{viewMode}
+		{activeFiltersCount}
+		onSortChange={handleSortChange}
+		onFilterChange={handleFilterChange}
+		onViewModeChange={handleViewModeChange}
+		onShowFilters={handleShowFilters}
+		onClearFilters={clearFilters}
+	/>
+
+	<!-- Main Content Area -->
+	<div class="content-wrapper">
+		<!-- Product Grid -->
+		<div class="products-area">
+			{#if products?.length > 0}
+				<div class="products-grid-container {viewMode}">
+					<ProductGrid 
+						{products} 
+						variant={viewMode === 'list' ? 'feed' : 'grid'}
+						onLike={handleProductLike}
+						onSave={handleProductSave}
+						onShare={handleProductShare}
+						onComment={handleProductComment}
+					/>
+				</div>
+				
+				{#if nextCursor}
+					<div class="flex justify-center py-8 px-4">
+						<button 
+							class="flex items-center gap-2 px-8 py-3 bg-gray-900 text-white rounded-full font-semibold transition-all duration-150 min-h-12 disabled:opacity-60 disabled:cursor-not-allowed hover:bg-gray-800 hover:-translate-y-0.5 hover:shadow-lg" 
+							onclick={loadMore} 
+							disabled={loadingMore}
+						>
+							{#if loadingMore}
+								<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+								Loading...
+							{:else}
+								Load More
+							{/if}
+						</button>
 					</div>
+				{/if}
+			{:else}
+				<div class="flex flex-col items-center justify-center py-16 px-8 text-center text-gray-500">
+					<div class="text-5xl mb-4 opacity-70">🔍</div>
+					<h3 class="text-xl font-semibold text-gray-900 mb-2">No listings found</h3>
+					<p class="text-sm leading-6 max-w-xs text-gray-600">Try adjusting your filters or search terms to find more items.</p>
+				</div>
+			{/if}
+		</div>
+	</div>
+
+	<!-- Filter Bottom Sheet -->
+	<FilterBottomSheet
+		isOpen={showFilters}
+		{filters}
+		{selectedCategory}
+		{selectedSubcategory}
+		{categories}
+		onClose={() => showFilters = false}
+		onApplyFilters={handleApplyFilters}
+		onClearFilters={clearFilters}
+	/>
+</main>
 
 					<!-- Category Dropdown -->
 					{#if showSearchDropdown}

@@ -5,6 +5,10 @@
 	import BrowseSearchBar from '$lib/components/browse/BrowseSearchBar.svelte';
 	import CategorySelector from '$lib/components/browse/CategorySelector.svelte';
 	import FilterSheet from '$lib/components/browse/FilterSheet.svelte';
+	import CategoryPills from '$lib/components/browse/CategoryPills.svelte';
+	import FilterBar from '$lib/components/browse/FilterBar.svelte';
+	import FilterBottomSheet from '$lib/components/browse/FilterBottomSheet.svelte';
+	import EnhancedSearchBar from '$lib/components/browse/EnhancedSearchBar.svelte';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -197,6 +201,45 @@
 		goto(url.toString(), { replaceState: true, keepFocus: true, noScroll: true });
 	}
 
+	// Handler functions for CategoryPills component
+	function handleCategoryChange(categoryId: string | null) {
+		selectedCategory = categoryId;
+		selectedSubcategory = null;
+		updateURL();
+	}
+
+	function handleSubcategoryChange(subcategoryId: string | null) {
+		selectedSubcategory = subcategoryId;
+		updateURL();
+	}
+
+	// Handler functions for FilterBar component
+	function handleSortChange(sort: string) {
+		sortBy = sort;
+		updateURL();
+	}
+
+	function handleFilterChange(newFilters: any) {
+		filters = newFilters;
+		updateURL();
+	}
+
+	function handleViewModeChange(mode: 'grid' | 'list') {
+		viewMode = mode;
+	}
+
+	function handleShowFilters() {
+		showFilters = true;
+	}
+
+	function handleApplyFilters(newFilters: any, category: string | null, subcategory: string | null) {
+		filters = newFilters;
+		selectedCategory = category;
+		selectedSubcategory = subcategory;
+		updateURL();
+		showFilters = false;
+	}
+
 	function handleSearch(e: Event) {
 		e.preventDefault();
 		updateURL();
@@ -229,51 +272,14 @@
 			const handleDocClick = (e: Event) => {
 				const t = e.target as Node;
 				
-				// Handle category menu
-				if (showCategoryMenu) {
-					if (popoverEl && popoverEl.contains(t)) return;
-					if (categoryBtnEl && categoryBtnEl.contains(t)) return;
-					showCategoryMenu = false;
-				}
-				
-				// Handle search dropdown
-				if (showSearchDropdown) {
-					if (searchInputEl && searchInputEl.contains(t)) return;
-					if (searchDropdownEl && searchDropdownEl.contains(t)) return;
-					showSearchDropdown = false;
-					selectedDemographic = null;
-				}
-
-				// Handle filter dropdown
-				if (showFilters) {
-					if (filterContainerEl && filterContainerEl.contains(t)) return;
-					if (filterSheetEl && filterSheetEl.contains(t)) return;
+				// Handle filter modal close on mobile
+				if (showFilters && !t.closest('.bottom-sheet')) {
 					showFilters = false;
-				}
-				
-				// Handle sort dropdown
-				if (showSortDropdown) {
-					if (sortDropdownEl && sortDropdownEl.contains(t)) return;
-					if (sortButtonEl && sortButtonEl.contains(t)) return;
-					showSortDropdown = false;
-				}
-				
-				// Handle condition dropdown
-				if (showConditionDropdown) {
-					if (conditionDropdownEl && conditionDropdownEl.contains(t)) return;
-					if (conditionButtonEl && conditionButtonEl.contains(t)) return;
-					showConditionDropdown = false;
 				}
 			};
 			const handleEsc = (e: KeyboardEvent) => {
 				if (e.key === 'Escape') { 
-					showCategoryMenu = false; 
 					showFilters = false;
-					showSizeDropdown = false; 
-					showSearchDropdown = false;
-					showSortDropdown = false;
-					showConditionDropdown = false;
-					selectedDemographic = null;
 				}
 			};
 			const handleKeyDown = (e: KeyboardEvent) => {
@@ -286,6 +292,52 @@
 					} else if (e.key === 'ArrowRight') {
 						e.preventDefault();
 						scrollEl.scrollBy({ left: 120, behavior: 'smooth' });
+					}
+				}
+
+				// Desktop keyboard shortcuts
+				if (e.ctrlKey || e.metaKey) {
+					switch(e.key) {
+						case 'k': // Focus search (Ctrl/Cmd + K)
+							e.preventDefault();
+							document.querySelector('.search-input')?.focus();
+							break;
+						case 'f': // Open filters (Ctrl/Cmd + F)
+							e.preventDefault();
+							if (isMobile) {
+								showFilters = true;
+							} else {
+								document.querySelector('#desktop-filters')?.scrollIntoView({ behavior: 'smooth' });
+							}
+							break;
+						case '1': // Toggle grid view (Ctrl/Cmd + 1)
+							e.preventDefault();
+							viewMode = 'grid';
+							break;
+						case '2': // Toggle list view (Ctrl/Cmd + 2)
+							e.preventDefault();
+							viewMode = 'list';
+							break;
+					}
+				}
+
+				// Quick filter shortcuts (no modifier needed)
+				if (!e.ctrlKey && !e.metaKey && !e.altKey && document.activeElement?.tagName !== 'INPUT') {
+					switch(e.key) {
+						case 'c': // Clear all filters
+							e.preventDefault();
+							clearFilters();
+							break;
+						case 'n': // Sort by newest
+							e.preventDefault();
+							sortBy = 'newest';
+							updateURL();
+							break;
+						case 'p': // Sort by price
+							e.preventDefault();
+							sortBy = sortBy === 'price-low' ? 'price-high' : 'price-low';
+							updateURL();
+							break;
 					}
 				}
 			};
@@ -402,97 +454,41 @@
 	<meta name="description" content={m['browse.meta_description']()} />
 </svelte:head>
 
-<!-- Removed local <SearchHeader />; layout already renders mobile/desktop headers -->
-
 <main class="main-content" style="margin-top: var(--header-height);">
-		<!-- Search Section -->
-		<section class="search-section">
-			<div class="search-container">
-				<div class="search-wrapper" bind:this={searchInputEl}>
-					<div class="search-input-group">
-						<Search size={18} class="search-icon" />
-						<input
-							type="search"
-							placeholder={m['browse.search_placeholder']()}
-							bind:value={searchQuery}
-							onkeydown={(e) => e.key === 'Enter' && handleSearch(e)}
-							onfocus={handleSearchFocus}
-							class="search-input"
-						/>
-					</div>
+	<!-- Enhanced Search Section -->
+	<section class="search-section">
+		<div class="search-container">
+			<EnhancedSearchBar
+				{searchQuery}
+				onSearch={(query) => {
+					searchQuery = query;
+					updateURL();
+				}}
+				placeholder={m['browse.search_placeholder']()}
+			/>
+		</div>
+	</section>
 
-					<!-- Category Dropdown -->
-					{#if showSearchDropdown}
-						<div class="search-dropdown" bind:this={searchDropdownEl}>
-							<div class="dropdown-content">
-								<!-- Demographics -->
-								<div class="dropdown-section">
-									<h3>{m['browse.browse_by_category']()}</h3>
-									<div class="button-group">
-										{#each demographics as demographic}
-											<button 
-												class="category-button {selectedDemographic === demographic.id ? 'active' : ''}"
-												onclick={() => handleDemographicClick(demographic.id)}
-											>
-												<span>{demographic.emoji}</span>
-												<span>{demographic.name}</span>
-												<ChevronDown size={14} class="transition-transform {selectedDemographic === demographic.id ? 'rotate-180' : ''}" />
-											</button>
-										{/each}
-									</div>
-								</div>
-								
-								<!-- Subcategories -->
-								{#if selectedDemographic && currentDemographicSubcategories.length > 0}
-									<div class="dropdown-section">
-										<h3>
-											{selectedDemographic === 'men' ? m['browse.men_categories']?.() : 
-											 selectedDemographic === 'women' ? m['browse.women_categories']?.() :
-											 selectedDemographic === 'kids' ? m['browse.kids_categories']?.() :
-											 `${demographics.find(d => d.id === selectedDemographic)?.name} Categories`}
-										</h3>
-										<div class="button-group">
-											{#each currentDemographicSubcategories as subcategory}
-												<button 
-													class="subcategory-button"
-													onclick={() => handleCategorySelect(subcategory.id)}
-												>
-													<span>{subcategory.emoji}</span>
-													<span>{subcategory.name}</span>
-												</button>
-											{/each}
-										</div>
-									</div>
-								{/if}
+	<!-- Category Pills -->
+	<CategoryPills
+		{selectedCategory}
+		{selectedSubcategory}
+		onCategoryChange={handleCategoryChange}
+		onSubcategoryChange={handleSubcategoryChange}
+	/>
 
-								<!-- Quick Actions -->
-								<div class="dropdown-section">
-									<h3>{m['browse.popular_searches']()}</h3>
-									<div class="button-group">
-										<button class="subcategory-button" onclick={() => handleCategorySelect('new-tags')}>
-											<span>🏷️</span>
-											<span>{m['browse.new_with_tags']()}</span>
-										</button>
-										<button class="subcategory-button" onclick={() => handleCategorySelect('under-50')}>
-											<span>💰</span>
-											<span>{m['browse.under_50']()}</span>
-										</button>
-										<button class="subcategory-button" onclick={() => handleCategorySelect('trending')}>
-											<span>🔥</span>
-											<span>{m['browse.trending']()}</span>
-										</button>
-										<button class="subcategory-button" onclick={() => handleCategorySelect('verified')}>
-											<span>✅</span>
-											<span>{m['browse.verified_sellers']()}</span>
-										</button>
-									</div>
-								</div>
-							</div>
-						</div>
-					{/if}
-				</div>
-			</div>
-		</section>
+	<!-- Filter Bar -->
+	<FilterBar
+		{sortBy}
+		{filters}
+		{viewMode}
+		{activeFiltersCount}
+		onSortChange={handleSortChange}
+		onFilterChange={handleFilterChange}
+		onViewModeChange={handleViewModeChange}
+		onShowFilters={handleShowFilters}
+		onClearFilters={clearFilters}
+	/>
 
 
 		<!-- Main Content Area -->
@@ -643,331 +639,33 @@
 							Clear all filters
 						</button>
 					{/if}
+
+					<!-- Desktop Keyboard Shortcuts Help -->
+					<div class="keyboard-shortcuts-help">
+						<h4>⌨️ Shortcuts</h4>
+						<div class="shortcuts-list">
+							<div class="shortcut-item">
+								<kbd>Ctrl</kbd> + <kbd>K</kbd> <span>Focus search</span>
+							</div>
+							<div class="shortcut-item">
+								<kbd>Ctrl</kbd> + <kbd>F</kbd> <span>Open filters</span>
+							</div>
+							<div class="shortcut-item">
+								<kbd>C</kbd> <span>Clear filters</span>
+							</div>
+							<div class="shortcut-item">
+								<kbd>N</kbd> <span>Sort newest</span>
+							</div>
+							<div class="shortcut-item">
+								<kbd>P</kbd> <span>Sort price</span>
+							</div>
+						</div>
+					</div>
 				</div>
 			</aside>
 
 			<!-- Product Grid -->
 			<div class="products-area">
-				<!-- Compact Filter Pills Above Products -->
-				<div class="compact-filters">
-					<div class="compact-filters-scroll">
-						<!-- Sort Dropdown -->
-						<div class="dropdown-trigger">
-							<button 
-								bind:this={sortButtonEl}
-								class="compact-pill {sortBy !== 'newest' ? 'active' : ''}"
-								onclick={(e) => {
-									e.stopPropagation();
-									e.preventDefault();
-									showSortDropdown = !showSortDropdown;
-									showConditionDropdown = false;
-									showFilters = false;
-								}}
-							>
-								<span>
-									{#if sortBy === 'newest'}{m['browse.newest']()}{/if}
-									{#if sortBy === 'price-low'}{m['browse.price_low_high']()}{/if}
-									{#if sortBy === 'price-high'}{m['browse.price_high_low']()}{/if}
-									{#if sortBy === 'most-liked'}{m['browse.most_liked']()}{/if}
-									{#if sortBy === 'trending'}{m['browse.trending']()}{/if}
-								</span>
-								<ChevronDown size={10} class="ml-1" />
-							</button>
-							
-							{#if showSortDropdown}
-								<div class="compact-dropdown" bind:this={sortDropdownEl} onclick={(e) => e.stopPropagation()}>
-									<button 
-										class="dropdown-item {sortBy === 'newest' ? 'active' : ''}"
-										onclick={() => { sortBy = 'newest'; showSortDropdown = false; updateURL(); }}
-									>
-										{m['browse.newest']()}
-									</button>
-									<button 
-										class="dropdown-item {sortBy === 'price-low' ? 'active' : ''}"
-										onclick={() => { sortBy = 'price-low'; showSortDropdown = false; updateURL(); }}
-									>
-										{m['browse.price_low_high']()}
-									</button>
-									<button 
-										class="dropdown-item {sortBy === 'price-high' ? 'active' : ''}"
-										onclick={() => { sortBy = 'price-high'; showSortDropdown = false; updateURL(); }}
-									>
-										{m['browse.price_high_low']()}
-									</button>
-									<button 
-										class="dropdown-item {sortBy === 'most-liked' ? 'active' : ''}"
-										onclick={() => { sortBy = 'most-liked'; showSortDropdown = false; updateURL(); }}
-									>
-										{m['browse.most_liked']()}
-									</button>
-									<button 
-										class="dropdown-item {sortBy === 'trending' ? 'active' : ''}"
-										onclick={() => { sortBy = 'trending'; showSortDropdown = false; updateURL(); }}
-									>
-										{m['browse.trending']()}
-									</button>
-								</div>
-							{/if}
-						</div>
-
-						<!-- Condition Dropdown -->
-						<div class="dropdown-trigger">
-							<button 
-								bind:this={conditionButtonEl}
-								class="compact-pill {filters.selectedCondition ? 'active' : ''}"
-								onclick={(e) => {
-									e.stopPropagation();
-									e.preventDefault();
-									showConditionDropdown = !showConditionDropdown;
-									showSortDropdown = false;
-									showFilters = false;
-								}}
-							>
-								<span>
-									{filters.selectedCondition ? conditions.find(c => c.id === filters.selectedCondition)?.name : 'Condition'}
-								</span>
-								<ChevronDown size={10} class="ml-1" />
-							</button>
-							
-							{#if showConditionDropdown}
-								<div class="compact-dropdown" bind:this={conditionDropdownEl} onclick={(e) => e.stopPropagation()}>
-									{#each conditions as condition}
-										<button 
-											class="dropdown-item {filters.selectedCondition === condition.id ? 'active' : ''}"
-											onclick={() => { 
-												filters.selectedCondition = filters.selectedCondition === condition.id ? null : condition.id;
-												showConditionDropdown = false;
-												updateURL();
-											}}
-										>
-											<span>{condition.emoji}</span>
-											<span>{condition.name}</span>
-										</button>
-									{/each}
-									{#if filters.selectedCondition}
-										<div class="dropdown-divider"></div>
-										<button 
-											class="dropdown-item clear"
-											onclick={() => { 
-												filters.selectedCondition = null;
-												showConditionDropdown = false;
-												updateURL();
-											}}
-										>
-											Clear
-										</button>
-									{/if}
-								</div>
-							{/if}
-						</div>
-
-						<!-- Active Filter Pills -->
-						{#if filters.selectedBrand}
-							<button 
-								class="compact-pill active"
-								onclick={() => { filters.selectedBrand = ''; updateURL(); }}
-							>
-								{filters.selectedBrand.charAt(0).toUpperCase() + filters.selectedBrand.slice(1)}
-								<X size={10} />
-							</button>
-						{/if}
-
-						{#if filters.selectedSize}
-							<button 
-								class="compact-pill active"
-								onclick={() => { filters.selectedSize = ''; updateURL(); }}
-							>
-								{m['product.size']()} {filters.selectedSize}
-								<X size={10} />
-							</button>
-						{/if}
-
-						<!-- Size and More Filters Button and View Toggle -->
-						<div class="filter-actions" bind:this={filterContainerEl}>
-							<!-- Size Dropdown -->
-							<div class="relative">
-								<button 
-									class="compact-pill {filters.selectedSize ? 'active' : ''}"
-									onclick={(e) => {
-										e.stopPropagation();
-										e.preventDefault();
-										showSizeDropdown = !showSizeDropdown;
-									}}
-									aria-label="Size filter"
-								>
-									<span>Размер</span>
-									{#if filters.selectedSize}
-										<span class="text-xs">({filters.selectedSize})</span>
-									{/if}
-									<ChevronDown size={8} class="transition-transform {showSizeDropdown ? 'rotate-180' : ''}" />
-								</button>
-								
-								{#if showSizeDropdown}
-									<div class="compact-dropdown">
-										<div style="padding: 8px;">
-											<div style="font-size: 11px; font-weight: 600; color: #6b7280; margin-bottom: 6px; text-transform: uppercase;">Clothing</div>
-											<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 8px;">
-												{#each ['XS','S','M','L','XL','XXL'] as size}
-													<button 
-														class="dropdown-item {filters.selectedSize === size ? 'active' : ''}"
-														style="padding: 4px 8px; font-size: 12px; min-height: auto; justify-content: center;"
-														onclick={() => {
-															filters.selectedSize = filters.selectedSize === size ? null : size;
-															updateURL();
-															showSizeDropdown = false;
-														}}
-													>
-														{size}
-													</button>
-												{/each}
-											</div>
-											<div style="font-size: 11px; font-weight: 600; color: #6b7280; margin-bottom: 6px; text-transform: uppercase;">Shoes</div>
-											<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;">
-												{#each ['36','37','38','39','40','41','42','43'] as size}
-													<button 
-														class="dropdown-item {filters.selectedSize === size ? 'active' : ''}"
-														style="padding: 4px 8px; font-size: 12px; min-height: auto; justify-content: center;"
-														onclick={() => {
-															filters.selectedSize = filters.selectedSize === size ? null : size;
-															updateURL();
-															showSizeDropdown = false;
-														}}
-													>
-														{size}
-													</button>
-												{/each}
-											</div>
-											{#if filters.selectedSize}
-												<button 
-													class="dropdown-item clear"
-													style="margin-top: 8px; padding: 6px 8px; border-top: 1px solid #e5e7eb; justify-content: center;"
-													onclick={() => {
-														filters.selectedSize = null;
-														updateURL();
-														showSizeDropdown = false;
-													}}
-												>
-													Clear Size
-												</button>
-											{/if}
-										</div>
-									</div>
-								{/if}
-							</div>
-							
-							<button 
-								class="compact-pill {activeFiltersCount > 1 ? 'active' : ''}"
-								onclick={(e) => {
-									e.stopPropagation();
-									e.preventDefault();
-									showFilters = !showFilters;
-												}}
-								aria-label="More filters"
-							>
-								<Filter size={10} />
-								<span>Филтри</span>
-								{#if activeFiltersCount > 1}
-									<span class="compact-badge">
-										{activeFiltersCount - 1}
-									</span>
-								{/if}
-							</button>
-
-							<!-- View Toggle (Grid/List) -->
-							<div class="view-toggle">
-								<button 
-									class="toggle-btn {viewMode === 'grid' ? 'active' : ''}"
-									onclick={() => viewMode = 'grid'}
-									aria-label="Grid view"
-								>
-									<Grid size={14} />
-								</button>
-								<button 
-									class="toggle-btn {viewMode === 'list' ? 'active' : ''}"
-									onclick={() => viewMode = 'list'}
-									aria-label="List view"
-								>
-									<List size={14} />
-								</button>
-							</div>
-						</div>
-						
-						<!-- Filter Dropdown (outside of filter-actions) -->
-						{#if showFilters}
-							<div class="filter-dropdown-container" bind:this={filterSheetEl}>
-								<div class="filter-dropdown" onclick={(e) => e.stopPropagation()}>
-									<div class="dropdown-content">
-										<!-- Category Filter -->
-										<div class="dropdown-section">
-											<h3>{m['search.categories']()}</h3>
-											<div class="button-group">
-												{#each categories as c}
-													<button
-														class="category-button {selectedCategory === c.id ? 'active' : ''}"
-														onclick={() => {
-															selectedCategory = selectedCategory === c.id ? null : c.id;
-															selectedSubcategory = null;
-															updateURL();
-														}}
-													>
-														<span>{c.emoji}</span>
-														<span>{c.name}</span>
-													</button>
-												{/each}
-											</div>
-										</div>
-
-										<!-- Condition Filter -->
-										<div class="dropdown-section">
-											<h3>Condition</h3>
-											<div class="button-group">
-												{#each conditions as condition}
-													<button
-														class="subcategory-button {filters.selectedCondition === condition.id ? 'active' : ''}"
-														onclick={() => {
-															filters.selectedCondition = filters.selectedCondition === condition.id ? null : condition.id;
-															updateURL();
-														}}
-													>
-														<span>{condition.emoji}</span>
-														<span>{condition.name}</span>
-													</button>
-												{/each}
-											</div>
-										</div>
-
-										<!-- Size Filter -->
-										<div class="dropdown-section">
-											<h3>Size</h3>
-											<div class="button-group">
-												{#each ['XS','S','M','L','XL','XXL','6','7','8','9','10','11','12'] as s}
-													<button 
-														class="subcategory-button {filters.selectedSize === s ? 'active' : ''}" 
-														onclick={() => {
-															filters.selectedSize = filters.selectedSize === s ? null : s;
-															updateURL();
-														}}
-													>
-														{s}
-													</button>
-												{/each}
-											</div>
-										</div>
-
-										<!-- Clear All -->
-										{#if activeFiltersCount > 0}
-											<div class="dropdown-section">
-												<button class="clear-all-button" onclick={clearFilters}>
-													Clear all filters
-												</button>
-											</div>
-										{/if}
-									</div>
-								</div>
-							</div>
-						{/if}
-					</div>
-				</div>
 
 				{#if products?.length > 0}
 					<div class="products-grid-container {viewMode}">
@@ -1006,8 +704,18 @@
 				{/if}
 			</div>
 		</div>
+	<!-- Filter Bottom Sheet -->
+	<FilterBottomSheet
+		isOpen={showFilters}
+		{filters}
+		{selectedCategory}
+		{selectedSubcategory}
+		{categories}
+		onClose={() => showFilters = false}
+		onApplyFilters={handleApplyFilters}
+		onClearFilters={clearFilters}
+	/>
 </main>
-
 
 <style>
 	:global(body) { overscroll-behavior-y: contain; }
@@ -1018,14 +726,14 @@
 		padding-bottom: 80px;
 	}
 
-	/* Search Section - Clean and Modern */
+	/* Enhanced Search Section */
 	.search-section {
 		background: white;
 		border-bottom: 1px solid #e5e7eb;
 		padding: 16px;
 		position: sticky;
-		top: var(--header-height); /* Stick below header */
-		z-index: 100; /* Above content but below header */
+		top: var(--header-height);
+		z-index: 100; /* Below FilterBar (110) but above content */
 	}
 
 	.search-container {
@@ -1038,382 +746,16 @@
 	@media (max-width: 768px) {
 		.search-section {
 			padding: 12px;
-			top: var(--header-height); /* Mobile header height */
 		}
 		
 		.search-container {
 			padding: 0;
-			max-width: none;
 		}
 	}
 
-	.search-wrapper {
-		position: relative;
-		max-width: 100%;
-	}
+	/* Enhanced search component handles its own styling */
 
-	.search-input-group {
-		display: flex;
-		align-items: center;
-		background: #f8fafc;
-		border: 1px solid #e2e8f0;
-		border-radius: 24px;
-		padding: 0 16px;
-		transition: all 0.2s ease;
-		height: 48px;
-	}
-
-	.search-input-group:focus-within {
-		border-color: #3b82f6;
-		background: white;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
-
-	.search-icon {
-		color: #9ca3af;
-		flex-shrink: 0;
-		margin-right: 12px;
-	}
-
-	.search-input {
-		flex: 1;
-		background: none;
-		border: none;
-		padding: 0;
-		font-size: 15px;
-		color: #1e293b;
-		outline: none;
-		min-width: 0;
-	}
-
-	.search-input::placeholder {
-		color: #94a3b8;
-	}
-
-	/* Search Dropdown - Clean */
-	.search-dropdown {
-		position: absolute;
-		top: 100%;
-		left: 0;
-		right: 0;
-		margin-top: 8px;
-		background: white;
-		border: 1px solid #e5e7eb;
-		border-radius: 12px;
-		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-		z-index: 1001; /* Higher than filter dropdown */
-		max-height: 384px;
-		overflow-y: auto;
-	}
-
-	.dropdown-content {
-		padding: 16px;
-	}
-
-	.dropdown-section {
-		margin-bottom: 20px;
-	}
-
-	.dropdown-section:last-child {
-		margin-bottom: 0;
-	}
-
-	.dropdown-section h3 {
-		font-size: 12px;
-		font-weight: 600;
-		color: #6b7280;
-		text-transform: uppercase;
-		letter-spacing: 0.5px;
-		margin-bottom: 12px;
-	}
-
-	.button-group {
-		display: flex;
-		gap: 8px;
-		overflow-x: auto;
-		padding-bottom: 8px;
-	}
-
-	.category-button {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		padding: 8px 16px;
-		border: 1px solid #e5e7eb;
-		border-radius: 24px;
-		background: white;
-		color: #374151;
-		font-size: 14px;
-		font-weight: 500;
-		white-space: nowrap;
-		transition: all 0.15s ease;
-		cursor: pointer;
-	}
-
-	.category-button:hover {
-		border-color: #9ca3af;
-		background: #f9fafb;
-	}
-
-	.category-button.active {
-		background: #111827;
-		color: white;
-		border-color: #111827;
-	}
-
-	.subcategory-button {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		padding: 8px 12px;
-		background: #f9fafb;
-		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-		color: #374151;
-		font-size: 14px;
-		font-weight: 500;
-		white-space: nowrap;
-		transition: all 0.15s ease;
-		cursor: pointer;
-	}
-
-	.subcategory-button:hover {
-		background: #111827;
-		color: white;
-		border-color: #111827;
-		transform: translateY(-1px);
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	}
-
-	/* Compact Filter Pills Above Products */
-	.compact-filters {
-		padding: 12px 16px 16px 16px;
-		background: #fafbfc;
-		border-bottom: 1px solid #f1f3f4;
-		position: relative;
-		z-index: 10;
-	}
-
-	.compact-filters-scroll {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		overflow-x: auto;
-		overflow-y: visible;
-		padding-bottom: 2px;
-		-webkit-overflow-scrolling: touch;
-		scrollbar-width: none;
-	}
-
-	.compact-filters-scroll::-webkit-scrollbar {
-		display: none;
-	}
-
-	.compact-pill {
-		display: flex;
-		align-items: center;
-		gap: 4px;
-		padding: 6px 10px;
-		border: 1px solid #e1e5e9;
-		border-radius: 20px;
-		background: white;
-		color: #4a5568;
-		font-size: 12px;
-		font-weight: 500;
-		white-space: nowrap;
-		transition: all 0.15s ease;
-		cursor: pointer;
-		min-height: 28px;
-	}
-
-	.compact-pill:hover {
-		background: #f7f8fa;
-		border-color: #cbd5e0;
-	}
-
-	.compact-pill.active {
-		background: #2d3748;
-		color: white;
-		border-color: #2d3748;
-	}
-
-	.compact-badge {
-		position: absolute;
-		top: -6px;
-		right: -6px;
-		width: 14px;
-		height: 14px;
-		background: #e53e3e;
-		color: white;
-		font-size: 9px;
-		font-weight: 600;
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border: 2px solid white;
-	}
-
-	/* Dropdown Trigger for Sort/Condition */
-	.dropdown-trigger {
-		position: relative;
-		display: inline-block;
-	}
-
-	/* Compact Dropdown for Sort and Condition */
-	.compact-dropdown {
-		position: absolute;
-		top: calc(100% + 4px);
-		left: 0;
-		background: white;
-		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-		z-index: 1002; /* Higher than filter dropdown (1000) and search dropdown (1001) */
-		min-width: 180px;
-		padding: 4px;
-		animation: fadeInScale 0.15s ease-out;
-	}
-	
-	/* Mobile adjustments for dropdowns */
-	@media (max-width: 480px) {
-		.compact-dropdown {
-			left: -20px;
-			right: -20px;
-			min-width: auto;
-			max-width: 240px;
-		}
-		
-		.compact-filters {
-			padding: 12px 8px 16px 8px;
-		}
-		
-		.compact-filters-scroll {
-			gap: 4px;
-		}
-		
-		.filter-actions {
-			gap: 4px;
-		}
-		
-		.compact-pill {
-			padding: 4px 8px;
-			font-size: 11px;
-			flex-shrink: 0;
-		}
-	}
-
-	.dropdown-item {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		width: 100%;
-		padding: 8px 12px;
-		background: transparent;
-		border: none;
-		border-radius: 6px;
-		color: #4a5568;
-		font-size: 13px;
-		font-weight: 500;
-		text-align: left;
-		cursor: pointer;
-		transition: all 0.15s ease;
-	}
-
-	.dropdown-item:hover {
-		background: #f7f8fa;
-		color: #2d3748;
-	}
-
-	.dropdown-item.active {
-		background: #e6f2ff;
-		color: #2563eb;
-	}
-
-	.dropdown-item.clear {
-		color: #ef4444;
-		font-weight: 600;
-	}
-
-	.dropdown-divider {
-		height: 1px;
-		background: #e5e7eb;
-		margin: 4px 0;
-	}
-
-	/* Filter Dropdown Container */
-	.filter-dropdown-container {
-		position: absolute;
-		top: calc(100% + 8px);
-		right: 0;
-		z-index: 1000;
-	}
-
-	/* Filter Dropdown - Same styling as search dropdown */
-	.filter-dropdown {
-		background: white;
-		border: 1px solid #e5e7eb;
-		border-radius: 12px;
-		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-		max-height: 400px;
-		overflow-y: auto;
-		min-width: 320px;
-	}
-	
-	/* Mobile specific filter dropdown */
-	@media (max-width: 768px) {
-		.filter-dropdown-container {
-			position: fixed;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			right: auto;
-			width: 90%;
-			max-width: 400px;
-		}
-		
-		.filter-dropdown-container::before {
-			content: '';
-			position: fixed;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			background: rgba(0, 0, 0, 0.5);
-			z-index: -1;
-		}
-		
-		.filter-dropdown {
-			max-height: 70vh;
-		}
-	}
-
-
-	.clear-all-button {
-		width: 100%;
-		padding: 12px;
-		background: #f1f5f9;
-		border: 1px solid #e2e8f0;
-		border-radius: 8px;
-		color: #64748b;
-		font-size: 14px;
-		font-weight: 500;
-		transition: all 0.15s ease;
-		cursor: pointer;
-	}
-
-	.clear-all-button:hover {
-		background: #ef4444;
-		color: white;
-		border-color: #ef4444;
-	}
-
-	/* Make subcategory buttons active state more visible */
-	.subcategory-button.active {
-		background: #3b82f6;
-		color: white;
-		border-color: #3b82f6;
-	}
+	/* Clean and minimal - only essential styles */
 
 	/* Remove all padding/constraints - match main page */
 	.content-wrapper {
@@ -1439,16 +781,20 @@
 		
 		.filter-rail.desktop-only {
 			display: block;
-			width: 280px;
+			width: 320px; /* Slightly wider for better content */
 			flex-shrink: 0;
 			background: white;
-			border-right: 1px solid var(--color-border);
+			border: 1px solid #f1f3f4;
 			height: fit-content;
 			position: sticky;
-			top: 120px;
-			border-radius: 12px;
-			margin-left: 1rem;
-			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+			top: calc(var(--header-height) + 80px); /* Account for search and filter bar */
+			border-radius: 16px;
+			margin-left: 1.5rem;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+			overflow: hidden;
+			/* Enhanced desktop styling */
+			backdrop-filter: blur(8px);
+			border-top: 3px solid #3b82f6;
 		}
 		
 		.products-area {
@@ -1458,22 +804,46 @@
 	}
 
 
-	/* Filter Rail Styles */
+	/* Enhanced Filter Rail Styles */
 	.filter-rail-content {
-		padding: 1.5rem;
+		padding: 0;
 	}
 
 	.filter-rail .filter-group {
-		margin-bottom: 1.5rem;
+		border-bottom: 1px solid #f8fafc;
+		padding: 1.5rem;
+		transition: background-color 0.2s ease;
+	}
+
+	.filter-rail .filter-group:last-child {
+		border-bottom: none;
+	}
+
+	.filter-rail .filter-group:hover {
+		background: #fafbfc;
 	}
 
 	.filter-rail .filter-group h3 {
-		font-size: 0.875rem;
-		font-weight: 600;
-		margin-bottom: 0.75rem;
-		color: var(--color-text-dark);
-		text-transform: uppercase;
-		letter-spacing: 0.025em;
+		font-size: 0.95rem;
+		font-weight: 700;
+		margin-bottom: 1rem;
+		color: #111827;
+		text-transform: none;
+		letter-spacing: -0.01em;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		cursor: pointer;
+		position: relative;
+	}
+
+	.filter-rail .filter-group h3::after {
+		content: '';
+		width: 20px;
+		height: 2px;
+		background: #3b82f6;
+		border-radius: 1px;
+		transition: all 0.2s ease;
 	}
 
 	.filter-options.vertical {
@@ -1497,29 +867,49 @@
 	.filter-option {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
-		padding: 0.5rem 0.75rem;
+		gap: 0.75rem;
+		padding: 0.75rem 1rem;
 		border: 1px solid transparent;
-		border-radius: 0.375rem;
+		border-radius: 10px;
 		background: transparent;
 		cursor: pointer;
-		transition: all 0.15s;
-		font-size: 0.875rem;
+		transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+		font-size: 0.9rem;
 		font-weight: 500;
 		text-align: left;
 		width: 100%;
-		color: var(--color-text-quaternary);
+		color: #4b5563;
+		position: relative;
+		margin-bottom: 0.25rem;
 	}
 
 	.filter-option:hover {
-		background: var(--color-border-lighter);
-		color: var(--color-text-dark);
+		background: #f3f4f6;
+		color: #111827;
+		transform: translateX(4px);
+		border-color: #e5e7eb;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 	}
 
 	.filter-option.active {
-		background: var(--color-surface-overlay);
+		background: linear-gradient(135deg, #3b82f6, #1d4ed8);
 		color: white;
 		font-weight: 600;
+		transform: translateX(4px);
+		box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+		border-color: #3b82f6;
+	}
+
+	.filter-option.active::before {
+		content: '';
+		position: absolute;
+		left: -1rem;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 3px;
+		height: 100%;
+		background: #3b82f6;
+		border-radius: 2px;
 	}
 
 	.filter-option.sub {
@@ -1540,37 +930,111 @@
 
 	.clear-all-rail {
 		width: 100%;
-		padding: 0.625rem;
+		padding: 0.75rem 1rem;
 		background: transparent;
-		border: 1px solid var(--color-border-light);
-		border-radius: 0.375rem;
-		color: var(--color-text-quaternary);
-		font-weight: 500;
+		border: 2px solid #e5e7eb;
+		border-radius: 10px;
+		color: #ef4444;
+		font-weight: 600;
 		cursor: pointer;
-		transition: all 0.15s;
-		font-size: 0.875rem;
+		transition: all 0.2s ease;
+		font-size: 0.9rem;
+		margin-bottom: 1.5rem;
 	}
 
 	.clear-all-rail:hover {
-		background: var(--color-surface-overlay);
+		background: #ef4444;
 		color: white;
-		border-color: var(--color-border-darker);
+		border-color: #ef4444;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 	}
 
-	.brand-input {
+	/* Desktop Keyboard Shortcuts Help */
+	.keyboard-shortcuts-help {
+		padding: 1rem 0 0;
+		border-top: 1px solid #f1f3f4;
+		margin-top: 0.5rem;
+	}
+
+	.keyboard-shortcuts-help h4 {
+		font-size: 0.8rem;
+		font-weight: 600;
+		color: #6b7280;
+		margin: 0 0 0.75rem 0;
+		text-transform: uppercase;
+		letter-spacing: 0.5px;
+	}
+
+	.shortcuts-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.shortcut-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.75rem;
+		color: #9ca3af;
+	}
+
+	.shortcut-item kbd {
+		background: #f3f4f6;
+		border: 1px solid #d1d5db;
+		border-radius: 4px;
+		padding: 0.125rem 0.25rem;
+		font-size: 0.65rem;
+		font-weight: 600;
+		color: #374151;
+		font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+	}
+
+	.shortcut-item span {
+		color: #6b7280;
+		font-weight: 500;
+	}
+
+	.brand-input,
+	.price-input {
 		width: 100%;
-		padding: 0.625rem;
-		background: var(--color-surface-quaternary);
-		border: 1px solid var(--color-border-light);
-		border-radius: 0.375rem;
-		font-size: 0.875rem;
+		padding: 0.75rem 1rem;
+		background: #fafbfc;
+		border: 2px solid #e5e7eb;
+		border-radius: 10px;
+		font-size: 0.9rem;
 		margin-bottom: 0.75rem;
+		transition: all 0.2s ease;
+		color: #111827;
+		font-weight: 500;
 	}
 
-	.brand-input:focus {
+	.brand-input:focus,
+	.price-input:focus {
 		outline: none;
-		border-color: var(--color-border-darker);
+		border-color: #3b82f6;
 		background: white;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+		transform: translateY(-1px);
+	}
+
+	.brand-input:hover,
+	.price-input:hover {
+		border-color: #d1d5db;
+		background: white;
+	}
+
+	.price-inputs {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.price-inputs span {
+		color: #6b7280;
+		font-weight: 600;
 	}
 
 	.popular-brands {
@@ -1634,72 +1098,7 @@
 		}
 	}
 
-	/* View Toggle Styles - Matching Wishlist */
-	.filter-actions {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		margin-left: auto;
-		position: relative;
-		flex-shrink: 0;
-	}
-
-	.view-toggle {
-		display: inline-flex;
-		background: var(--color-surface-tertiary);
-		border-radius: var(--border-radius-lg);
-		padding: 3px;
-		gap: 2px;
-		box-shadow: var(--shadow-xs);
-		border: 1px solid var(--color-border-primary);
-	}
-
-	.toggle-btn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: var(--space-2) var(--space-3);
-		border-radius: var(--border-radius-md);
-		background: transparent;
-		color: var(--color-text-secondary);
-		cursor: pointer;
-		transition: all var(--duration-fast) var(--ease-out);
-		border: none;
-		min-width: 36px;
-		height: 32px;
-		outline: none;
-		-webkit-tap-highlight-color: transparent;
-		position: relative;
-	}
-
-	.toggle-btn:hover:not(.active) {
-		color: var(--color-text-primary);
-		background: var(--color-surface-secondary);
-	}
-
-	.toggle-btn:focus-visible {
-		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-	}
-
-	.toggle-btn:active:not(.active) {
-		transform: scale(0.95);
-	}
-
-	.toggle-btn.active {
-		background: var(--color-surface-primary);
-		color: var(--color-interactive-primary);
-		box-shadow: var(--shadow-sm);
-		font-weight: 500;
-	}
-
-	.toggle-btn.active::after {
-		content: '';
-		position: absolute;
-		inset: -1px;
-		border-radius: var(--border-radius-md);
-		border: 2px solid var(--color-interactive-primary);
-		opacity: 0.1;
-	}
+	/* View toggle is now handled by FilterBar component */
 
 	/* Product Grid Container Styles */
 	.products-grid-container {
@@ -1726,18 +1125,5 @@
 		flex-shrink: 0;
 	}
 
-	/* Mobile adjustments - maintain consistency */
-	@media (max-width: 640px) {
-		.view-toggle {
-			display: inline-flex;
-			margin-left: 6px;
-			padding: 2px;
-		}
-		
-		.toggle-btn {
-			min-width: 30px;
-			height: 28px;
-			padding: var(--space-1-5) var(--space-2);
-		}
-	}
+	/* Mobile layout is handled by individual components */
 </style>
