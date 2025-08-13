@@ -176,77 +176,21 @@
     }
   }
 
-  // Complete onboarding
   async function completeOnboarding() {
-    console.log('Starting onboarding completion...', { formData });
     isLoading = true;
-
-    try {
-      const user = data.user;
-      
-      // Clean social links - remove empty ones
-      const socialLinks = Object.fromEntries(
-        Object.entries(formData.social_links).filter(([_, value]) => value.trim() !== '')
-      );
-
-      // Prepare profile data - creating profile for the first time
-      const profileData: any = {
-        id: user.id,
-        username: formData.username.toLowerCase(),
-        full_name: user.user_metadata?.full_name || '',
-        account_type: formData.account_type,
-        bio: formData.bio,
-        social_links: socialLinks,
-        region: formData.region,
-        onboarding_completed: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-
-      // Add brand-specific fields if it's a brand account
-      if (formData.account_type === 'brand') {
-        profileData.brand_name = formData.username;
-      }
-
-      // Create or update profile using upsert  
-      console.log('Creating profile with data:', profileData);
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert(profileData);
-      
-      if (profileError) {
-        console.error('Profile update error:', profileError);
-        
-        // Handle specific username duplicate error
-        if (profileError.message.includes('profiles_username_key') || profileError.message.includes('duplicate key')) {
-          errors.username = m['onboarding.username.error_taken']();
-          currentStep = 1; // Go back to username step
-          isLoading = false;
-          return;
-        }
-        
-        throw new Error(`Profile update failed: ${profileError.message}`);
-      }
-      
-      // Note: Payout and preferences will be saved later in settings
-      // For now, just complete the profile creation to get user into the app
-
-      // Show success screen
-      showSuccess = true;
-      
-      // Auto redirect to main page after 3 seconds
-      setTimeout(() => {
-        toast.success(m['onboarding.welcome_toast']());
-        goto('/');
-      }, 3000);
-      
-    } catch (error) {
-      console.error('Onboarding error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
-      toast.error(errorMessage);
-    } finally {
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update({ onboarding_completed: true })
+      .eq('id', data.user.id);
+    
+    if (error) {
+      toast.error('Failed to complete onboarding');
       isLoading = false;
+      return;
     }
+    
+    goto('/');
   }
 
   // Handle social link changes
