@@ -90,7 +90,7 @@
 		border-radius: 8px;
 		font-size: 15px;
 		background: white;
-		transition: all 0.15s ease;
+		transition: border-color 0.15s ease, box-shadow 0.15s ease;
 		color: var(--color-text-primary);
 	}
 
@@ -133,7 +133,7 @@
 		cursor: pointer;
 		padding: 4px;
 		border-radius: 4px;
-		transition: background-color 0.15s ease;
+		transition: background-color 0.1s ease;
 	}
 
 	.field-icon-right:hover {

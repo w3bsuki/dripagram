@@ -64,20 +64,40 @@ export const actions: Actions = {
 		}
 
 		if (authData.user) {
-			// Update profile with additional data - username will be set during onboarding
+			// Create profile with all required fields
 			const { error: profileError } = await locals.supabase
 				.from('profiles')
 				.upsert({
 					id: authData.user.id,
 					username: `user_${authData.user.id.slice(0, 8)}`, // Temporary username
 					full_name: fullName,
-					account_type: 'personal',
+					email: email,
+					country: 'BG', // Default to Bulgaria
+					seller_rating: 0,
+					seller_rating_count: 0,
+					seller_verified: false,
+					total_sales: 0,
+					total_earnings: 0,
+					notification_email: true,
+					notification_push: true,
+					notification_sms: false,
+					language: locale === 'en' ? 'en' : 'bg',
+					currency: 'BGN',
+					theme: 'light',
+					role: 'user',
+					status: 'active',
+					last_seen_at: new Date().toISOString(),
 					created_at: new Date().toISOString(),
 					updated_at: new Date().toISOString()
 				});
 
 			if (profileError) {
 				console.error('Profile creation error:', profileError);
+				return fail(500, { 
+					error: 'Failed to create user profile. Please try again.',
+					email: email,
+					fullName: fullName
+				});
 			}
 		}
 
