@@ -588,11 +588,12 @@
 
 <style>
   .onboarding {
-    min-height: 100vh;
+    height: 100vh;
     background: #ffffff;
     display: flex;
     flex-direction: column;
     padding: 1rem;
+    overflow: hidden;
   }
 
   .onboarding-header {
@@ -628,7 +629,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    min-height: 0;
   }
 
   .step-title {
@@ -651,6 +652,12 @@
 
   .step-form {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1rem 0;
   }
 
   /* Step 1: Username */
@@ -1011,8 +1018,10 @@
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
+    padding: 1rem 0;
+    flex-shrink: 0;
+    border-top: 1px solid #f0f0f0;
     margin-top: auto;
-    padding-top: 1.5rem;
   }
 
   .btn-secondary,
@@ -1146,10 +1155,13 @@
   @media (max-width: 640px) {
     .onboarding {
       padding: 0.75rem;
+      height: 100vh;
+      height: 100dvh; /* Dynamic viewport height for mobile */
     }
 
     .onboarding-header {
       padding: 0.75rem 0;
+      flex-shrink: 0;
     }
 
     .logo {
@@ -1160,8 +1172,9 @@
       font-size: 0.75rem;
     }
 
-    .onboarding-content {
-      gap: 1rem;
+    .step-title {
+      flex-shrink: 0;
+      padding: 0.5rem 0;
     }
 
     .step-title h1 {
@@ -1170,6 +1183,10 @@
 
     .step-title p {
       font-size: 0.8125rem;
+    }
+
+    .step-form {
+      padding: 0.5rem 0;
     }
 
     .form-section {
@@ -1220,14 +1237,15 @@
     }
 
     .step-navigation {
-      padding-top: 1rem;
+      padding: 1rem 0;
       gap: 0.75rem;
+      flex-shrink: 0;
     }
 
     .btn-secondary,
     .btn-primary {
       padding: 0.625rem 1rem;
-      min-height: 40px;
+      min-height: 44px;
     }
   }
 
