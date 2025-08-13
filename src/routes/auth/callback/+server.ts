@@ -27,7 +27,7 @@ export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
 					redirect(303, '/bg/auth/reset-password');
 					break;
 				case 'signup':
-					redirect(303, '/bg'); // Redirect to home page after confirmation
+					redirect(303, '/onboarding'); // Redirect to onboarding after email confirmation
 					break;
 				case 'invite':
 					redirect(303, next);

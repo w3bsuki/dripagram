@@ -39,9 +39,8 @@
 		...props
 	}: Props = $props();
 
-	// Calculate padding based on icons
-	let paddingLeft = $derived(leftIcon ? 'pl-10' : 'pl-4');
-	let paddingRight = $derived(rightIcon ? 'pr-10' : 'pr-4');
+	// Static padding classes
+	const paddingClass = `${leftIcon ? 'pl-10' : 'pl-4'} ${rightIcon ? 'pr-10' : 'pr-4'}`;
 </script>
 
 <div class="input-field">
@@ -56,7 +55,7 @@
 	<input
 		bind:value
 		{type}
-		class="field-input {paddingLeft} {paddingRight} {className}"
+		class="field-input {paddingClass} {className}"
 		{oninput}
 		{onchange}
 		{onfocus}

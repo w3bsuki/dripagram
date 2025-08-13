@@ -13,16 +13,10 @@
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 	
-	// Svelte 5 state management
+	// Minimal state management
 	let showPassword = $state(false);
 	let showConfirmPassword = $state(false);
 	let submitting = $state(false);
-	let formData = $state({
-		fullName: '',
-		email: '',
-		password: '',
-		confirmPassword: ''
-	});
 
 	// Get locale from URL params
 	let locale = $derived($page.params.lang || 'bg');
@@ -68,12 +62,10 @@
 					name="fullName"
 					type="text"
 					placeholder={m['auth.full_name_placeholder']()}
-					class=""
 					disabled={submitting}
 					autocomplete="name"
 					required
 					leftIcon={User}
-					bind:value={formData.fullName}
 				/>
 			</div>
 
@@ -84,12 +76,10 @@
 					name="email"
 					type="email"
 					placeholder={m['auth.email_placeholder']()}
-					class=""
 					disabled={submitting}
 					autocomplete="email"
 					required
 					leftIcon={Mail}
-					bind:value={formData.email}
 				/>
 			</div>
 
@@ -100,7 +90,6 @@
 					name="password"
 					type={showPassword ? 'text' : 'password'}
 					placeholder={m['auth.create_strong_password']()}
-					class=""
 					disabled={submitting}
 					autocomplete="new-password"
 					required
@@ -108,7 +97,6 @@
 					rightIcon={showPassword ? EyeOff : Eye}
 					onRightIconClick={() => (showPassword = !showPassword)}
 					rightIconLabel={showPassword ? m['auth.hide_password']() : m['auth.show_password']()}
-					bind:value={formData.password}
 				/>
 			</div>
 
@@ -119,7 +107,6 @@
 					name="confirmPassword"
 					type={showConfirmPassword ? 'text' : 'password'}
 					placeholder={m['auth.confirm_your_password']()}
-					class=""
 					disabled={submitting}
 					autocomplete="new-password"
 					required
@@ -127,7 +114,6 @@
 					rightIcon={showConfirmPassword ? EyeOff : Eye}
 					onRightIconClick={() => (showConfirmPassword = !showConfirmPassword)}
 					rightIconLabel={showConfirmPassword ? m['auth.hide_password']() : m['auth.show_password']()}
-					bind:value={formData.confirmPassword}
 				/>
 			</div>
 
