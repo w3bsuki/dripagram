@@ -242,9 +242,7 @@
 
 	.filters {
 		display: flex;
-		gap: 6px;
-		flex-wrap: wrap;
-		flex: 1;
+		gap: 8px;
 	}
 
 	.dropdown-wrapper {
@@ -254,15 +252,14 @@
 	.dropdown-button {
 		display: flex;
 		align-items: center;
-		gap: 3px;
-		padding: 6px 9px;
+		gap: 4px;
+		padding: 7px 10px;
 		background: white;
 		border: 1px solid #e5e7eb;
 		border-radius: 6px;
 		font-size: 13px;
 		color: #374151;
 		cursor: pointer;
-		white-space: nowrap;
 	}
 
 	.dropdown-button:hover {
@@ -341,16 +338,7 @@
 
 	@media (max-width: 768px) {
 		.filter-bar {
-			padding: 8px 12px;
-		}
-
-		.filters {
-			gap: 4px;
-		}
-
-		.dropdown-button {
-			padding: 6px 8px;
-			font-size: 12px;
+			padding: 8px 16px;
 		}
 
 		.view-toggle {
