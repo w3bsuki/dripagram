@@ -22,7 +22,7 @@
 		
 		try {
 			const { error } = await supabase.auth.resetPasswordForEmail(email, {
-				redirectTo: `${PUBLIC_SITE_URL || (browser ? window.location.origin : 'https://driplo.bg')}/bg/auth/confirm?type=recovery`
+				redirectTo: `${PUBLIC_SITE_URL || (browser ? window.location.origin : 'https://driplo.xyz')}/bg/auth/confirm?type=recovery`
 			});
 			
 			if (error) throw error;

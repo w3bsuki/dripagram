@@ -52,7 +52,7 @@ export const actions: Actions = {
 				data: {
 					full_name: fullName
 				},
-				emailRedirectTo: `${PUBLIC_SITE_URL || 'https://driplo.bg'}/${locale}/auth/confirm`
+				emailRedirectTo: `${PUBLIC_SITE_URL || 'https://driplo.xyz'}/${locale}/auth/confirm`
 			}
 		});
 
