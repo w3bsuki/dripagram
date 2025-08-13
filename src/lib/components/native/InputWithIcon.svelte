@@ -39,8 +39,8 @@
 		...props
 	}: Props = $props();
 
-	// Static padding classes
-	const paddingClass = `${leftIcon ? 'pl-10' : 'pl-4'} ${rightIcon ? 'pr-10' : 'pr-4'}`;
+	// Static padding classes - calculated once
+	const paddingClass = $derived(`${leftIcon ? 'pl-10' : 'pl-4'} ${rightIcon ? 'pr-10' : 'pr-4'}`);
 </script>
 
 <div class="input-field">
