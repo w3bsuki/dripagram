@@ -14,6 +14,7 @@
 	} = $props();
 
 	const categories = [
+		{ id: null, name: 'All', emoji: '✨' },
 		{ id: 'men', name: 'Men', emoji: '👨' },
 		{ id: 'women', name: 'Women', emoji: '👩' },
 		{ id: 'kids', name: 'Kids', emoji: '👶' },
@@ -54,8 +55,12 @@
 		]
 	};
 
-	function handleCategoryClick(categoryId: string) {
-		if (selectedCategory === categoryId) {
+	function handleCategoryClick(categoryId: string | null) {
+		if (categoryId === null) {
+			// All category selected
+			onCategoryChange(null);
+			onSubcategoryChange(null);
+		} else if (selectedCategory === categoryId) {
 			// Clicking same category again - reset
 			onCategoryChange(null);
 			onSubcategoryChange(null);
@@ -86,7 +91,8 @@
 			{#each categories as category}
 				<button
 					class="pill"
-					class:active={selectedCategory === category.id}
+					class:active={category.id === null ? !selectedCategory : selectedCategory === category.id}
+					class:all-pill={category.id === null}
 					onclick={() => handleCategoryClick(category.id)}
 				>
 					<span class="pill-emoji">{category.emoji}</span>
@@ -158,6 +164,12 @@
 	}
 
 	.pill.active {
+		background: #111827;
+		color: white;
+		border-color: #111827;
+	}
+
+	.pill.all-pill.active {
 		background: #111827;
 		color: white;
 		border-color: #111827;

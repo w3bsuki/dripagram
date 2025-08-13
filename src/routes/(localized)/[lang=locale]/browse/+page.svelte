@@ -93,6 +93,27 @@
 		selectedBrand = brand;
 		updateURL();
 	}
+
+	function handlePriceChange(price: string | null) {
+		// Parse price range and update min/max
+		if (price === null) {
+			priceMin = 0;
+			priceMax = 500;
+		} else if (price === '0-50') {
+			priceMin = 0;
+			priceMax = 50;
+		} else if (price === '50-100') {
+			priceMin = 50;
+			priceMax = 100;
+		} else if (price === '100-200') {
+			priceMin = 100;
+			priceMax = 200;
+		} else if (price === '200+') {
+			priceMin = 200;
+			priceMax = 9999;
+		}
+		updateURL();
+	}
 </script>
 
 <div class="browse-page">
@@ -126,11 +147,13 @@
 		{selectedSize}
 		{selectedCondition}
 		{selectedBrand}
+		selectedPrice={priceMin > 0 || priceMax < 500 ? `${priceMin}-${priceMax === 9999 ? '+' : priceMax}` : null}
 		onSortChange={handleSortChange}
 		onViewModeChange={(mode) => viewMode = mode}
 		onSizeChange={handleSizeChange}
 		onConditionChange={handleConditionChange}
 		onBrandChange={handleBrandChange}
+		onPriceChange={handlePriceChange}
 	/>
 
 	<!-- Products grid -->

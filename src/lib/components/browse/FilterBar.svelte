@@ -7,28 +7,33 @@
 		selectedSize = null,
 		selectedCondition = null,
 		selectedBrand = null,
+		selectedPrice = null,
 		onSortChange,
 		onViewModeChange,
 		onSizeChange,
 		onConditionChange,
-		onBrandChange
+		onBrandChange,
+		onPriceChange
 	}: {
 		sortBy?: string;
 		viewMode?: 'grid' | 'list';
 		selectedSize?: string | null;
 		selectedCondition?: string | null;
 		selectedBrand?: string | null;
+		selectedPrice?: string | null;
 		onSortChange: (sort: string) => void;
 		onViewModeChange: (mode: 'grid' | 'list') => void;
 		onSizeChange: (size: string | null) => void;
 		onConditionChange: (condition: string | null) => void;
 		onBrandChange: (brand: string | null) => void;
+		onPriceChange: (price: string | null) => void;
 	} = $props();
 
 	let showSort = $state(false);
 	let showSize = $state(false);
 	let showCondition = $state(false);
 	let showBrand = $state(false);
+	let showPrice = $state(false);
 
 	const sortOptions = [
 		{ value: 'newest', label: 'Newest' },
@@ -40,6 +45,12 @@
 	const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 	const conditionOptions = ['New with tags', 'Like new', 'Good', 'Fair'];
 	const brandOptions = ['Nike', 'Adidas', 'Zara', 'H&M', 'Gucci', 'Prada', 'Other'];
+	const priceOptions = [
+		{ value: '0-50', label: 'Under $50' },
+		{ value: '50-100', label: '$50-$100' },
+		{ value: '100-200', label: '$100-$200' },
+		{ value: '200+', label: '$200+' }
+	];
 </script>
 
 <div class="filter-bar">
@@ -155,6 +166,34 @@
 				</div>
 			{/if}
 		</div>
+
+		<!-- Price dropdown -->
+		<div class="dropdown-wrapper">
+			<button
+				class="dropdown-button"
+				onclick={() => showPrice = !showPrice}
+			>
+				Price
+				<ChevronDown size={14} />
+			</button>
+			
+			{#if showPrice}
+				<div class="dropdown-menu">
+					{#each priceOptions as price}
+						<button
+							class="dropdown-item"
+							class:active={selectedPrice === price.value}
+							onclick={() => {
+								onPriceChange(selectedPrice === price.value ? null : price.value);
+								showPrice = false;
+							}}
+						>
+							{price.label}
+						</button>
+					{/each}
+				</div>
+			{/if}
+		</div>
 	</div>
 
 	<!-- View mode toggle -->
@@ -177,7 +216,7 @@
 </div>
 
 <!-- Click outside to close -->
-{#if showSort || showSize || showCondition || showBrand}
+{#if showSort || showSize || showCondition || showBrand || showPrice}
 	<button
 		class="backdrop"
 		onclick={() => {
@@ -185,6 +224,7 @@
 			showSize = false;
 			showCondition = false;
 			showBrand = false;
+			showPrice = false;
 		}}
 		aria-hidden="true"
 	/>
