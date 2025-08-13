@@ -76,8 +76,8 @@
 </style>
 
 <div class="min-h-screen bg-gray-50">
-		<!-- Hide headers on auth pages -->
-		{#if !$page.url.pathname.includes('/auth')}
+		<!-- Hide headers on auth and onboarding pages -->
+		{#if !$page.url.pathname.includes('/auth') && !$page.url.pathname.includes('/onboarding')}
 			<!-- Mobile Header -->
 			<div class="md:hidden">
 				<AppHeader notificationCount={0} />

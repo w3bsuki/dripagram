@@ -207,7 +207,8 @@
         profileData.brand_name = formData.username;
       }
 
-      // Create or update profile using upsert
+      // Create or update profile using upsert  
+      console.log('Creating profile with data:', profileData);
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert(profileData);
@@ -217,34 +218,8 @@
         throw new Error(`Profile update failed: ${profileError.message}`);
       }
       
-      // Save payout information (encrypted in real app)
-      const { error: payoutError } = await supabase
-        .from('user_preferences')
-        .upsert({
-          user_id: user.id,
-          payout_method: formData.payout_method,
-          payout_details: formData.payout_details, // Should be encrypted in production
-          updated_at: new Date().toISOString()
-        });
-
-      if (payoutError) {
-        console.error('Payout preferences error:', payoutError);
-        // Don't throw here, payout preferences are not critical for onboarding
-        toast.error('Payout preferences could not be saved, but you can update them later in settings.');
-      }
-
-      // Update user preferences
-      const { error: preferencesError } = await supabase.rpc('sync_cookie_preferences', {
-        p_user_id: user.id,
-        p_locale: 'bg-BG', // Default to Bulgarian
-        p_region: formData.region
-      });
-
-      if (preferencesError) {
-        console.error('Preferences RPC error:', preferencesError);
-        // Don't throw here, this is not critical for onboarding completion
-        toast.error('Some preferences could not be saved, but you can update them later.');
-      }
+      // Note: Payout and preferences will be saved later in settings
+      // For now, just complete the profile creation to get user into the app
 
       // Show success screen
       showSuccess = true;
