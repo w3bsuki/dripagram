@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Heart, Grid, List, ShoppingBag, Sparkles } from '@lucide/svelte';
-	import ProductCard from '$lib/components/marketplace/ProductCard.svelte';
+	import { ProductCard } from '$lib/components/marketplace';
 	import * as m from '$lib/paraglide/messages';
 	import { onMount } from 'svelte';
 	

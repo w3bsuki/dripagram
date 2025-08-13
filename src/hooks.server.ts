@@ -271,6 +271,24 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
+// Route redirect handler for deprecated non-localized routes
+const redirectHandle: Handle = async ({ event, resolve }) => {
+	const pathname = event.url.pathname;
+	
+	// Redirect legacy non-localized routes to localized versions
+	if (pathname === '/browse' || pathname.startsWith('/browse?')) {
+		const searchParams = event.url.search;
+		throw redirect(301, `/bg/browse${searchParams}`);
+	}
+	
+	if (pathname === '/wishlist' || pathname.startsWith('/wishlist?')) {
+		const searchParams = event.url.search;
+		throw redirect(301, `/bg/wishlist${searchParams}`);
+	}
+	
+	return resolve(event);
+};
+
 // Dynamic locale detection and setting
 const localeHandle: Handle = async ({ event, resolve }) => {
 	// Extract locale from URL path
@@ -292,8 +310,8 @@ const localeHandle: Handle = async ({ event, resolve }) => {
 	});
 };
 
-// Create the handle sequence
-const baseHandle = sequence(localeHandle, securityHeaders, rateLimitingMiddleware, supabase, authGuard);
+// Create the handle sequence  
+const baseHandle = sequence(redirectHandle, localeHandle, securityHeaders, rateLimitingMiddleware, supabase, authGuard);
 
 // Wrap the sequence with Sentry's handle for error tracking
 export const handle: Handle = SENTRY_DSN 

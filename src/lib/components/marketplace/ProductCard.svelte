@@ -250,6 +250,7 @@
 		text-overflow: ellipsis;
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
+		line-clamp: 2;
 		-webkit-box-orient: vertical;
 		line-height: 1.3;
 	}
@@ -383,6 +384,7 @@
 		.title {
 			font-size: 13px;
 			-webkit-line-clamp: 1;
+			line-clamp: 1;
 		}
 		
 		.price-tag {

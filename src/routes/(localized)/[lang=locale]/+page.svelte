@@ -6,7 +6,6 @@
 	import ProductFeed from '$lib/components/social/ProductFeed.svelte';
 	import UserModal from '$lib/components/social/UserModal.svelte';
 	import FeedStateManager from '$lib/components/social/FeedStateManager.svelte';
-	import LiveShoppingList from '$lib/components/social/LiveShoppingList.svelte';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import type { PageData } from './$types';

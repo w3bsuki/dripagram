@@ -5,7 +5,7 @@ Can be used for user stories, brand highlights, category collections, etc.
 -->
 <script lang="ts">
 	import { Avatar, AvatarImage, AvatarFallback } from '$lib/components/ui/avatar';
-	import { Badge } from '$lib/components/ui/badge';
+	import { Badge } from '$lib/components/native';
 
 	interface Props {
 		// Content

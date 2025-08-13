@@ -210,7 +210,8 @@
 	>
 		<div
 			class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
-			role="document"
+			role="dialog"
+			tabindex="-1"
 			onclick={(e) => e.stopPropagation()}
 			onkeydown={(e) => {
 				if (e.key === 'Escape') {

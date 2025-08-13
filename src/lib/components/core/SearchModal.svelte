@@ -3,7 +3,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import Button from '$lib/components/native/Button.svelte';
 	import Input from '$lib/components/native/Input.svelte';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
+	import { Badge } from '$lib/components/native';
 	import { goto } from '$app/navigation';
 
 	let { open = $bindable() } = $props();
