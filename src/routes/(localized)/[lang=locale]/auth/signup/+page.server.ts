@@ -1,5 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { signupSchema } from '$lib/schemas/auth';
+import { PUBLIC_SITE_URL } from '$env/static/public';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -51,7 +52,7 @@ export const actions: Actions = {
 				data: {
 					full_name: fullName
 				},
-				emailRedirectTo: `https://driplo.xyz/${locale}/auth/confirm`
+				emailRedirectTo: `${PUBLIC_SITE_URL}/${locale}/auth/confirm`
 			}
 		});
 
@@ -69,6 +70,7 @@ export const actions: Actions = {
 				.from('profiles')
 				.upsert({
 					id: authData.user.id,
+					username: `user_${authData.user.id.slice(0, 8)}`, // Temporary username
 					full_name: fullName,
 					account_type: 'personal',
 					created_at: new Date().toISOString(),

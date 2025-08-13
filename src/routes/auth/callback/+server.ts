@@ -24,13 +24,17 @@ export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
 			// Handle specific verification types
 			switch (type) {
 				case 'recovery':
-					redirect(303, '/auth/reset-password');
+					redirect(303, '/bg/auth/reset-password');
+					break;
 				case 'signup':
-					redirect(303, '/dashboard');
+					redirect(303, '/bg'); // Redirect to home page after confirmation
+					break;
 				case 'invite':
 					redirect(303, next);
+					break;
 				default:
 					redirect(303, next);
+					break;
 			}
 		}
 

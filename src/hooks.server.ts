@@ -68,6 +68,12 @@ const supabase: Handle = async ({ event, resolve }) => {
 			return { session: null, user: null };
 		}
 
+		// Check if email is confirmed - critical security check
+		if (user && !user.email_confirmed_at) {
+			// User exists but hasn't confirmed email - treat as unauthenticated
+			return { session: null, user: null };
+		}
+
 		return { session, user };
 	};
 
@@ -87,6 +93,24 @@ const authGuard: Handle = async ({ event, resolve }) => {
 	const { session, user } = await event.locals.safeGetSession();
 	event.locals.session = session;
 	event.locals.user = user;
+
+	// First check: Handle users with unconfirmed emails
+	const { data: { session: rawSession } } = await event.locals.supabase.auth.getSession();
+	const { data: { user: rawUser } } = await event.locals.supabase.auth.getUser();
+	
+	if (rawSession && rawUser && !rawUser.email_confirmed_at) {
+		// User has a session but unconfirmed email - redirect to verify page unless already there
+		const allowedPaths = ['/auth/verify', '/auth/error', '/api/', '/bg/auth/verify', '/en/auth/verify', '/bg/auth/error', '/en/auth/error'];
+		const isAllowedPath = allowedPaths.some(path => 
+			event.url.pathname.startsWith(path)
+		);
+		
+		if (!isAllowedPath) {
+			// Determine locale and redirect to verify page
+			const locale = event.url.pathname.match(/^\/(bg|en)\//) ? event.url.pathname.split('/')[1] : 'bg';
+			throw redirect(303, `/${locale}/auth/verify`);
+		}
+	}
 
 	// Check if user needs to complete onboarding (Bulgarian-first flow)
 	if (session && user) {

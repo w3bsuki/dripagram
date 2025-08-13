@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createClient } from '$lib/supabase/client';
+	import { PUBLIC_SITE_URL } from '$env/static/public';
 
 	const supabase = createClient();
 	import { toast } from '$lib/utils/toast';
@@ -20,7 +21,7 @@
 		
 		try {
 			const { error } = await supabase.auth.resetPasswordForEmail(email, {
-				redirectTo: `https://driplo.xyz/bg/auth/confirm?type=recovery`
+				redirectTo: `${PUBLIC_SITE_URL}/bg/auth/confirm?type=recovery`
 			});
 			
 			if (error) throw error;

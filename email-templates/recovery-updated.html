@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Възстанови паролата си в Driplo.bg</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            background-color: #fafafa;
+            color: #09090b;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .header {
+            background: #ef4444;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+            letter-spacing: -0.025em;
+        }
+        .tagline {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            margin: 0;
+            font-weight: 500;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .welcome-text {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #09090b;
+            letter-spacing: -0.025em;
+        }
+        .message {
+            font-size: 16px;
+            color: #52525b;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #ef4444;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            margin: 24px 0;
+            transition: all 0.15s ease-out;
+            border: none;
+        }
+        .cta-button:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .security-info {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 32px 0;
+        }
+        .security-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .security-text {
+            font-size: 14px;
+            color: #a16207;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .footer {
+            background: #fafafa;
+            padding: 32px 30px;
+            text-align: center;
+            border-top: 1px solid #e4e4e7;
+        }
+        .footer-text {
+            font-size: 14px;
+            color: #71717a;
+            margin: 6px 0;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-link {
+            display: inline-block;
+            margin: 0 12px;
+            color: #ef4444;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .social-link:hover {
+            color: #dc2626;
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            .header, .content, .footer {
+                padding: 30px 20px;
+            }
+            .cta-button {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .welcome-text {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Driplo.bg</div>
+            <p class="tagline">Marketplace за модни артикули</p>
+        </div>
+        
+        <div class="content">
+            <h1 class="welcome-text">Възстанови паролата си 🔑</h1>
+            
+            <p class="message">
+                Здравей! 
+                <br><br>
+                Получихме заявка за възстановяване на паролата за твоя Driplo.bg акаунт. Ако ти си направил тази заявка, кликни на бутона по-долу за да създадеш нова парола.
+            </p>
+            
+            <div style="text-align: center;">
+                <a href="{{ .ConfirmationURL }}" class="cta-button">
+                    🔄 Възстанови паролата
+                </a>
+            </div>
+            
+            <div class="security-info">
+                <div class="security-title">⚠️ Важна информация за сигурността</div>
+                <p class="security-text">
+                    • Този линк е валиден само за 1 час от момента на изпращане<br>
+                    • Линкът може да се използва еднократно<br>
+                    • Ако не си заявил възстановяване на парола, игнорирай този имейл<br>
+                    • Никога не споделяй този линк с други хора
+                </p>
+            </div>
+            
+            <p class="message">
+                Ако не можеш да кликнеш на бутона, копирай и постави този линк в браузъра си:
+                <br>
+                <a href="{{ .ConfirmationURL }}" style="color: #ef4444; word-break: break-all;">{{ .ConfirmationURL }}</a>
+            </p>
+            
+            <p class="message">
+                Нуждаеш се от помощ? Свържи се с нас на 
+                <a href="mailto:support@driplo.bg" style="color: #ef4444;">support@driplo.bg</a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <div class="social-links">
+                <a href="https://instagram.com/driplo.bg" class="social-link">📱 Instagram</a>
+                <a href="https://facebook.com/driplo.bg" class="social-link">📘 Facebook</a>
+                <a href="https://tiktok.com/@driplo.bg" class="social-link">🎵 TikTok</a>
+            </div>
+            
+            <p class="footer-text">
+                <strong>Driplo.bg</strong> - Твоят marketplace за модни артикули
+            </p>
+            <p class="footer-text">
+                София, България • 
+                <a href="{{ .SiteURL }}" style="color: #ef4444;">driplo.bg</a>
+            </p>
+            <p class="footer-text" style="font-size: 12px; margin-top: 20px;">
+                © 2024 Driplo.bg. Всички права запазени.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
