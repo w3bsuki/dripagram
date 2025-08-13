@@ -1,6 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { signupSchema } from '$lib/schemas/auth';
-import { PUBLIC_SITE_URL } from '$env/static/public';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -52,7 +51,7 @@ export const actions: Actions = {
 				data: {
 					full_name: fullName
 				},
-				emailRedirectTo: `${PUBLIC_SITE_URL || 'https://driplo.xyz'}/${locale}/auth/confirm`
+				emailRedirectTo: `https://driplo.xyz/${locale}/auth/confirm`
 			}
 		});
 
