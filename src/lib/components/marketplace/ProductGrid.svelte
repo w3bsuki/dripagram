@@ -106,8 +106,8 @@
 	.product-feed.grid {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
-		gap: 2px; /* Tighter gap like Instagram */
-		padding: 0;
+		gap: 8px;
+		padding: 8px;
 		width: 100%;
 		margin: 0 auto;
 		background: #fafafa; /* Instagram-style background */
@@ -171,8 +171,8 @@
 	@media (min-width: 768px) {
 		.product-feed.grid {
 			grid-template-columns: repeat(3, 1fr);
-			gap: 3px;
-			padding: 0;
+			gap: 12px;
+			padding: 12px;
 			max-width: 1200px;
 		}
 	}
@@ -180,8 +180,8 @@
 	@media (min-width: 1024px) {
 		.product-feed.grid {
 			grid-template-columns: repeat(4, 1fr);
-			gap: 3px;
-			padding: 0;
+			gap: 16px;
+			padding: 16px;
 			max-width: 1400px;
 		}
 	}
@@ -189,8 +189,8 @@
 	@media (min-width: 1400px) {
 		.product-feed.grid {
 			grid-template-columns: repeat(5, 1fr);
-			gap: 3px;
-			padding: 0;
+			gap: 16px;
+			padding: 16px;
 			max-width: 1600px;
 		}
 	}

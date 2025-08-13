@@ -228,7 +228,7 @@
 
 
 	.products-section {
-		padding: 20px;
+		padding: 0;
 	}
 
 	.loading,
