@@ -17,9 +17,13 @@
 	const emojis = ['👕', '👗', '👔', '👖', '🧥', '👟', '💵', '💰'];
 	let currentEmojiIndex = $state(0);
 	
-	// Remove animation - just show first emoji
+	// Animate through clothing emojis
 	onMount(() => {
-		// Static logo, no animation
+		const interval = setInterval(() => {
+			currentEmojiIndex = (currentEmojiIndex + 1) % emojis.length;
+		}, 2000); // Change every 2 seconds
+		
+		return () => clearInterval(interval);
 	});
 	
 	const sizeMap = {
@@ -40,7 +44,7 @@
 			class="emoji active"
 			aria-hidden="true"
 		>
-			{emojis[0]}
+			{emojis[currentEmojiIndex]}
 		</span>
 	</div>
 </div>
@@ -80,6 +84,18 @@
 		line-height: 1;
 		opacity: 1;
 		filter: grayscale(0%);
+		transition: all 0.3s ease-in-out;
+		transform: scale(1);
+		animation: bounce 0.6s ease-in-out;
+	}
+	
+	@keyframes bounce {
+		0%, 100% {
+			transform: scale(1);
+		}
+		50% {
+			transform: scale(1.1);
+		}
 	}
 	
 </style>
