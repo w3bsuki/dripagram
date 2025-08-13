@@ -20,7 +20,7 @@
 		
 		try {
 			const { error } = await supabase.auth.resetPasswordForEmail(email, {
-				redirectTo: `${window.location.origin}/auth/reset-password`
+				redirectTo: `https://driplo.xyz/bg/auth/confirm?type=recovery`
 			});
 			
 			if (error) throw error;

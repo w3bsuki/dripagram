@@ -51,7 +51,7 @@ export const actions: Actions = {
 				data: {
 					full_name: fullName
 				},
-				emailRedirectTo: `${url.origin}/${locale}/auth/confirm`
+				emailRedirectTo: `https://driplo.xyz/${locale}/auth/confirm`
 			}
 		});
 
