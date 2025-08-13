@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { enhance, type SubmitFunction } from '$app/forms';
 	import Button from '$lib/components/native/Button.svelte';
 	import Input from '$lib/components/native/Input.svelte';
 	import { Label } from '$lib/components/native';
@@ -12,12 +12,30 @@
 	import type { PageData, ActionData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
+	
+	// Svelte 5 state management
 	let showPassword = $state(false);
 	let showConfirmPassword = $state(false);
 	let submitting = $state(false);
+	let formData = $state({
+		fullName: '',
+		email: '',
+		password: '',
+		confirmPassword: ''
+	});
 
 	// Get locale from URL params
 	let locale = $derived($page.params.lang || 'bg');
+
+	// Form submission handler
+	const handleSubmit: SubmitFunction = ({ formData: data, cancel }) => {
+		submitting = true;
+		
+		return async ({ result, update }) => {
+			submitting = false;
+			await update({ reset: false });
+		};
+	};
 </script>
 
 <svelte:head>
@@ -42,13 +60,7 @@
 		</div>
 
 		<!-- Form -->
-		<form method="POST" use:enhance={() => {
-			submitting = true;
-			return async ({ update }) => {
-				await update();
-				submitting = false;
-			};
-		}} class="auth-form">
+		<form method="POST" use:enhance={handleSubmit} class="auth-form">
 			<div class="form-group">
 				<Label for="fullName" class="form-label">{m['auth.full_name']()}</Label>
 				<div class="input-wrapper">
@@ -62,6 +74,7 @@
 						disabled={submitting}
 						autocomplete="name"
 						required
+						bind:value={formData.fullName}
 					/>
 				</div>
 			</div>
@@ -79,6 +92,7 @@
 						disabled={submitting}
 						autocomplete="email"
 						required
+						bind:value={formData.email}
 					/>
 				</div>
 			</div>
@@ -96,6 +110,7 @@
 						disabled={submitting}
 						autocomplete="new-password"
 						required
+						bind:value={formData.password}
 					/>
 					<button
 						type="button"
@@ -125,6 +140,7 @@
 						disabled={submitting}
 						autocomplete="new-password"
 						required
+						bind:value={formData.confirmPassword}
 					/>
 					<button
 						type="button"

@@ -188,24 +188,35 @@
         Object.entries(formData.social_links).filter(([_, value]) => value.trim() !== '')
       );
 
+      // Prepare profile update data
+      const profileData: any = {
+        username: formData.username.toLowerCase(),
+        account_type: formData.account_type,
+        social_links: socialLinks,
+        bio: formData.bio,
+        region: formData.region,
+        onboarding_completed: true,
+        updated_at: new Date().toISOString()
+      };
+
+      // Add brand-specific fields if it's a brand account
+      if (formData.account_type === 'brand') {
+        profileData.brand_name = formData.username; // Use username as brand name for now
+      }
+
       // Update profile
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({
-          username: formData.username.toLowerCase(),
-          account_type: formData.account_type,
-          social_links: socialLinks,
-          bio: formData.bio,
-          region: formData.region,
-          onboarding_completed: true,
-          updated_at: new Date().toISOString()
-        })
+        .update(profileData)
         .eq('id', user.id);
       
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+        throw new Error(`Profile update failed: ${profileError.message}`);
+      }
       
       // Save payout information (encrypted in real app)
-      await supabase
+      const { error: payoutError } = await supabase
         .from('user_preferences')
         .upsert({
           user_id: user.id,
@@ -214,6 +225,12 @@
           updated_at: new Date().toISOString()
         });
 
+      if (payoutError) {
+        console.error('Payout preferences error:', payoutError);
+        // Don't throw here, payout preferences are not critical for onboarding
+        toast.error('Payout preferences could not be saved, but you can update them later in settings.');
+      }
+
       // Update user preferences
       const { error: preferencesError } = await supabase.rpc('sync_cookie_preferences', {
         p_user_id: user.id,
@@ -221,7 +238,11 @@
         p_region: formData.region
       });
 
-      if (preferencesError) throw preferencesError;
+      if (preferencesError) {
+        console.error('Preferences RPC error:', preferencesError);
+        // Don't throw here, this is not critical for onboarding completion
+        toast.error('Some preferences could not be saved, but you can update them later.');
+      }
 
       // Show success screen
       showSuccess = true;
@@ -234,7 +255,8 @@
       
     } catch (error) {
       console.error('Onboarding error:', error);
-      toast.error('Something went wrong. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+      toast.error(errorMessage);
     } finally {
       isLoading = false;
     }
