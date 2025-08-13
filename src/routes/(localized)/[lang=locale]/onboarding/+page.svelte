@@ -188,12 +188,12 @@
         Object.entries(formData.social_links).filter(([_, value]) => value.trim() !== '')
       );
 
-      // Prepare profile update data
+      // Prepare profile update data - completing onboarding
       const profileData: any = {
         username: formData.username.toLowerCase(),
         account_type: formData.account_type,
-        social_links: socialLinks,
         bio: formData.bio,
+        social_links: socialLinks,
         region: formData.region,
         onboarding_completed: true,
         updated_at: new Date().toISOString()
@@ -201,7 +201,7 @@
 
       // Add brand-specific fields if it's a brand account
       if (formData.account_type === 'brand') {
-        profileData.brand_name = formData.username; // Use username as brand name for now
+        profileData.brand_name = formData.username;
       }
 
       // Update profile

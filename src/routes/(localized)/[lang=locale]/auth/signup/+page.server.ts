@@ -64,29 +64,21 @@ export const actions: Actions = {
 		}
 
 		if (authData.user) {
-			// Create profile with all required fields
+			// Create profile with minimal required fields - onboarding will complete it
 			const { error: profileError } = await locals.supabase
 				.from('profiles')
 				.upsert({
 					id: authData.user.id,
 					username: `user_${authData.user.id.slice(0, 8)}`, // Temporary username
 					full_name: fullName,
-					email: email,
-					country: 'BG', // Default to Bulgaria
-					seller_rating: 0,
-					seller_rating_count: 0,
-					seller_verified: false,
-					total_sales: 0,
-					total_earnings: 0,
-					notification_email: true,
-					notification_push: true,
-					notification_sms: false,
-					language: locale === 'en' ? 'en' : 'bg',
-					currency: 'BGN',
-					theme: 'light',
-					role: 'user',
-					status: 'active',
-					last_seen_at: new Date().toISOString(),
+					onboarding_completed: false,
+					locale: locale === 'en' ? 'en' : 'bg',
+					region: locale === 'bg' ? 'sofia' : 'international',
+					country_code: 'BG',
+					follower_count: 0,
+					following_count: 0,
+					listing_count: 0,
+					rating_count: 0,
 					created_at: new Date().toISOString(),
 					updated_at: new Date().toISOString()
 				});
