@@ -63,24 +63,7 @@ export const actions: Actions = {
 			});
 		}
 
-		if (authData.user) {
-			// Create profile using secure database function that bypasses RLS
-			const { error: profileError } = await locals.supabase.rpc('create_user_profile', {
-				user_id: authData.user.id,
-				user_email: email,
-				user_full_name: fullName,
-				user_locale: locale
-			});
-
-			if (profileError) {
-				console.error('Profile creation error:', profileError);
-				return fail(500, { 
-					error: `Failed to create user profile: ${profileError.message}`,
-					email: email,
-					fullName: fullName
-				});
-			}
-		}
+		// Profile will be created during onboarding when user completes the flow
 
 		// Redirect to localized verification page
 		throw redirect(303, `/${locale}/auth/verify`);

@@ -188,14 +188,17 @@
         Object.entries(formData.social_links).filter(([_, value]) => value.trim() !== '')
       );
 
-      // Prepare profile update data - completing onboarding
+      // Prepare profile data - creating profile for the first time
       const profileData: any = {
+        id: user.id,
         username: formData.username.toLowerCase(),
+        full_name: user.user_metadata?.full_name || '',
         account_type: formData.account_type,
         bio: formData.bio,
         social_links: socialLinks,
         region: formData.region,
         onboarding_completed: true,
+        created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
 
@@ -204,11 +207,10 @@
         profileData.brand_name = formData.username;
       }
 
-      // Update profile
+      // Create or update profile using upsert
       const { error: profileError } = await supabase
         .from('profiles')
-        .update(profileData)
-        .eq('id', user.id);
+        .upsert(profileData);
       
       if (profileError) {
         console.error('Profile update error:', profileError);

@@ -27,8 +27,8 @@ export const load: LayoutServerLoad = async ({ params, locals, cookies, url }) =
 				.eq('id', user.id)
 				.single();
 			
-			// If onboarding not completed or username still temporary, redirect to onboarding
-			if (!profile?.onboarding_completed || profile?.username?.startsWith('temp_')) {
+			// If no profile exists or onboarding not completed, redirect to onboarding
+			if (!profile || !profile.onboarding_completed || profile?.username?.startsWith('temp_')) {
 				throw redirect(303, `/${lang}/onboarding`);
 			}
 		}
