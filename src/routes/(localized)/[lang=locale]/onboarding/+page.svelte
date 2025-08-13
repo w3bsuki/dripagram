@@ -124,7 +124,7 @@
       .from('profiles')
       .select('username')
       .eq('username', formData.username.toLowerCase())
-      .single();
+      .maybeSingle();
 
     if (existing) {
       errors.username = m['onboarding.username.error_taken']();
@@ -215,6 +215,15 @@
       
       if (profileError) {
         console.error('Profile update error:', profileError);
+        
+        // Handle specific username duplicate error
+        if (profileError.message.includes('profiles_username_key') || profileError.message.includes('duplicate key')) {
+          errors.username = m['onboarding.username.error_taken']();
+          currentStep = 1; // Go back to username step
+          isLoading = false;
+          return;
+        }
+        
         throw new Error(`Profile update failed: ${profileError.message}`);
       }
       
