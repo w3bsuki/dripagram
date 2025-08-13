@@ -139,12 +139,12 @@
 		display: flex;
 		align-items: center;
 		gap: 6px;
-		padding: 8px 14px;
+		padding: 10px 16px;
 		border: 1.5px solid #e5e7eb;
-		border-radius: 20px;
+		border-radius: 24px;
 		background: white;
 		color: #374151;
-		font-size: 14px;
+		font-size: 15px;
 		font-weight: 500;
 		white-space: nowrap;
 		cursor: pointer;

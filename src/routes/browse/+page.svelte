@@ -100,16 +100,13 @@
 	<div class="search-section">
 		<form class="search-form" onsubmit={handleSearch}>
 			<div class="search-input-group">
-				<Search size={20} class="search-icon" />
+				<Search size={18} class="search-icon" />
 				<input
 					bind:value={searchQuery}
 					type="search"
 					placeholder="Search items or @sellers"
 					class="search-input"
 				/>
-				<button type="submit" class="search-button" aria-label="Search">
-					<Search size={18} />
-				</button>
 			</div>
 		</form>
 	</div>
@@ -141,7 +138,7 @@
 		{#if isLoading}
 			<div class="loading">Loading...</div>
 		{:else if products.length > 0}
-			<ProductGrid {products} />
+			<ProductGrid {products} variant="grid" />
 		{:else}
 			<div class="no-results">
 				<p>No products found</p>
@@ -175,11 +172,11 @@
 		display: flex;
 		align-items: center;
 		background: white;
-		border: 2px solid #e5e7eb;
-		border-radius: 12px;
-		padding: 0 8px 0 16px;
-		height: 48px;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		border: 1.5px solid #e5e7eb;
+		border-radius: 10px;
+		padding: 0 16px;
+		height: 42px;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 	}
 
 	.search-input-group:focus-within {
@@ -198,7 +195,7 @@
 		background: none;
 		border: none;
 		outline: none;
-		font-size: 15px;
+		font-size: 14px;
 		color: #111827;
 	}
 
@@ -206,24 +203,6 @@
 		color: #9ca3af;
 	}
 
-	.search-button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 36px;
-		height: 36px;
-		border: none;
-		background: #3b82f6;
-		color: white;
-		border-radius: 8px;
-		cursor: pointer;
-		flex-shrink: 0;
-		margin-left: 8px;
-	}
-
-	.search-button:hover {
-		background: #2563eb;
-	}
 
 	.products-section {
 		padding: 20px;

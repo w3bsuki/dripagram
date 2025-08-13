@@ -213,11 +213,11 @@
 		display: flex;
 		align-items: center;
 		gap: 4px;
-		padding: 8px 12px;
+		padding: 7px 10px;
 		background: white;
 		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-		font-size: 14px;
+		border-radius: 6px;
+		font-size: 13px;
 		color: #374151;
 		cursor: pointer;
 	}
