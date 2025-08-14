@@ -5,6 +5,17 @@ function isLikelyUUID(v: string) {
 	return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
 }
 
+// Helper function to get category emoji
+function getCategoryEmoji(name: string): string {
+	const nameL = name.toLowerCase();
+	if (nameL.includes('women') || nameL.includes('woman')) return '👩';
+	if (nameL.includes('men') || nameL.includes('man')) return '👨';
+	if (nameL.includes('kids') || nameL.includes('child') || nameL.includes('baby')) return '👶';
+	if (nameL.includes('accessories') || nameL.includes('accessory')) return '👜';
+	if (nameL.includes('shoes') || nameL.includes('shoe')) return '👟';
+	return '🛍️'; // Default emoji
+}
+
 // Seller type returned from joined profiles
 type Seller = {
 	id: string;
@@ -43,7 +54,7 @@ export const load = async ({ cookies, url, params }: { cookies: Cookies; url: UR
 	// Query params
 	const q = url.searchParams.get('q')?.trim() || '';
 	const categoryParam = url.searchParams.get('category');
-	const _subcategory = url.searchParams.get('subcategory'); // reserved for future
+	const subcategoryParam = url.searchParams.get('subcategory');
 	const collection = url.searchParams.get('collection');
 	const condition = url.searchParams.get('condition');
 	const size = url.searchParams.get('size');
@@ -57,6 +68,8 @@ export const load = async ({ cookies, url, params }: { cookies: Cookies; url: UR
 
 	// Resolve category slug -> id if needed
 	let categoryId: string | null = null;
+	let subcategoryId: string | null = null;
+	
 	if (categoryParam) {
 		if (isLikelyUUID(categoryParam)) {
 			categoryId = categoryParam;
@@ -75,20 +88,44 @@ export const load = async ({ cookies, url, params }: { cookies: Cookies; url: UR
 			}
 		}
 	}
+	
+	// Resolve subcategory slug -> id if needed
+	if (subcategoryParam) {
+		if (isLikelyUUID(subcategoryParam)) {
+			subcategoryId = subcategoryParam;
+		} else {
+			const { data: subcat } = await supabase
+				.from('categories')
+				.select('id, slug')
+				.eq('slug', subcategoryParam)
+				.limit(1)
+				.single();
+			if (subcat) {
+				subcategoryId = subcat.id;
+			} else {
+				// subcategory slug not found => no results
+				return { products: [], total: 0, nextCursor: null, categories: [], lang };
+			}
+		}
+	}
 
 	// Fetch top-level categories for chips
-	const { data: catRows } = await supabase
+	const { data: catRows, error: catError } = await supabase
 		.from('categories')
 		.select('id, name, slug, icon')
 		.is('parent_id', null)
 		.eq('is_active', true)
 		.order('display_order', { ascending: true });
 
+	console.log('Categories query result:', { catRows, catError });
+
 	const categories = (catRows || []).map((c) => ({
 		id: c.slug || c.id,
 		name: c.name,
-		emoji: '🛍️'
+		emoji: getCategoryEmoji(c.name)
 	}));
+	
+	console.log('Mapped categories:', categories);
 
 	// Base query
 	let query = supabase
@@ -128,8 +165,10 @@ export const load = async ({ cookies, url, params }: { cookies: Cookies; url: UR
 		query = query.or(`title.ilike.%${escapedQuery}%,description.ilike.%${escapedQuery}%,brand.ilike.%${escapedQuery}%`);
 	}
 
-	// Category filter by id
-	if (categoryId) {
+	// Category filter by id - prefer subcategory if available, otherwise use category
+	if (subcategoryId) {
+		query = query.eq('category_id', subcategoryId);
+	} else if (categoryId) {
 		query = query.eq('category_id', categoryId);
 	}
 

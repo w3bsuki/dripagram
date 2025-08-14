@@ -71,6 +71,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 
 	const q = url.searchParams.get('q')?.trim() || '';
 	const categoryParam = url.searchParams.get('category');
+	const subcategoryParam = url.searchParams.get('subcategory');
 	const collection = url.searchParams.get('collection');
 	const condition = url.searchParams.get('condition');
 	const sort = url.searchParams.get('sort') || 'newest';
@@ -81,6 +82,8 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 	const pageSize = 20;
 
 	let categoryId: string | null = null;
+	let subcategoryId: string | null = null;
+	
 	if (categoryParam) {
 		if (isLikelyUUID(categoryParam)) {
 			categoryId = categoryParam;
@@ -92,6 +95,20 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 				.limit(1)
 				.single();
 			if (cat) categoryId = cat.id; else return json({ products: [], nextCursor: null });
+		}
+	}
+	
+	if (subcategoryParam) {
+		if (isLikelyUUID(subcategoryParam)) {
+			subcategoryId = subcategoryParam;
+		} else {
+			const { data: subcat } = await supabase
+				.from('categories')
+				.select('id, slug')
+				.eq('slug', subcategoryParam)
+				.limit(1)
+				.single();
+			if (subcat) subcategoryId = subcat.id; else return json({ products: [], nextCursor: null });
 		}
 	}
 
@@ -126,7 +143,8 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		const escapedQuery = q.replace(/[%_]/g, '\\$&');
 		query = query.or(`title.ilike.%${escapedQuery}%,description.ilike.%${escapedQuery}%,brand.ilike.%${escapedQuery}%`);
 	}
-	if (categoryId) query = query.eq('category_id', categoryId);
+	if (subcategoryId) query = query.eq('category_id', subcategoryId);
+	else if (categoryId) query = query.eq('category_id', categoryId);
 	if (condition) query = query.eq('condition', condition);
 	if (collection) query = query.contains('tags', [collection]);
 	if (min && min > 0) query = query.gte('price', min);

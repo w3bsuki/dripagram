@@ -21,9 +21,40 @@
 	let sortBy = $state('newest');
 	let viewMode = $state<'grid' | 'list'>('grid');
 	
-	// Products data
-	let products = $state(data?.products || []);
+	// Products data - reactive to data changes
 	let isLoading = $state(false);
+	
+	// Reactive products that update when data changes
+	let products = $derived(data?.products || []);
+	
+	// Categories and subcategories
+	let categories = $derived(data?.categories || []);
+	let subcategories = $state<Array<{id: string, name: string, emoji?: string}>>([]);
+	
+	// Debug logging
+	console.log('Browse page - data:', data);
+	console.log('Browse page - categories:', categories);
+	
+	// Fetch subcategories when category changes
+	async function fetchSubcategories(categoryId: string | null) {
+		if (!categoryId) {
+			subcategories = [];
+			return;
+		}
+		
+		try {
+			const response = await fetch(`/api/categories/subcategories?parent=${categoryId}`);
+			if (response.ok) {
+				const data = await response.json();
+				subcategories = data.subcategories || [];
+			} else {
+				subcategories = [];
+			}
+		} catch (error) {
+			console.error('Failed to fetch subcategories:', error);
+			subcategories = [];
+		}
+	}
 
 	// URL update and data fetch
 	async function updateFiltersAndFetch() {
@@ -117,6 +148,11 @@
 		}
 		updateFiltersAndFetch();
 	}
+	
+	// Initialize subcategories on page load if category is already selected
+	if (selectedCategory) {
+		fetchSubcategories(selectedCategory);
+	}
 </script>
 
 <div class="browse-page">
@@ -139,6 +175,8 @@
 	<CategoryPills
 		{selectedCategory}
 		{selectedSubcategory}
+		{categories}
+		{subcategories}
 		onCategoryChange={handleCategoryChange}
 		onSubcategoryChange={handleSubcategoryChange}
 	/>

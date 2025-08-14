@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { ChevronDown, Grid, List } from '@lucide/svelte';
+	import { CONDITION_OPTIONS, SIZE_OPTIONS, SORT_OPTIONS, PRICE_RANGES, BRAND_OPTIONS } from '$lib/constants/filters';
 
 	let {
 		sortBy = 'newest',
@@ -35,22 +36,12 @@
 	let showBrand = $state(false);
 	let showPrice = $state(false);
 
-	const sortOptions = [
-		{ value: 'newest', label: 'Newest' },
-		{ value: 'price-low', label: 'Price: Low to High' },
-		{ value: 'price-high', label: 'Price: High to Low' },
-		{ value: 'popular', label: 'Most Popular' }
-	];
-
-	const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-	const conditionOptions = ['New with tags', 'Like new', 'Good', 'Fair'];
-	const brandOptions = ['Nike', 'Adidas', 'Zara', 'H&M', 'Gucci', 'Prada', 'Other'];
-	const priceOptions = [
-		{ value: '0-50', label: 'Under $50' },
-		{ value: '50-100', label: '$50-$100' },
-		{ value: '100-200', label: '$100-$200' },
-		{ value: '200+', label: '$200+' }
-	];
+	// Use constants for consistent filter values
+	const sortOptions = SORT_OPTIONS;
+	const sizeOptions = [...SIZE_OPTIONS.all]; // Convert readonly to mutable array
+	const conditionOptions = CONDITION_OPTIONS;
+	const brandOptions = [...BRAND_OPTIONS]; // Convert readonly to mutable array
+	const priceOptions = PRICE_RANGES;
 </script>
 
 <div class="filter-bar">
@@ -126,13 +117,13 @@
 					{#each conditionOptions as condition}
 						<button
 							class="dropdown-item"
-							class:active={selectedCondition === condition}
+							class:active={selectedCondition === condition.value}
 							onclick={() => {
-								onConditionChange(selectedCondition === condition ? null : condition);
+								onConditionChange(selectedCondition === condition.value ? null : condition.value);
 								showCondition = false;
 							}}
 						>
-							{condition}
+							{condition.label}
 						</button>
 					{/each}
 				</div>

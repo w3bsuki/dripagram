@@ -4,56 +4,74 @@
 	let {
 		selectedCategory = null,
 		selectedSubcategory = null,
+		categories = [],
+		subcategories = [],
 		onCategoryChange,
 		onSubcategoryChange
 	}: {
 		selectedCategory: string | null;
 		selectedSubcategory: string | null;
+		categories: Array<{id: string, name: string, emoji?: string}>;
+		subcategories: Array<{id: string, name: string, emoji?: string}>;
 		onCategoryChange: (categoryId: string | null) => void;
 		onSubcategoryChange: (subcategoryId: string | null) => void;
 	} = $props();
 
-	const categories = [
-		{ id: null, name: 'All', emoji: '' },
-		{ id: 'men', name: 'Men', emoji: '👨' },
+	// Fallback categories if none provided
+	const fallbackCategories = [
 		{ id: 'women', name: 'Women', emoji: '👩' },
+		{ id: 'men', name: 'Men', emoji: '👨' },
 		{ id: 'kids', name: 'Kids', emoji: '👶' },
-		{ id: 'pets', name: 'Pets', emoji: '🐾' }
+		{ id: 'accessories', name: 'Accessories', emoji: '👜' }
 	];
-
-	const subcategories: Record<string, Array<{id: string, name: string, emoji: string}>> = {
+	
+	// Fallback subcategories for each category
+	const fallbackSubcategories: Record<string, Array<{id: string, name: string, emoji: string}>> = {
 		men: [
-			{ id: 'mens-tshirts', name: 'T-Shirts', emoji: '👕' },
-			{ id: 'mens-shoes', name: 'Shoes', emoji: '👟' },
-			{ id: 'mens-jeans', name: 'Jeans', emoji: '👖' },
-			{ id: 'mens-jackets', name: 'Jackets', emoji: '🧥' },
-			{ id: 'mens-shorts', name: 'Shorts', emoji: '🩳' },
-			{ id: 'mens-suits', name: 'Suits', emoji: '🤵' },
-			{ id: 'mens-accessories', name: 'Accessories', emoji: '⌚' }
+			{ id: 'men-shoes', name: 'Shoes', emoji: '👟' },
+			{ id: 'men-tops', name: 'T-Shirts', emoji: '👕' },
+			{ id: 'men-jeans', name: 'Jeans', emoji: '👖' },
+			{ id: 'men-jackets', name: 'Jackets', emoji: '🧥' },
+			{ id: 'men-shorts', name: 'Shorts', emoji: '🩳' },
+			{ id: 'men-accessories', name: 'Accessories', emoji: '⌚' }
 		],
 		women: [
-			{ id: 'womens-dresses', name: 'Dresses', emoji: '👗' },
-			{ id: 'womens-shoes', name: 'Shoes', emoji: '👠' },
-			{ id: 'womens-tops', name: 'Tops', emoji: '👚' },
-			{ id: 'womens-jeans', name: 'Jeans', emoji: '👖' },
-			{ id: 'womens-bags', name: 'Bags', emoji: '👜' },
-			{ id: 'womens-jewelry', name: 'Jewelry', emoji: '💍' },
-			{ id: 'womens-jackets', name: 'Jackets', emoji: '🧥' }
+			{ id: 'women-shoes', name: 'Shoes', emoji: '👠' },
+			{ id: 'women-dresses', name: 'Dresses', emoji: '👗' },
+			{ id: 'women-tops', name: 'Tops', emoji: '👚' },
+			{ id: 'women-jeans', name: 'Jeans', emoji: '👖' },
+			{ id: 'women-bags', name: 'Bags', emoji: '👜' },
+			{ id: 'women-jewelry', name: 'Jewelry', emoji: '💍' },
+			{ id: 'women-jackets', name: 'Jackets', emoji: '🧥' }
 		],
 		kids: [
 			{ id: 'kids-clothes', name: 'Clothes', emoji: '👕' },
 			{ id: 'kids-shoes', name: 'Shoes', emoji: '👟' },
 			{ id: 'kids-toys', name: 'Toys', emoji: '🧸' },
-			{ id: 'kids-accessories', name: 'Accessories', emoji: '🎒' },
-			{ id: 'baby-clothes', name: 'Baby', emoji: '👶' }
+			{ id: 'kids-accessories', name: 'Accessories', emoji: '🎒' }
 		],
-		pets: [
-			{ id: 'pet-clothes', name: 'Clothes', emoji: '🦺' },
-			{ id: 'pet-accessories', name: 'Accessories', emoji: '🦴' },
-			{ id: 'pet-toys', name: 'Toys', emoji: '🎾' },
-			{ id: 'pet-beds', name: 'Beds', emoji: '🛏️' }
+		accessories: [
+			{ id: 'bags', name: 'Bags', emoji: '👜' },
+			{ id: 'jewelry', name: 'Jewelry', emoji: '💍' },
+			{ id: 'watches', name: 'Watches', emoji: '⌚' },
+			{ id: 'hats', name: 'Hats', emoji: '👒' }
 		]
 	};
+	
+	// Use provided categories or fallback
+	const activeCategories = categories.length > 0 ? categories : fallbackCategories;
+	
+	// Add "All" option to the beginning of categories
+	const allCategories = [{ id: null, name: 'All', emoji: '🛍️' }, ...activeCategories];
+	
+	// Get subcategories for the selected category (use fallback if API data is empty)
+	let activeSubcategories = $derived(selectedCategory 
+		? (subcategories.length > 0 ? subcategories : (fallbackSubcategories[selectedCategory] || []))
+		: []);
+	
+	// Debug logging
+	console.log('CategoryPills - selectedCategory:', selectedCategory);
+	console.log('CategoryPills - activeSubcategories:', activeSubcategories);
 
 	function handleCategoryClick(categoryId: string | null) {
 		if (categoryId === null) {
@@ -88,7 +106,7 @@
 	<div class="pills-scroll">
 		{#if !selectedCategory}
 			<!-- Show main categories -->
-			{#each categories as category}
+			{#each allCategories as category}
 				<button
 					class="pill"
 					class:active={category.id === null ? !selectedCategory : selectedCategory === category.id}
@@ -108,7 +126,7 @@
 				<span>Back</span>
 			</button>
 			
-			{#each subcategories[selectedCategory] || [] as subcategory}
+			{#each activeSubcategories as subcategory}
 				<button
 					class="pill subcategory-pill"
 					class:active={selectedSubcategory === subcategory.id}
